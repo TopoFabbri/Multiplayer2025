@@ -12,6 +12,13 @@ namespace Network
 
         private int clientId = 1;
 
+        protected override void Initialize()
+        {
+            base.Initialize();
+            
+            MessageHandler.TryAddHandler(MessageType.Spawnable, HandleSpawnable);
+        }
+
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
@@ -66,6 +73,11 @@ namespace Network
         protected override void HandlePosition(byte[] data, IPEndPoint ip)
         {
             throw new System.NotImplementedException();
+        }
+
+        private void HandleSpawnable(byte[] data, IPEndPoint ip)
+        {
+            SendData(data);
         }
 
         public override void SendData(byte[] data)

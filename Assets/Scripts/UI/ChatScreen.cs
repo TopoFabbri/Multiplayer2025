@@ -9,7 +9,7 @@ namespace UI
     {
         [SerializeField] private Text messages;
         [SerializeField] private InputField inputMessage;
-        
+
         private void Start()
         {
             if (inputMessage)
@@ -20,17 +20,20 @@ namespace UI
 
         private void OnEnable()
         {
-            NetworkManager.Instance.OnReceiveConsole += OnReceiveConsoleHandler;
+            NetworkManager.Instance.OnReceiveDataAction += OnReceiveConsoleHandler;
         }
 
         private void OnDisable()
         {
             if (NetworkManager.Instance)
-                NetworkManager.Instance.OnReceiveConsole -= OnReceiveConsoleHandler;
+                NetworkManager.Instance.OnReceiveDataAction -= OnReceiveConsoleHandler;
         }
 
         private void OnReceiveConsoleHandler(byte[] data)
         {
+            if (MessageHandler.GetMessageType(data) != MessageType.Console)
+                return;
+            
             string message = new NetConsole(data).Deserialized();
             messages.text += message + Environment.NewLine;
         }
@@ -38,7 +41,7 @@ namespace UI
         private void OnEndEdit(string str)
         {
             if (inputMessage.text == "") return;
-            
+
             NetworkManager.Instance.SendData(new NetConsole(inputMessage.text).Serialize());
 
             inputMessage.ActivateInputField();

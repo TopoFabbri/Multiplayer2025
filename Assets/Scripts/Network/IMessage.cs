@@ -3,13 +3,14 @@ namespace Network
     public enum MessageType
     {
         HandShake = -1,
-        Console = 0,
-        Position = 1
+        Console,
+        Position,
+        Spawnable,
     }
 
     public abstract class Message<T>
     {
-        protected T data;
+        protected readonly T data;
 
         protected Message(T data) => this.data = data;
         protected Message(byte[] data) => this.data = Deserialize(data);

@@ -23,7 +23,7 @@ namespace Network
     {
         protected int Port { get; set; }
         
-        public Action<byte[]> OnReceiveConsole;
+        public Action<byte[]> OnReceiveDataAction;
         
         public int timeOut = 30;
 
@@ -40,7 +40,7 @@ namespace Network
 
         protected virtual void HandleConsole(byte[] data, IPEndPoint ip)
         {
-            OnReceiveConsole?.Invoke(data);
+            OnReceiveDataAction?.Invoke(data);
         }
 
         protected abstract void HandlePosition(byte[] data, IPEndPoint ip);
