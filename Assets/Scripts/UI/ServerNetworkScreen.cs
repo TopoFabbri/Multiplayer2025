@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using Network;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
@@ -6,7 +8,7 @@ namespace UI
     public class ServerNetworkScreen : NetworkScreen
     {
         [SerializeField] private Button startServerBtn;
-
+        
         private void Awake()
         {
             startServerBtn.onClick.AddListener(OnStartServerBtnClick);
@@ -14,8 +16,8 @@ namespace UI
         
         private void OnStartServerBtnClick()
         {
-            int port = System.Convert.ToInt32(portInputField.text);
-            NetworkManager.Instance.StartServer(port);
+            int port = Convert.ToInt32(portInputField.text);
+            NetworkManager.Instance.Init(port);
             SwitchToChatScreen();
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using Network.interfaces;
 
 namespace Network
 {
@@ -50,13 +51,13 @@ namespace Network
                 while (dataReceivedQueue.Count > 0)
                 {
                     DataReceived dataReceived = dataReceivedQueue.Dequeue();
-                    if (receiver != null)
-                        receiver.OnReceiveData(dataReceived.data, dataReceived.ipEndPoint);
+                    
+                    receiver?.OnReceiveData(dataReceived.data, dataReceived.ipEndPoint);
                 }
             }
         }
 
-        void OnReceive(IAsyncResult ar)
+        private void OnReceive(IAsyncResult ar)
         {
             try
             {

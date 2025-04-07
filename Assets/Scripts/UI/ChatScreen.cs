@@ -1,52 +1,49 @@
-﻿using System.Net;
+﻿using System;
+using Network;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class ChatScreen : MonoBehaviourSingleton<ChatScreen>
+    public class ChatScreen : MonoBehaviour
     {
-        public Text messages;
-        public InputField inputMessage;
-
-        protected override void Initialize()
+        [SerializeField] private Text messages;
+        [SerializeField] private InputField inputMessage;
+        
+        private void Start()
         {
             if (inputMessage)
                 inputMessage.onEndEdit.AddListener(OnEndEdit);
 
             gameObject.SetActive(false);
-
-            NetworkManager.Instance.OnReceiveEvent += OnReceiveDataEvent;
         }
 
-        private void OnReceiveDataEvent(byte[] data, IPEndPoint ep)
+        private void OnEnable()
         {
-            if (NetworkManager.Instance.IsServer)
-            {
-                NetworkManager.Instance.Broadcast(data);
-            }
+            NetworkManager.Instance.OnReceiveConsole += OnReceiveConsoleHandler;
+        }
 
-            messages.text += System.Text.ASCIIEncoding.UTF8.GetString(data) + System.Environment.NewLine;
+        private void OnDisable()
+        {
+            if (NetworkManager.Instance)
+                NetworkManager.Instance.OnReceiveConsole -= OnReceiveConsoleHandler;
+        }
+
+        private void OnReceiveConsoleHandler(byte[] data)
+        {
+            string message = new NetConsole(data).Deserialized();
+            messages.text += message + Environment.NewLine;
         }
 
         private void OnEndEdit(string str)
         {
             if (inputMessage.text == "") return;
             
-            if (NetworkManager.Instance.IsServer)
-            {
-                NetworkManager.Instance.Broadcast(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
-                messages.text += inputMessage.text + System.Environment.NewLine;
-            }
-            else
-            {
-                NetworkManager.Instance.SendToServer(System.Text.ASCIIEncoding.UTF8.GetBytes(inputMessage.text));
-            }
+            NetworkManager.Instance.SendData(new NetConsole(inputMessage.text).Serialize());
 
             inputMessage.ActivateInputField();
             inputMessage.Select();
             inputMessage.text = "";
-
         }
-
     }
 }

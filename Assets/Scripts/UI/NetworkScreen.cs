@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Network;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
@@ -10,7 +11,7 @@ namespace UI
 
         protected void SwitchToChatScreen()
         {
-            ChatScreen.Instance.gameObject.SetActive(true);
+            chatScreen.gameObject.SetActive(true);
             gameObject.SetActive(false);
         }
     }

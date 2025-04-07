@@ -1,34 +1,35 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class MonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBehaviourSingleton<T>
+namespace Utils
 {
-    private static MonoBehaviourSingleton<T> instance = null;
-
-    public static T Instance
+    public class MonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBehaviourSingleton<T>
     {
-        get 
+        private static MonoBehaviourSingleton<T> _instance;
+
+        public static T Instance
         {
-            if (instance == null)
-                instance = FindObjectOfType<MonoBehaviourSingleton<T>>();
+            get 
+            {
+                if (_instance == null)
+                    _instance = FindFirstObjectByType<MonoBehaviourSingleton<T>>();
 
-            return (T)instance;
+                return (T)_instance;
+            }
         }
-    }
 
-    protected virtual void Initialize()
-    {
+        protected virtual void Initialize()
+        {
 
-    }
+        }
 
-    private void Awake()
-    {
-        if (instance != null)
-            Destroy(this.gameObject);
+        private void Awake()
+        {
+            if (_instance != null)
+                Destroy(gameObject);
 
-        instance = this;
+            _instance = this;
 
-        Initialize();
+            Initialize();
+        }
     }
 }

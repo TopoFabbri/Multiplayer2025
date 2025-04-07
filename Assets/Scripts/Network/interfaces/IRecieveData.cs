@@ -1,6 +1,9 @@
 using System.Net;
 
-public interface IReceiveData
+namespace Network.interfaces
 {
-    void OnReceiveData(byte[] data, IPEndPoint ipEndpoint);
+    public interface IReceiveData
+    {
+        public void OnReceiveData(byte[] data, IPEndPoint ipEndpoint);
+    }
 }

@@ -1,0 +1,48 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+
+namespace Network
+{
+    public class ClientNetManager : NetworkManager
+    {
+        private int ID { get; set; }
+
+        public IPAddress IPAddress { get; private set; }
+        
+        private List<int> clientIds = new();
+
+        public override void Init(int port, IPAddress ip = null)
+        {
+            Port = port;
+            IPAddress = ip;
+
+            connection = new UdpConnection(ip, port, this);
+            
+            SendToServer(new NetHandShake(new List<int>()).Serialize());
+        }
+
+        private void SendToServer(byte[] data)
+        {
+            connection.Send(data);
+        }
+
+        protected override void HandleHandshake(byte[] data, IPEndPoint ip)
+        {
+            clientIds.AddRange(new NetHandShake(data).Deserialized());
+            
+            if (ID == 0)
+                ID = clientIds.Last();
+        }
+
+        protected override void HandlePosition(byte[] data, IPEndPoint ip)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void SendData(byte[] data)
+        {
+            SendToServer(data);
+        }
+    }
+}

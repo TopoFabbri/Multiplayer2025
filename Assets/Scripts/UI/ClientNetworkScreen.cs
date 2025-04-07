@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Network;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,7 +21,7 @@ namespace UI
             IPAddress ipAddress = IPAddress.Parse(addressInputField.text);
             int port = System.Convert.ToInt32(portInputField.text);
 
-            NetworkManager.Instance.StartClient(ipAddress, port);
+            NetworkManager.Instance.Init(port, ipAddress);
         
             SwitchToChatScreen();
         }
