@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Network.Messages;
 
 namespace Network
 {
@@ -10,7 +11,7 @@ namespace Network
 
         public IPAddress IPAddress { get; private set; }
         
-        private List<int> clientIds = new();
+        private readonly List<int> clientIds = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -20,6 +21,8 @@ namespace Network
             connection = new UdpConnection(ip, port, this);
             
             SendToServer(new NetHandShake(new List<int>()).Serialize());
+
+            base.Init(port, ip);
         }
 
         private void SendToServer(byte[] data)

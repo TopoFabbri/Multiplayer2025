@@ -18,7 +18,8 @@ namespace Objects
         
         private void OnDisable()
         {
-            NetworkManager.Instance.OnReceiveDataAction -= OnReceiveDataHandler;
+            if (NetworkManager.Instance)
+                NetworkManager.Instance.OnReceiveDataAction -= OnReceiveDataHandler;
         }
 
         private void OnReceiveDataHandler(byte[] data)
@@ -42,7 +43,7 @@ namespace Objects
 
         private SpawnableObject Spawn(int id)
         {
-            SpawnableObject instance = prefabList[id] == null ? null : prefabList[id].Spawn();
+            SpawnableObject instance = prefabList[id] == null ? null : prefabList[id].Spawn(this);
 
             if (instance != null)
                 instance.transform.parent = transform;
@@ -50,10 +51,26 @@ namespace Objects
             return instance;
         }
 
-        private void UpdatePosition(int id, Vector3 position)
+        public void UpdatePosition(int id, Vector3 position)
         {
             if (spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject))
                 spawnedObject.transform.position = position;
+        }
+
+        public void RequestSpawn(int objNumber)
+        {
+            if (objNumber < 0 || objNumber >= prefabList.Count)
+            {
+                Debug.LogWarning(objNumber + " is not a valid object number.");
+                return;
+            }
+            
+            Spawnable message = new()
+            {
+                spawnableNumber = objNumber
+            };
+
+            NetworkManager.Instance.SendData(new NetSpawnable(message).Serialize());
         }
     }
 }

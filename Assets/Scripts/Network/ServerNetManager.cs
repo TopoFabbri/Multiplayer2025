@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Network.Messages;
 using UnityEngine;
 
 namespace Network
@@ -12,17 +13,14 @@ namespace Network
 
         private int clientId = 1;
 
-        protected override void Initialize()
-        {
-            base.Initialize();
-            
-            MessageHandler.TryAddHandler(MessageType.Spawnable, HandleSpawnable);
-        }
+        private readonly List<int> objIds = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
             connection = new UdpConnection(port, this);
+            
+            base.Init(port, ip);
         }
 
         private void Broadcast(byte[] data)
@@ -72,12 +70,22 @@ namespace Network
         
         protected override void HandlePosition(byte[] data, IPEndPoint ip)
         {
-            throw new System.NotImplementedException();
+            SendData(data);
         }
 
-        private void HandleSpawnable(byte[] data, IPEndPoint ip)
+        protected override void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
-            SendData(data);
+            Spawnable message = new NetSpawnable(data).Deserialized();
+
+            int newId = 0;
+
+            while (objIds.Contains(newId))
+                newId++;
+            
+            message.id = newId;
+            objIds.Add(newId);
+            
+            SendData(new NetSpawnable(message).Serialize());
         }
 
         public override void SendData(byte[] data)

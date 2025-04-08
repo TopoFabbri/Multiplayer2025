@@ -3,7 +3,7 @@ using System.Net;
 using Network.interfaces;
 using Utils;
 
-namespace Network
+namespace Network.Messages
 {
     public struct Client
     {
@@ -21,8 +21,10 @@ namespace Network
 
     public abstract class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveData
     {
+        
         protected int Port { get; set; }
         
+        public Action onConnectionEstablished;
         public Action<byte[]> OnReceiveDataAction;
         
         public int timeOut = 30;
@@ -34,19 +36,25 @@ namespace Network
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryAddHandler(MessageType.Spawnable, HandleSpawnable);
         }
 
         protected abstract void HandleHandshake(byte[] data, IPEndPoint ip);
 
         protected virtual void HandleConsole(byte[] data, IPEndPoint ip)
         {
-            OnReceiveDataAction?.Invoke(data);
         }
 
         protected abstract void HandlePosition(byte[] data, IPEndPoint ip);
 
+        protected virtual void HandleSpawnable(byte[] data, IPEndPoint ip)
+        {
+        }
+
         public void OnReceiveData(byte[] data, IPEndPoint ip)
         {
+            OnReceiveDataAction?.Invoke(data);
+            
             MessageHandler.Receive(data, ip);
         }
 
@@ -57,8 +65,11 @@ namespace Network
         }
 
         public abstract void SendData(byte[] data);
-        
-        public abstract void Init(int port, IPAddress ip = null);
+
+        public virtual void Init(int port, IPAddress ip = null)
+        {
+            onConnectionEstablished?.Invoke();
+        }
 
         private void OnDestroy()
         {
