@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Network.interfaces;
 using Utils;
@@ -21,7 +22,6 @@ namespace Network.Messages
 
     public abstract class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveData
     {
-        
         protected int Port { get; set; }
         
         public Action onConnectionEstablished;

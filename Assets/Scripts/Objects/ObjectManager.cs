@@ -26,11 +26,15 @@ namespace Objects
         {
             if (MessageHandler.GetMessageType(data) == MessageType.Spawnable)
             {
-                Spawnable message = new NetSpawnable(data).Deserialized();
+                List<Spawnable> message = new NetSpawnable(data).Deserialized();
 
-                SpawnableObject spawnedObject = Spawn(message.spawnableNumber);
-
-                spawnedObjects.Add(message.id, spawnedObject);
+                foreach (Spawnable spawnable in message)
+                {
+                    if (spawnedObjects.ContainsKey(spawnable.id)) continue;
+                    
+                    SpawnableObject spawnedObject = Spawn(spawnable.spawnableNumber);
+                    spawnedObjects.Add(spawnable.id, spawnedObject);
+                }
             }
             else if (MessageHandler.GetMessageType(data) == MessageType.Position)
             {
@@ -65,10 +69,12 @@ namespace Objects
                 return;
             }
             
-            Spawnable message = new()
+            Spawnable spawnable = new()
             {
                 spawnableNumber = objNumber
             };
+            
+            List<Spawnable> message = new() { spawnable };
 
             NetworkManager.Instance.SendData(new NetSpawnable(message).Serialize());
         }
