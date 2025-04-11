@@ -44,8 +44,7 @@ namespace Objects
             {
                 Position message = new NetVector3(data).Deserialized();
 
-                if (message.originId != NetworkManager.Instance.ID)
-                    UpdatePosition(message.objId, message.position);
+                UpdatePosition(message.objId, message.position);
             }
         }
 
@@ -61,8 +60,11 @@ namespace Objects
 
         private void UpdatePosition(int id, Vector3 position)
         {
-            if (spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject))
-                spawnedObject.transform.position = position;
+            if (!spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject)) return;
+
+            if (spawnedObject.transform.position == position) return;
+            
+            spawnedObject.transform.position = position;
         }
 
         public void RequestSpawn(int objNumber)

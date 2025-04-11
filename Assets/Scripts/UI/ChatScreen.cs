@@ -1,4 +1,5 @@
 ﻿using System;
+using Game;
 using Network;
 using Network.Messages;
 using UnityEngine;
@@ -17,24 +18,34 @@ namespace UI
                 inputMessage.onEndEdit.AddListener(OnEndEdit);
 
             gameObject.SetActive(false);
-        }
 
-        private void OnEnable()
-        {
             NetworkManager.Instance.OnReceiveDataAction += OnReceiveConsoleHandler;
+            
+            InputListener.Chat += OnChatHandler;
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             if (NetworkManager.Instance)
                 NetworkManager.Instance.OnReceiveDataAction -= OnReceiveConsoleHandler;
+
+            InputListener.Chat -= OnChatHandler;
         }
+
+        private void OnChatHandler()
+        {
+            gameObject.SetActive(!gameObject.activeSelf);
+
+            Cursor.lockState = gameObject.activeSelf ? CursorLockMode.None : CursorLockMode.Confined;
+            Cursor.visible = gameObject.activeSelf;
+        }
+
 
         private void OnReceiveConsoleHandler(byte[] data)
         {
             if (MessageHandler.GetMessageType(data) != MessageType.Console)
                 return;
-            
+
             string message = new NetConsole(data).Deserialized();
             messages.text += message + Environment.NewLine;
         }

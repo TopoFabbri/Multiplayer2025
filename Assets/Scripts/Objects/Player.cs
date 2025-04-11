@@ -1,5 +1,4 @@
-﻿using System;
-using Game;
+﻿using Game;
 using Network.Messages;
 using UnityEngine;
 
@@ -11,6 +10,7 @@ namespace Objects
         [SerializeField] private Transform camPos;
 
         private Vector3 moveInput;
+        private float rotationInput;
         private static Camera _cam;
 
         public static int PlayerID { get; set; }
@@ -22,11 +22,27 @@ namespace Objects
 
         private void Update()
         {
+            Move();
+            Rotate();
+        }
+
+        private void Rotate()
+        {
+            if (rotationInput == 0f) return;
+
+            transform.Rotate(Vector3.up * (Time.deltaTime * rotationInput));
+        }
+
+        private void Move()
+        {
             if (moveInput == Vector3.zero) return;
 
-            transform.Translate(moveInput * (Time.deltaTime * speed));
-            NetworkManager.Instance.SendData(
-                new NetVector3(new Position(transform.position, ID, NetworkManager.Instance.ID)).Serialize());
+            Vector3 newPos = transform.position;
+
+            newPos += transform.forward * (Time.deltaTime * speed * moveInput.z);
+            newPos += transform.right * (Time.deltaTime * speed * moveInput.x);
+
+            NetworkManager.Instance.SendData(new NetVector3(new Position(newPos, ID)).Serialize());
         }
 
         private void OnDestroy()
@@ -50,20 +66,26 @@ namespace Objects
         {
             if (!_cam) return;
 
+            _cam.transform.parent = transform;
+            
             _cam.transform.position = camPos.position;
             _cam.transform.rotation = camPos.rotation;
 
             InputListener.Move += OnMoveHandler;
+            InputListener.Look += OnLookHandler;
         }
 
         private void UnPossess()
         {
             if (!_cam) return;
 
+            _cam.transform.parent = null;
+            
             _cam.transform.position = Vector3.zero;
             _cam.transform.rotation = Quaternion.identity;
 
             InputListener.Move -= OnMoveHandler;
+            InputListener.Look -= OnLookHandler;
         }
 
         private void OnMoveHandler(Vector2 input)
@@ -71,6 +93,11 @@ namespace Objects
             moveInput.x = input.x;
             moveInput.z = input.y;
             moveInput.y = 0f;
+        }
+
+        private void OnLookHandler(Vector2 input)
+        {
+            rotationInput = input.x;
         }
     }
 }
