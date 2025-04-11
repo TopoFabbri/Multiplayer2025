@@ -38,7 +38,7 @@ namespace Network.Messages
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryAddHandler(MessageType.Spawnable, HandleSpawnable);
+            MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
         }
 
         protected abstract void HandleHandshake(byte[] data, IPEndPoint ip);

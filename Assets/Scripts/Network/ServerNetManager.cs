@@ -13,7 +13,7 @@ namespace Network
 
         private int clientId = 1;
 
-        private readonly List<Spawnable> spawnedObjects = new();
+        private readonly List<SpawnRequest> spawnedObjects = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -77,14 +77,14 @@ namespace Network
 
         protected override void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
-            List<Spawnable> message = new NetSpawnable(data).Deserialized();
+            List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
 
             int newId = 0;
 
             while (spawnedObjects.Any(spawnable => spawnable.id == newId))
                 newId++;
 
-            Spawnable last = message.Last();
+            SpawnRequest last = message.Last();
             last.id = newId;
             
             spawnedObjects.Add(last);

@@ -22,40 +22,35 @@ namespace Network.Messages
         }
     }
 
-    public class NetVector3 : Message<Position>
+    public class NetPosition : Message<Position>
     {
-        public NetVector3(Position position) : base(position)
+        public NetPosition(Position position) : base(position)
         {
+            metadata.Type = MessageType.Position;
         }
 
-        public NetVector3(byte[] data) : base(data)
+        public NetPosition(byte[] data) : base(data)
         {
+            metadata.Type = MessageType.Position;
         }
 
         protected override Position Deserialize(byte[] message)
         {
             Position outPosition;
-
-            const int messageTypeSize = sizeof(MessageType);
-
-            outPosition.position.x = BitConverter.ToSingle(message, messageTypeSize);
-            outPosition.position.y = BitConverter.ToSingle(message, messageTypeSize + sizeof(float));
-            outPosition.position.z = BitConverter.ToSingle(message, messageTypeSize + sizeof(float) * 2);
-            outPosition.objId = BitConverter.ToInt32(message, messageTypeSize + sizeof(float) * 3);
+            
+            outPosition.position.x = BitConverter.ToSingle(message, MessageMetadata.Size);
+            outPosition.position.y = BitConverter.ToSingle(message, MessageMetadata.Size + sizeof(float));
+            outPosition.position.z = BitConverter.ToSingle(message, MessageMetadata.Size + sizeof(float) * 2);
+            outPosition.objId = BitConverter.ToInt32(message, MessageMetadata.Size + sizeof(float) * 3);
 
             return outPosition;
-        }
-
-        public override MessageType GetMessageType()
-        {
-            return MessageType.Position;
         }
 
         public override byte[] Serialize()
         {
             List<byte> outData = new();
 
-            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(metadata.Serialize());
             outData.AddRange(BitConverter.GetBytes(data.position.x));
             outData.AddRange(BitConverter.GetBytes(data.position.y));
             outData.AddRange(BitConverter.GetBytes(data.position.z));

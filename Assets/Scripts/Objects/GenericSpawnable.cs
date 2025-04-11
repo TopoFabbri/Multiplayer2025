@@ -7,7 +7,7 @@ namespace Objects
         private void Update()
         {
             if (transform.hasChanged)
-                NetworkManager.Instance.SendData(new NetVector3(new Position(transform.position, ID)).Serialize());
+                NetworkManager.Instance.SendData(new NetPosition(new Position(transform.position, ID)).Serialize());
         }
     }
 }

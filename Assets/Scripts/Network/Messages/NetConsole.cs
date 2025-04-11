@@ -1,36 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text;
 
-namespace Network
+namespace Network.Messages
 {
     public class NetConsole : Message<string>
     {
         public NetConsole(string data) : base(data)
         {
+            metadata.Type = MessageType.Console;
         }
 
         public NetConsole(byte[] data) : base(data)
         {
+            metadata.Type = MessageType.Console;
         }
-
-        public override MessageType GetMessageType() => MessageType.Console;
 
         public override byte[] Serialize()
         {
             List<byte> outData = new();
 
-            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
-            outData.AddRange(System.Text.Encoding.UTF8.GetBytes(data));
+            outData.AddRange(metadata.Serialize());
+            outData.AddRange(Encoding.UTF8.GetBytes(data));
 
             return outData.ToArray();
         }
 
         protected override string Deserialize(byte[] message)
         {
-            const int messageTypeSize = sizeof(MessageType);
-            int dataSize = message.Length - messageTypeSize;
+            int dataSize = message.Length - MessageMetadata.Size;
 
-            return System.Text.Encoding.UTF8.GetString(message, messageTypeSize, dataSize);
+            return Encoding.UTF8.GetString(message, MessageMetadata.Size, dataSize);
         }
     }
 }

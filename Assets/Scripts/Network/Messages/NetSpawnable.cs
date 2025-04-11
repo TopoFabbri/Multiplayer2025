@@ -3,34 +3,31 @@ using System.Collections.Generic;
 
 namespace Network.Messages
 {
-    public struct Spawnable
+    public struct SpawnRequest
     {
         public int spawnableNumber;
         public int id;
     }
 
-    public class NetSpawnable : Message<List<Spawnable>>
+    public class NetSpawnable : Message<List<SpawnRequest>>
     {
-        public NetSpawnable(List<Spawnable> data) : base(data)
+        public NetSpawnable(List<SpawnRequest> data) : base(data)
         {
+            metadata.Type = MessageType.SpawnRequest;
         }
 
         public NetSpawnable(byte[] data) : base(data)
         {
-        }
-
-        public override MessageType GetMessageType()
-        {
-            return MessageType.Spawnable;
+            metadata.Type = MessageType.SpawnRequest;
         }
 
         public override byte[] Serialize()
         {
             List<byte> outData = new();
 
-            outData.AddRange(BitConverter.GetBytes((int)GetMessageType()));
+            outData.AddRange(metadata.Serialize());
 
-            foreach (Spawnable spawnable in data)
+            foreach (SpawnRequest spawnable in data)
             {
                 outData.AddRange(BitConverter.GetBytes(spawnable.spawnableNumber));
                 outData.AddRange(BitConverter.GetBytes(spawnable.id));
@@ -40,21 +37,19 @@ namespace Network.Messages
             return outData.ToArray();
         }
 
-        protected override List<Spawnable> Deserialize(byte[] message)
+        protected override List<SpawnRequest> Deserialize(byte[] message)
         {
-            const int messageTypeSize = sizeof(MessageType);
+            List<SpawnRequest> outData = new();
 
-            List<Spawnable> outData = new();
-
-            for (int i = messageTypeSize; i < message.Length; i += sizeof(int) * 2)
+            for (int i = MessageMetadata.Size; i < message.Length; i += sizeof(int) * 2)
             {
-                Spawnable spawnable = new()
+                SpawnRequest spawnRequest = new()
                 {
                     spawnableNumber = BitConverter.ToInt32(message, i),
                     id = BitConverter.ToInt32(message, i + sizeof(int))
                 };
                 
-                outData.Add(spawnable);
+                outData.Add(spawnRequest);
             }
             
             return outData;

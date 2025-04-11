@@ -25,14 +25,14 @@ namespace Objects
 
         private void OnReceiveDataHandler(byte[] data)
         {
-            if (MessageHandler.GetMessageType(data) == MessageType.Spawnable)
+            if (MessageHandler.GetMessageType(data) == MessageType.SpawnRequest)
             {
-                List<Spawnable> message = new NetSpawnable(data).Deserialized();
+                List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
 
                 if (spawnedObjects.Count <= 0)
                     Player.PlayerID = message.Last().id;
                 
-                foreach (Spawnable spawnable in message)
+                foreach (SpawnRequest spawnable in message)
                 {
                     if (spawnedObjects.ContainsKey(spawnable.id)) continue;
                     
@@ -42,7 +42,7 @@ namespace Objects
             }
             else if (MessageHandler.GetMessageType(data) == MessageType.Position)
             {
-                Position message = new NetVector3(data).Deserialized();
+                Position message = new NetPosition(data).Deserialized();
 
                 UpdatePosition(message.objId, message.position);
             }
@@ -75,12 +75,12 @@ namespace Objects
                 return;
             }
             
-            Spawnable spawnable = new()
+            SpawnRequest spawnRequest = new()
             {
                 spawnableNumber = objNumber
             };
             
-            List<Spawnable> message = new() { spawnable };
+            List<SpawnRequest> message = new() { spawnRequest };
 
             NetworkManager.Instance.SendData(new NetSpawnable(message).Serialize());
         }
