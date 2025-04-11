@@ -11,6 +11,8 @@ namespace Objects
 
         private Vector3 moveInput;
         private float rotationInput;
+        private bool canMove;
+        
         private static Camera _cam;
 
         public static int PlayerID { get; set; }
@@ -22,6 +24,8 @@ namespace Objects
 
         private void Update()
         {
+            if (!canMove) return;
+            
             Move();
             Rotate();
         }
@@ -73,6 +77,7 @@ namespace Objects
 
             InputListener.Move += OnMoveHandler;
             InputListener.Look += OnLookHandler;
+            InputListener.Chat += OnChatHandler;
         }
 
         private void UnPossess()
@@ -86,6 +91,7 @@ namespace Objects
 
             InputListener.Move -= OnMoveHandler;
             InputListener.Look -= OnLookHandler;
+            InputListener.Chat -= OnChatHandler;
         }
 
         private void OnMoveHandler(Vector2 input)
@@ -99,5 +105,7 @@ namespace Objects
         {
             rotationInput = input.x;
         }
+        
+        private void OnChatHandler() => canMove = !canMove;
     }
 }

@@ -11,7 +11,7 @@ namespace UI
     {
         [SerializeField] private Text messages;
         [SerializeField] private InputField inputMessage;
-
+        
         private void Start()
         {
             if (inputMessage)
@@ -39,7 +39,6 @@ namespace UI
             Cursor.lockState = gameObject.activeSelf ? CursorLockMode.None : CursorLockMode.Confined;
             Cursor.visible = gameObject.activeSelf;
         }
-
 
         private void OnReceiveConsoleHandler(byte[] data)
         {

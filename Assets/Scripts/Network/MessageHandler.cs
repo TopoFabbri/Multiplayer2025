@@ -20,7 +20,7 @@ namespace Network
 
         public static MessageType GetMessageType(byte[] data)
         {
-            return (MessageType)BitConverter.ToInt32(data, 0);
+            return MessageMetadata.Deserialize(data).Type;
         }
     }
 }

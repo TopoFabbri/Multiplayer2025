@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using Network.Messages;
+using UnityEngine;
 
 namespace Network
 {
@@ -38,6 +39,13 @@ namespace Network
 
         protected override void HandlePosition(byte[] data, IPEndPoint ip)
         {
+        }
+
+        protected override void HandlePing(byte[] data, IPEndPoint ip)
+        {
+            Ping = new NetPing(data).Deserialized();
+            
+            SendData(new NetPing(Ping).Serialize());
         }
 
         public override void SendData(byte[] data)

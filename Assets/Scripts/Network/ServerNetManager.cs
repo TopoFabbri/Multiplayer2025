@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using Network.Messages;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Network
 {
@@ -15,20 +16,74 @@ namespace Network
 
         private readonly List<SpawnRequest> spawnedObjects = new();
 
+        public Dictionary<string, int> log = new();
+
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
             connection = new UdpConnection(port, this);
-            
+
             ID = 0;
-            
+
             base.Init(port, ip);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            List<IPEndPoint> disconnected = new();
+
+            foreach (KeyValuePair<int, Client> client in clients)
+            {
+                float timeSinceLastPing = Time.time - client.Value.lastPingTime;
+
+                if (timeSinceLastPing > TimeOut)
+                    disconnected.Add(client.Value.ipEndPoint);
+            }
+
+            foreach (IPEndPoint ipEndPoint in disconnected)
+                RemoveClient(ipEndPoint);
+        }
+
+        public override void OnReceiveData(byte[] data, IPEndPoint ip)
+        {
+            base.OnReceiveData(data, ip);
+
+            string logMessage = "Received: " + MessageHandler.GetMessageType(data) + " from: " + ipToId[ip];
+
+            if (log.ContainsKey(logMessage))
+            {
+                if (log[logMessage] < 99)
+                    log[logMessage]++;
+            }
+            else
+            {
+                log[logMessage] = 1;
+            }
         }
 
         private void Broadcast(byte[] data)
         {
             foreach (KeyValuePair<int, Client> keyValuePair in clients)
-                connection.Send(data, keyValuePair.Value.ipEndPoint);
+                SendToClient(data, keyValuePair.Key);
+        }
+
+        private void SendToClient(byte[] data, int id)
+        {
+            connection.Send(data, clients[id].ipEndPoint);
+
+            string logMessage = "Sent: " + MessageHandler.GetMessageType(data) + " to: " + id;
+
+            if (log.ContainsKey(logMessage))
+            {
+                if (log[logMessage] < 99)
+                    log[logMessage]++;
+            }
+            else
+            {
+                log[logMessage] = 1;
+            }
         }
 
         private void AddClient(IPEndPoint ip)
@@ -42,7 +97,7 @@ namespace Network
             clients.Add(clientId, new Client(ip, clientId, Time.realtimeSinceStartup));
 
             clientId++;
-            
+
             SendData(new NetHandShake(clients.Select(keyValuePair => keyValuePair.Key).ToList()).Serialize());
         }
 
@@ -61,15 +116,16 @@ namespace Network
         protected override void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             AddClient(ip);
+            SendToClient(new NetPing(0f).Serialize(), ipToId[ip]);
         }
 
         protected override void HandleConsole(byte[] data, IPEndPoint ip)
         {
             base.HandleConsole(data, ip);
-            
+
             SendData(data);
         }
-        
+
         protected override void HandlePosition(byte[] data, IPEndPoint ip)
         {
             SendData(data);
@@ -86,10 +142,23 @@ namespace Network
 
             SpawnRequest last = message.Last();
             last.id = newId;
-            
+
             spawnedObjects.Add(last);
-            
+
             SendData(new NetSpawnable(spawnedObjects).Serialize());
+        }
+
+        protected override void HandlePing(byte[] data, IPEndPoint ip)
+        {
+            float ping = Time.time - clients[ipToId[ip]].lastPingTime;
+
+            Client client = clients[ipToId[ip]];
+
+            client.lastPingTime = Time.time;
+
+            clients[ipToId[ip]] = client;
+
+            SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
         }
 
         public override void SendData(byte[] data)
