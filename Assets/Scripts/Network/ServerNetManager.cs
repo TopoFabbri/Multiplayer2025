@@ -20,6 +20,8 @@ namespace Network
             Port = port;
             connection = new UdpConnection(port, this);
             
+            ID = 0;
+            
             base.Init(port, ip);
         }
 

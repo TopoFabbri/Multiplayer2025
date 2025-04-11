@@ -10,6 +10,8 @@ namespace UI
     {
         [SerializeField] private Button connectBtn;
         [SerializeField] private InputField addressInputField;
+
+        [SerializeField] private string defaultAddress = "127.0.0.1";
         
         private void Awake()
         {
@@ -19,6 +21,12 @@ namespace UI
         
         private void OnConnectBtnClick()
         {
+            if (addressInputField.text == "")
+                addressInputField.text = defaultAddress;
+            
+            if (portInputField.text == "")
+                portInputField.text = defaultPort;
+            
             IPAddress ipAddress = IPAddress.Parse(addressInputField.text);
             int port = System.Convert.ToInt32(portInputField.text);
 

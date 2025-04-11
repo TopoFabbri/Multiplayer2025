@@ -7,8 +7,6 @@ namespace Network
 {
     public class ClientNetManager : NetworkManager
     {
-        private int ID { get; set; }
-
         public IPAddress IPAddress { get; private set; }
         
         private readonly List<int> clientIds = new();
@@ -40,7 +38,6 @@ namespace Network
 
         protected override void HandlePosition(byte[] data, IPEndPoint ip)
         {
-            throw new System.NotImplementedException();
         }
 
         public override void SendData(byte[] data)

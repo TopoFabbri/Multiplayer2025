@@ -8,6 +8,7 @@ namespace UI
     {
         [SerializeField] protected InputField portInputField;
         [SerializeField] private ChatScreen chatScreen;
+        [SerializeField] protected string defaultPort = "65432";
 
         protected void SwitchToChatScreen()
         {

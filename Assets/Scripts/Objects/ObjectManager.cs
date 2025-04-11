@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Network;
 using Network.Messages;
 using UnityEngine;
@@ -28,11 +29,14 @@ namespace Objects
             {
                 List<Spawnable> message = new NetSpawnable(data).Deserialized();
 
+                if (spawnedObjects.Count <= 0)
+                    Player.PlayerID = message.Last().id;
+                
                 foreach (Spawnable spawnable in message)
                 {
                     if (spawnedObjects.ContainsKey(spawnable.id)) continue;
                     
-                    SpawnableObject spawnedObject = Spawn(spawnable.spawnableNumber);
+                    SpawnableObject spawnedObject = Spawn(spawnable.spawnableNumber, spawnable.id);
                     spawnedObjects.Add(spawnable.id, spawnedObject);
                 }
             }
@@ -40,22 +44,22 @@ namespace Objects
             {
                 Position message = new NetVector3(data).Deserialized();
 
-                UpdatePosition(message.objId, message.position);
+                if (message.originId != NetworkManager.Instance.ID)
+                    UpdatePosition(message.objId, message.position);
             }
-            
         }
 
-        private SpawnableObject Spawn(int id)
+        private SpawnableObject Spawn(int objectNumber, int id)
         {
-            SpawnableObject instance = prefabList[id] == null ? null : prefabList[id].Spawn(this);
+            SpawnableObject instance = !prefabList[objectNumber] ? null : prefabList[objectNumber].Spawn(this, id);
 
-            if (instance != null)
+            if (instance)
                 instance.transform.parent = transform;
             
             return instance;
         }
 
-        public void UpdatePosition(int id, Vector3 position)
+        private void UpdatePosition(int id, Vector3 position)
         {
             if (spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject))
                 spawnedObject.transform.position = position;

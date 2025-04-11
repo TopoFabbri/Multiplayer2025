@@ -22,6 +22,8 @@ namespace Network.Messages
 
     public abstract class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveData
     {
+        public int ID { get; protected set; }
+        
         protected int Port { get; set; }
         
         public Action onConnectionEstablished;

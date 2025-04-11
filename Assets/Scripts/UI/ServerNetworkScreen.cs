@@ -17,6 +17,9 @@ namespace UI
         
         private void OnStartServerBtnClick()
         {
+            if (portInputField.text == "")
+                portInputField.text = defaultPort;
+            
             int port = Convert.ToInt32(portInputField.text);
             NetworkManager.Instance.Init(port);
             SwitchToChatScreen();
