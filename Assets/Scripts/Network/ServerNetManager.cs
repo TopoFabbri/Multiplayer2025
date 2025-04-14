@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Network.Messages;
@@ -49,8 +50,8 @@ namespace Network
         public override void OnReceiveData(byte[] data, IPEndPoint ip)
         {
             base.OnReceiveData(data, ip);
-
-            string logMessage = "Received: " + MessageHandler.GetMessageType(data) + " from: " + ipToId[ip];
+            
+            string logMessage = "Received: " + MessageHandler.GetMessageType(data);
 
             if (log.ContainsKey(logMessage))
             {
@@ -61,6 +62,7 @@ namespace Network
             {
                 log[logMessage] = 1;
             }
+
         }
 
         private void Broadcast(byte[] data)
@@ -160,10 +162,22 @@ namespace Network
 
             SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
         }
+        
+        protected override void HandleDisconnect(byte[] data, IPEndPoint ip)
+        {
+            RemoveClient(ip);
+            
+            SendData(data);
+        }
 
         public override void SendData(byte[] data)
         {
             Broadcast(data);
+        }
+
+        private void OnDestroy()
+        {
+            connection.Close();
         }
     }
 }

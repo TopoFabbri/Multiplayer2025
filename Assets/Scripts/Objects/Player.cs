@@ -15,6 +15,8 @@ namespace Objects
         
         private static Camera _cam;
 
+        public bool IsPossessed => PlayerID == ID;
+        
         public static int PlayerID { get; set; }
 
         private void Awake()
@@ -82,7 +84,7 @@ namespace Objects
 
         private void UnPossess()
         {
-            if (!_cam) return;
+            if (!_cam || !IsPossessed) return;
 
             _cam.transform.parent = null;
             

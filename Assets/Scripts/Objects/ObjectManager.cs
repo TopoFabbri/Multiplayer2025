@@ -46,6 +46,13 @@ namespace Objects
 
                 UpdatePosition(message.objId, message.position);
             }
+            else if (MessageHandler.GetMessageType(data) == MessageType.Disconnect)
+            {
+                int disconnectedID = new NetDisconnect(data).Deserialized();
+                
+                Destroy(spawnedObjects[disconnectedID].gameObject);
+                spawnedObjects.Remove(disconnectedID);
+            }
         }
 
         private SpawnableObject Spawn(int objectNumber, int id)

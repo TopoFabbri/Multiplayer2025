@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using Network.Messages;
-using UnityEngine;
+using Objects;
 
 namespace Network
 {
@@ -51,6 +51,11 @@ namespace Network
         public override void SendData(byte[] data)
         {
             SendToServer(data);
+        }
+
+        private void OnDestroy()
+        {
+            SendToServer(new NetDisconnect(Player.PlayerID).Serialize());
         }
     }
 }

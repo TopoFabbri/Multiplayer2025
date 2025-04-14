@@ -1,4 +1,4 @@
-namespace Network
+namespace Network.Messages
 {
     public enum MessageType
     {
@@ -7,6 +7,7 @@ namespace Network
         Position,
         SpawnRequest,
         Ping,
+        Disconnect
     }
     
     public abstract class Message<T>

@@ -43,6 +43,7 @@ namespace Network.Messages
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
+            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
         }
 
         protected abstract void HandleHandshake(byte[] data, IPEndPoint ip);
@@ -58,6 +59,10 @@ namespace Network.Messages
         }
         
         protected abstract void HandlePing(byte[] data, IPEndPoint ip);
+
+        protected virtual void HandleDisconnect(byte[] data, IPEndPoint ip)
+        {
+        }
 
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)
         {
