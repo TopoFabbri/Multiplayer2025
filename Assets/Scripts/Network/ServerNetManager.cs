@@ -17,7 +17,7 @@ namespace Network
 
         private readonly List<SpawnRequest> spawnedObjects = new();
 
-        public Dictionary<string, int> log = new();
+        public readonly Dictionary<string, int> log = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -51,18 +51,13 @@ namespace Network
         {
             base.OnReceiveData(data, ip);
             
-            string logMessage = "Received: " + MessageHandler.GetMessageType(data);
+            string logMessage = "Received: " + MessageHandler.GetMetadata(data).Type;
 
-            if (log.ContainsKey(logMessage))
+            if (!log.TryAdd(logMessage, 1))
             {
                 if (log[logMessage] < 99)
                     log[logMessage]++;
             }
-            else
-            {
-                log[logMessage] = 1;
-            }
-
         }
 
         private void Broadcast(byte[] data)
@@ -75,16 +70,12 @@ namespace Network
         {
             connection.Send(data, clients[id].ipEndPoint);
 
-            string logMessage = "Sent: " + MessageHandler.GetMessageType(data) + " to: " + id;
+            string logMessage = "Sent: " + MessageHandler.GetMetadata(data).Type + " to: " + id;
 
-            if (log.ContainsKey(logMessage))
+            if (!log.TryAdd(logMessage, 1))
             {
                 if (log[logMessage] < 99)
                     log[logMessage]++;
-            }
-            else
-            {
-                log[logMessage] = 1;
             }
         }
 

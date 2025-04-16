@@ -42,7 +42,7 @@ namespace UI
 
         private void OnReceiveConsoleHandler(byte[] data)
         {
-            if (MessageHandler.GetMessageType(data) != MessageType.Console)
+            if (MessageHandler.GetMetadata(data).Type != MessageType.Console)
                 return;
 
             string message = new NetConsole(data).Deserialized();

@@ -25,7 +25,7 @@ namespace Objects
 
         private void OnReceiveDataHandler(byte[] data)
         {
-            if (MessageHandler.GetMessageType(data) == MessageType.SpawnRequest)
+            if (MessageHandler.GetMetadata(data).Type == MessageType.SpawnRequest)
             {
                 List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
 
@@ -40,13 +40,13 @@ namespace Objects
                     spawnedObjects.Add(spawnable.id, spawnedObject);
                 }
             }
-            else if (MessageHandler.GetMessageType(data) == MessageType.Position)
+            else if (MessageHandler.GetMetadata(data).Type == MessageType.Position)
             {
                 Position message = new NetPosition(data).Deserialized();
 
                 UpdatePosition(message.objId, message.position);
             }
-            else if (MessageHandler.GetMessageType(data) == MessageType.Disconnect)
+            else if (MessageHandler.GetMetadata(data).Type == MessageType.Disconnect)
             {
                 int disconnectedID = new NetDisconnect(data).Deserialized();
                 

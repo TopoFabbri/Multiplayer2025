@@ -16,12 +16,13 @@ namespace Network
         
         public static void Receive(byte[] data, IPEndPoint ip)
         {
-            Handlers[GetMessageType(data)]?.Invoke(data, ip);
+            if (Handlers.ContainsKey(GetMetadata(data).Type))
+                Handlers[GetMetadata(data).Type]?.Invoke(data, ip);
         }
 
-        public static MessageType GetMessageType(byte[] data)
+        public static MessageMetadata GetMetadata(byte[] data)
         {
-            return MessageMetadata.Deserialize(data).Type;
+            return MessageMetadata.Deserialize(data);
         }
     }
 }
