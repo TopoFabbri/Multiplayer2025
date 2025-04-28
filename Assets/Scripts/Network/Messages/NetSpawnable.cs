@@ -18,7 +18,6 @@ namespace Network.Messages
 
         public NetSpawnable(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.SpawnRequest;
         }
 
         public override byte[] Serialize()

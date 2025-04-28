@@ -12,9 +12,12 @@ namespace Network.Messages
     
     public abstract class Message<T>
     {
-        protected MessageMetadata metadata;
+        protected readonly MessageMetadata metadata;
         protected readonly T data;
 
+        public MessageMetadata Metadata => metadata;
+        public T Data => data;
+        
         protected Message(T data)
         {
             this.data = data;
@@ -26,8 +29,6 @@ namespace Network.Messages
             metadata = MessageMetadata.Deserialize(data);
             this.data = Deserialize(data);
         }
-
-        public MessageMetadata GetMessageMetadata() => metadata;
         public abstract byte[] Serialize();
         protected abstract T Deserialize(byte[] message);
         public T Deserialized() => data;

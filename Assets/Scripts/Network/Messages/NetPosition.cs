@@ -24,6 +24,8 @@ namespace Network.Messages
 
     public class NetPosition : Message<Position>
     {
+        private static int _posIds;
+        
         public NetPosition(Position position) : base(position)
         {
             metadata.Type = MessageType.Position;
@@ -31,7 +33,6 @@ namespace Network.Messages
 
         public NetPosition(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.Position;
         }
 
         protected override Position Deserialize(byte[] message)

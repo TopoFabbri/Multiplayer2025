@@ -12,7 +12,6 @@ namespace Network.Messages
 
         public NetPing(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.Ping;
         }
 
         public override byte[] Serialize()

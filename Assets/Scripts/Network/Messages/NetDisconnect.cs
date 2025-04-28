@@ -12,7 +12,6 @@ namespace Network.Messages
         
         public NetDisconnect(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.Disconnect;
         }
         
         public override byte[] Serialize()

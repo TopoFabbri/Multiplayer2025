@@ -12,7 +12,6 @@ namespace Network.Messages
 
         public NetHandShake(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.HandShake;
         }
 
         protected override List<int> Deserialize(byte[] message)

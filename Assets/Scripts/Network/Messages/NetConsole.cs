@@ -12,7 +12,6 @@ namespace Network.Messages
 
         public NetConsole(byte[] data) : base(data)
         {
-            metadata.Type = MessageType.Console;
         }
 
         public override byte[] Serialize()

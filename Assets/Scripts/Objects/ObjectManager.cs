@@ -12,6 +12,8 @@ namespace Objects
 
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
         
+        private readonly Dictionary<int, int> lastPosMessageByObjId = new();
+        
         private void OnEnable()
         {
             NetworkManager.Instance.OnReceiveDataAction += OnReceiveDataHandler;
@@ -42,9 +44,16 @@ namespace Objects
             }
             else if (MessageHandler.GetMetadata(data).Type == MessageType.Position)
             {
-                Position message = new NetPosition(data).Deserialized();
+                NetPosition message = new(data);
+                
+                lastPosMessageByObjId.TryAdd(message.Data.objId, 0);
+                
+                if (message.Metadata.Id < lastPosMessageByObjId[message.Data.objId])
+                    return;
 
-                UpdatePosition(message.objId, message.position);
+                UpdatePosition(message.Data.objId, message.Data.position);
+                
+                lastPosMessageByObjId[message.Data.objId] = message.Metadata.Id;
             }
             else if (MessageHandler.GetMetadata(data).Type == MessageType.Disconnect)
             {
