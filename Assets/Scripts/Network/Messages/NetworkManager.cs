@@ -31,6 +31,7 @@ namespace Network.Messages
         
         public Action onConnectionEstablished;
         public Action<byte[]> OnReceiveDataAction;
+        public Action<byte[]> OnSendDataAction;
 
         protected const float TimeOut = 5;
 
@@ -78,6 +79,16 @@ namespace Network.Messages
         }
 
         public abstract void SendData(byte[] data);
+        
+        protected void SendTo(byte[] data, IPEndPoint ip = null)
+        {
+            OnSendDataAction?.Invoke(data);
+            
+            if (ip== null)
+                connection?.Send(data);
+            else
+                connection?.Send(data, ip);
+        }
 
         public virtual void Init(int port, IPAddress ip = null)
         {

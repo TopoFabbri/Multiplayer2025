@@ -7,8 +7,8 @@ namespace Network.Messages
     {
         public MessageType Type { get; set; }
         public int Id { get; set; }
-        public bool Received { get; set; }
         public bool Important { get; set; }
+        public int SenderId { get; set; }
 
         public byte[] Serialize()
         {
@@ -16,7 +16,7 @@ namespace Network.Messages
             
             outData.AddRange(BitConverter.GetBytes((int)Type));
             outData.AddRange(BitConverter.GetBytes(Id));
-            outData.AddRange(BitConverter.GetBytes(Received));
+            outData.AddRange(BitConverter.GetBytes(SenderId));
             outData.AddRange(BitConverter.GetBytes(Important));
             
             return outData.ToArray();
@@ -28,8 +28,8 @@ namespace Network.Messages
             {
                 Type = (MessageType) BitConverter.ToInt32(message, 0),
                 Id = BitConverter.ToInt32(message, sizeof(int)),
-                Received = BitConverter.ToBoolean(message, sizeof(int) * 2),
-                Important = BitConverter.ToBoolean(message, sizeof(int) * 2 + sizeof(bool))
+                SenderId = BitConverter.ToInt32(message, sizeof(int) * 2),
+                Important = BitConverter.ToBoolean(message, sizeof(int) * 3)
             };
         }
         
@@ -39,12 +39,17 @@ namespace Network.Messages
             {
                 int size = sizeof(MessageType);
                 size += sizeof(int);
-                size += sizeof(bool);
+                size += sizeof(int);
                 size += sizeof(bool);
                 
                 return size; 
             }
 
         }
+    }
+
+    public class ImportantMessageHandler
+    {
+        
     }
 }

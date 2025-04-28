@@ -17,8 +17,6 @@ namespace Network
 
         private readonly List<SpawnRequest> spawnedObjects = new();
 
-        public readonly Dictionary<string, int> log = new();
-
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
@@ -47,36 +45,15 @@ namespace Network
                 RemoveClient(ipEndPoint);
         }
 
-        public override void OnReceiveData(byte[] data, IPEndPoint ip)
-        {
-            base.OnReceiveData(data, ip);
-            
-            string logMessage = "Received: " + MessageHandler.GetMetadata(data).Type;
-
-            if (!log.TryAdd(logMessage, 1))
-            {
-                if (log[logMessage] < 99)
-                    log[logMessage]++;
-            }
-        }
-
         private void Broadcast(byte[] data)
         {
             foreach (KeyValuePair<int, Client> keyValuePair in clients)
-                SendToClient(data, keyValuePair.Key);
+                SendTo(data, clients[keyValuePair.Key].ipEndPoint);
         }
 
         private void SendToClient(byte[] data, int id)
         {
-            connection.Send(data, clients[id].ipEndPoint);
-
-            string logMessage = "Sent: " + MessageHandler.GetMetadata(data).Type + " to: " + id;
-
-            if (!log.TryAdd(logMessage, 1))
-            {
-                if (log[logMessage] < 99)
-                    log[logMessage]++;
-            }
+            SendTo(data, clients[id].ipEndPoint);
         }
 
         private void AddClient(IPEndPoint ip)
