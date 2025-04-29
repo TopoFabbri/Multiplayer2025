@@ -26,7 +26,7 @@ namespace Objects
                 NetworkManager.Instance.OnReceiveDataAction -= OnReceiveDataHandler;
         }
 
-        private void OnReceiveDataHandler(byte[] data, IPEndPoint ip)
+        private void OnReceiveDataHandler(byte[] data, IPEndPoint)
         {
             if (MessageHandler.GetMetadata(data).Type == MessageType.SpawnRequest)
             {

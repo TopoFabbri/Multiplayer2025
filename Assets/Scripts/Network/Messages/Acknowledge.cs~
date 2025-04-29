@@ -1,0 +1,21 @@
+﻿namespace Network.Messages
+{
+    public class Akcnowledge<T> : Message<T>
+    {
+        public Akcnowledge(T data) : base(data)
+        {
+        }
+
+        public Akcnowledge(byte[] data) : base(data)
+        {
+        }
+
+        public override byte[] Serialize()
+        {
+        }
+
+        protected override T Deserialize(byte[] message)
+        {
+        }
+    }
+}

@@ -46,4 +46,15 @@ namespace Network.Messages
             }
         }
     }
+
+    public class ImportantMessageHandler
+    {
+        public void OnReceiveMessage(byte[] data)
+        {
+            if (!MessageMetadata.Deserialize(data).Important)
+                return;
+            
+            
+        }
+    }
 }

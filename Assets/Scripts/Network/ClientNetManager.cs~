@@ -43,6 +43,9 @@ namespace Network
 
         protected override void HandlePing(byte[] data, IPEndPoint ip)
         {
+            Ping = new NetPing(data).Deserialized();
+            
+            SendData(new NetPing(Ping).Serialize());
         }
 
         public override void SendData(byte[] data)

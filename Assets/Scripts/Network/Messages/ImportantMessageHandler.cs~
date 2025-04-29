@@ -1,0 +1,21 @@
+﻿using System.Net;
+
+namespace Network.Messages
+{
+    public class ImportantMessageHandler
+    {
+        public void OnReceiveMessage(byte[] data, IPEndPoint ip)
+        {
+            if (!MessageMetadata.Deserialize(data).Important)
+                return;
+
+            Acknowledge acknowledge;
+
+            acknowledge.mesId = MessageMetadata.Deserialize(data).Id;
+            acknowledge.senderId = MessageMetadata.Deserialize(data).SenderId;
+            acknowledge.mesType = MessageMetadata.Deserialize(data).Type
+            
+            NetworkManager.Instance?.SendTo(new NetAcknowledge(acknowledge).Serialize(), ip);
+        }
+    }
+}

@@ -7,8 +7,7 @@ namespace Network.Messages
         Position,
         SpawnRequest,
         Ping,
-        Disconnect,
-        Acknowledge
+        Disconnect
     }
     
     public abstract class Message<T>

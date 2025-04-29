@@ -41,7 +41,7 @@ namespace UI
             Cursor.visible = gameObject.activeSelf;
         }
 
-        private void OnReceiveConsoleHandler(byte[] data, IPEndPoint ip)
+        private void OnReceiveConsoleHandler(byte[] data, IPEndPoint)
         {
             if (MessageHandler.GetMetadata(data).Type != MessageType.Console)
                 return;

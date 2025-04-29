@@ -80,7 +80,7 @@ namespace Network.Messages
 
         public abstract void SendData(byte[] data);
         
-        public void SendTo(byte[] data, IPEndPoint ip = null)
+        protected void SendTo(byte[] data, IPEndPoint ip = null)
         {
             OnSendDataAction?.Invoke(data, ip);
             
