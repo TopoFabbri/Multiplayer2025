@@ -5,9 +5,13 @@ namespace Network.Messages
 {
     public class NetPing : Message<float>
     {
+        private static int _ids;
+        
         public NetPing(float data) : base(data)
         {
             metadata.Type = MessageType.Ping;
+            metadata.Important = true;
+            metadata.Id = _ids++;
         }
 
         public NetPing(byte[] data) : base(data)

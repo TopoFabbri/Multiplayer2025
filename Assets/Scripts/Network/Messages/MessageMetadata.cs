@@ -24,13 +24,14 @@ namespace Network.Messages
         
         public static MessageMetadata Deserialize(byte[] message)
         {
-            return new MessageMetadata
-            {
-                Type = (MessageType) BitConverter.ToInt32(message, 0),
-                Id = BitConverter.ToInt32(message, sizeof(int)),
-                SenderId = BitConverter.ToInt32(message, sizeof(int) * 2),
-                Important = BitConverter.ToBoolean(message, sizeof(int) * 3)
-            };
+            MessageMetadata outData = new();
+            
+            outData.Type = (MessageType) BitConverter.ToInt32(message, 0);
+            outData.Id = BitConverter.ToInt32(message, sizeof(int));
+            outData.SenderId = BitConverter.ToInt32(message, sizeof(int) * 2);
+            outData.Important = BitConverter.ToBoolean(message, sizeof(int) * 3);
+            
+            return outData; 
         }
         
         public static int Size

@@ -25,18 +25,19 @@ namespace Network.Messages
     public abstract class NetworkManager : MonoBehaviourSingleton<NetworkManager>, IReceiveData
     {
         protected int ID { get; set; }
-        
+
         protected int Port { get; set; }
         public float Ping { get; protected set; }
-        
+        public bool IsServer { get; protected set; }
+
         public Action onConnectionEstablished;
         public Action<byte[], IPEndPoint> OnReceiveDataAction;
         public Action<byte[], IPEndPoint> OnSendDataAction;
 
-        protected const float TimeOut = 5;
+        protected const float TimeOut = 5f;
 
         protected UdpConnection connection;
-        
+
         protected override void Initialize()
         {
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
@@ -45,6 +46,9 @@ namespace Network.Messages
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
+            MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
+
+            MessageHandler.timeout = TimeOut;
         }
 
         protected abstract void HandleHandshake(byte[] data, IPEndPoint ip);
@@ -58,8 +62,10 @@ namespace Network.Messages
         protected virtual void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
         }
-        
-        protected abstract void HandlePing(byte[] data, IPEndPoint ip);
+
+        protected virtual void HandlePing(byte[] data, IPEndPoint ip)
+        {
+        }
 
         protected virtual void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
@@ -68,7 +74,7 @@ namespace Network.Messages
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)
         {
             OnReceiveDataAction?.Invoke(data, ip);
-            
+
             MessageHandler.Receive(data, ip);
         }
 
@@ -79,12 +85,12 @@ namespace Network.Messages
         }
 
         public abstract void SendData(byte[] data);
-        
+
         public void SendTo(byte[] data, IPEndPoint ip = null)
         {
             OnSendDataAction?.Invoke(data, ip);
-            
-            if (ip== null)
+
+            if (ip == null)
                 connection?.Send(data);
             else
                 connection?.Send(data, ip);

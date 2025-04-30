@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using Network.Messages;
 using Objects;
+using UnityEngine;
 
 namespace Network
 {
@@ -12,10 +13,14 @@ namespace Network
         
         private readonly List<int> clientIds = new();
 
+        private float LastPingTime { get; set; }
+        
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
             IPAddress = ip;
+            
+            IsServer = false;
 
             connection = new UdpConnection(ip, port, this);
             
@@ -43,6 +48,9 @@ namespace Network
 
         protected override void HandlePing(byte[] data, IPEndPoint ip)
         {
+            Ping = Time.time - LastPingTime;
+            
+            LastPingTime = Time.time;
         }
 
         public override void SendData(byte[] data)

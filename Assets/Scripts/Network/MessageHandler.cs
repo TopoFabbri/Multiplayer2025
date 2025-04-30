@@ -8,21 +8,62 @@ namespace Network
     public static class MessageHandler
     {
         private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> Handlers = new();
+        private static readonly Dictionary<MessageType, ImportantMessageHandler> ImportantMessageHandlersByMessageType = new();
+        private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> OnAcknowledgedByMessageType = new();
 
-        public static bool TryAddHandler(MessageType type, Action<byte[], IPEndPoint> handler)
+        public static float timeout = 5f;
+
+        public static void TryAddHandler(MessageType type, Action<byte[], IPEndPoint> handler)
         {
-            return Handlers.TryAdd(type, handler);
+            if (!Handlers.ContainsKey(type))
+                Handlers.TryAdd(type, handler);
+            else
+                Handlers[type] += handler;
         }
         
         public static void Receive(byte[] data, IPEndPoint ip)
         {
-            if (Handlers.ContainsKey(GetMetadata(data).Type))
-                Handlers[GetMetadata(data).Type]?.Invoke(data, ip);
+            MessageMetadata metadata = GetMetadata(data);
+
+            CheckReceivedImportantMessage(metadata, ip);
+
+            if (Handlers.TryGetValue(metadata.Type, out Action<byte[], IPEndPoint> handler))
+                handler?.Invoke(data, ip);
         }
 
         public static MessageMetadata GetMetadata(byte[] data)
         {
             return MessageMetadata.Deserialize(data);
+        }
+
+        public static void HandleAcknowledge(byte[] data, IPEndPoint ip)
+        {
+            MessageMetadata metadata = GetMetadata(data);
+            
+            if (OnAcknowledgedByMessageType.TryGetValue(metadata.Type, out Action<byte[], IPEndPoint> onAcknowledge))
+                onAcknowledge?.Invoke(data, ip);
+        }
+        
+        public static void TryAddOnAcknowledgeHandler(MessageType type, Action<byte[], IPEndPoint> handler)
+        {
+            if (!OnAcknowledgedByMessageType.ContainsKey(type))
+                OnAcknowledgedByMessageType.TryAdd(type, handler);
+            else
+                OnAcknowledgedByMessageType[type] += handler;
+        }
+        
+        private static void CheckReceivedImportantMessage(MessageMetadata metadata, IPEndPoint ip)
+        {
+            ImportantMessageHandlersByMessageType.TryAdd(metadata.Type, new ImportantMessageHandler());
+
+            if (!ImportantMessageHandlersByMessageType[metadata.Type].ShouldAcknowledge(metadata)) return;
+
+            Acknowledge acknowledge = new() { mesId = metadata.Id, senderId = metadata.SenderId, mesType = metadata.Type };
+
+            if (NetworkManager.Instance.IsServer)
+                NetworkManager.Instance.SendTo(new NetAcknowledge(acknowledge).Serialize(), ip);
+            else
+                NetworkManager.Instance.SendTo(new NetAcknowledge(acknowledge).Serialize());
         }
     }
 }

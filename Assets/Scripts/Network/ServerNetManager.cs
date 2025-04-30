@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Network.Messages;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Network
 {
@@ -23,8 +21,11 @@ namespace Network
             connection = new UdpConnection(port, this);
 
             ID = 0;
+            IsServer = true;
 
             base.Init(port, ip);
+            
+            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Acknowledge, OnAcknowledgePingHandler);
         }
 
         protected override void Update()
@@ -117,19 +118,6 @@ namespace Network
 
             SendData(new NetSpawnable(spawnedObjects).Serialize());
         }
-
-        protected override void HandlePing(byte[] data, IPEndPoint ip)
-        {
-            float ping = Time.time - clients[ipToId[ip]].lastPingTime;
-
-            Client client = clients[ipToId[ip]];
-
-            client.lastPingTime = Time.time;
-
-            clients[ipToId[ip]] = client;
-
-            SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
-        }
         
         protected override void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
@@ -143,9 +131,22 @@ namespace Network
             Broadcast(data);
         }
 
+        private void OnAcknowledgePingHandler(byte[] data, IPEndPoint ip)
+        {
+            float ping = Time.time - clients[ipToId[ip]].lastPingTime;
+
+            Client client = clients[ipToId[ip]];
+
+            client.lastPingTime = Time.time;
+
+            clients[ipToId[ip]] = client;
+
+            SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
+        }
+
         private void OnDestroy()
         {
-            connection.Close();
+            // connection.Close();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Network.Messages
     {
         public NetAcknowledge(Acknowledge data) : base(data)
         {
-            Metadata.Type = MessageType.Ping;
+            Metadata.Type = MessageType.Acknowledge;
         }
 
         public NetAcknowledge(byte[] data) : base(data)
@@ -25,6 +25,7 @@ namespace Network.Messages
         {
             List<byte> outData = new();
             
+            outData.AddRange(metadata.Serialize());
             outData.AddRange(BitConverter.GetBytes(data.mesId));
             outData.AddRange(BitConverter.GetBytes(data.senderId));
             outData.AddRange(BitConverter.GetBytes((int)data.mesType));

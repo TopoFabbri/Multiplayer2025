@@ -12,7 +12,9 @@ namespace UI
 
         protected void SwitchToChatScreen()
         {
-            chatScreen.SetActive(true);
+            if (chatScreen)
+                chatScreen.SetActive(true);
+            
             gameObject.SetActive(false);
         }
     }

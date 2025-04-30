@@ -29,6 +29,7 @@ namespace Network.Messages
         public NetPosition(Position position) : base(position)
         {
             metadata.Type = MessageType.Position;
+            metadata.Id = _posIds++;
         }
 
         public NetPosition(byte[] data) : base(data)

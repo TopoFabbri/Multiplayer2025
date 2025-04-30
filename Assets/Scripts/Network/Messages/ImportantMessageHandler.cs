@@ -1,21 +1,29 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
 
 namespace Network.Messages
 {
     public class ImportantMessageHandler
     {
-        public void OnReceiveMessage(byte[] data, IPEndPoint ip)
+        private readonly Dictionary<int, MessageIds> acknowledgedMessageIdsBySender = new();
+        private readonly Dictionary<int, PendingMessages> pendingMessagesBySender = new();
+        
+        public bool ShouldAcknowledge(MessageMetadata metadata)
         {
-            if (!MessageMetadata.Deserialize(data).Important)
-                return;
-
-            Acknowledge acknowledge;
-
-            acknowledge.mesId = MessageMetadata.Deserialize(data).Id;
-            acknowledge.senderId = MessageMetadata.Deserialize(data).SenderId;
-            acknowledge.mesType = MessageMetadata.Deserialize(data).Type;
+            if (!metadata.Important)
+                return false;
             
-            NetworkManager.Instance?.SendTo(new NetAcknowledge(acknowledge).Serialize(), ip);
+            if (!acknowledgedMessageIdsBySender.ContainsKey(metadata.SenderId))
+                acknowledgedMessageIdsBySender.Add(metadata.SenderId, new MessageIds());
+
+            acknowledgedMessageIdsBySender[metadata.SenderId].TryAddId(metadata.Id);
+            
+            return true;
+        }
+        
+        public void RemoveSender(int id)
+        {
+            acknowledgedMessageIdsBySender.Remove(id);
+            pendingMessagesBySender.Remove(id);
         }
     }
 }
