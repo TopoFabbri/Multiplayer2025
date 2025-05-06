@@ -57,7 +57,7 @@ namespace Network.Messages
         {
             foreach (PendingMessage pendingMessage in messagesToResend)
             {
-                SendTo(pendingMessage.message, pendingMessage.ip);
+                SendTo(pendingMessage.message, pendingMessage.);
             }
         }
 

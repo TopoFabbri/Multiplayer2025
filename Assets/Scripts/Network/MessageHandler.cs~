@@ -35,12 +35,8 @@ namespace Network
         {
             MessageMetadata metadata = GetMetadata(data);
             
-            if (!metadata.Important) return;
-            
-            if (!ImportantMessageHandlersByMessageType.ContainsKey(metadata.Type))
+            if (!ImportantMessageHandlersByMessageType.ContainsKey(metadata.Type) && metadata.Important)
                 ImportantMessageHandlersByMessageType.Add(metadata.Type, new ImportantMessageHandler());
-            
-            
         }
         
         public static MessageMetadata GetMetadata(byte[] data)

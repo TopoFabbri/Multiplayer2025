@@ -8,7 +8,7 @@ namespace Network.Messages
         private readonly Dictionary<int, MessageIds> acknowledgedMessageIdsBySender = new();
         private readonly Dictionary<int, PendingMessagesList> pendingMessagesBySender = new();
         
-        public static event Action<List<PendingMessage>> OnShouldResendMessages; 
+        public static event Action<List<byte[]>> OnShouldResendMessages; 
         
         public bool ShouldAcknowledge(MessageMetadata metadata)
         {
@@ -27,7 +27,7 @@ namespace Network.Messages
         {
             foreach (KeyValuePair<int,PendingMessagesList> pendingMessagesOfSender in pendingMessagesBySender)
             {
-                List<PendingMessage> messagesToResend = pendingMessagesOfSender.Value.CheckMessages(time, timeout);
+                List<byte[]> messagesToResend = pendingMessagesOfSender.Value.CheckMessages(time, timeout);
                 
                 if (messagesToResend.Count > 0)
                     OnShouldResendMessages?.Invoke(messagesToResend);
