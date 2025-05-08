@@ -29,12 +29,9 @@ namespace Network.Messages
 
         protected int Port { get; set; }
         public float Ping { get; protected set; }
-        public bool IsServer { get; protected set; }
 
         public Action onConnectionEstablished;
         public Action<byte[], IPEndPoint> OnReceiveDataAction;
-        public Action<byte[], IPEndPoint> OnSendDataAction;
-
         protected const float TimeOut = 5f;
 
         protected UdpConnection connection;
@@ -49,7 +46,6 @@ namespace Network.Messages
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
 
-            MessageHandler.timeout = TimeOut;
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
         }
 
@@ -96,14 +92,9 @@ namespace Network.Messages
 
         public abstract void SendData(byte[] data);
 
-        public void SendTo(byte[] data, IPEndPoint ip = null)
+        public virtual void SendTo(byte[] data, IPEndPoint ip = null)
         {
-            OnSendDataAction?.Invoke(data, ip);
-
-            if (ip == null)
-                connection?.Send(data);
-            else
-                connection?.Send(data, ip);
+            MessageHandler.OnSendData(data, ip);
         }
 
         public virtual void Init(int port, IPAddress ip = null)

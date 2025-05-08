@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Network.Messages;
+using UnityEngine;
 
 namespace Network
 {
@@ -11,7 +12,7 @@ namespace Network
         private static readonly Dictionary<MessageType, ImportantMessageHandler> ImportantMessageHandlersByMessageType = new();
         private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> OnAcknowledgedByMessageType = new();
 
-        public static float timeout = 5f;
+        private const float Timeout = .5f;
 
         public static void TryAddHandler(MessageType type, Action<byte[], IPEndPoint> handler)
         {
@@ -29,6 +30,9 @@ namespace Network
 
             if (Handlers.TryGetValue(metadata.Type, out Action<byte[], IPEndPoint> handler))
                 handler?.Invoke(data, ip);
+            
+            foreach (KeyValuePair<MessageType, ImportantMessageHandler> importantMessageHandler in ImportantMessageHandlersByMessageType)
+                importantMessageHandler.Value.UpdatePendingMessages(Time.time, Timeout);
         }
 
         public static void OnSendData(byte[] data, IPEndPoint ip)
@@ -72,10 +76,7 @@ namespace Network
 
             Acknowledge acknowledge = new() { mesId = metadata.Id, senderId = metadata.SenderId, mesType = metadata.Type };
 
-            if (NetworkManager.Instance.IsServer)
-                NetworkManager.Instance.SendTo(new NetAcknowledge(acknowledge).Serialize(), ip);
-            else
-                NetworkManager.Instance.SendTo(new NetAcknowledge(acknowledge).Serialize());
+            NetworkManager.Instance.SendTo(new NetAcknowledge(acknowledge).Serialize());
         }
     }
 }

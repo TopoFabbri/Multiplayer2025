@@ -21,6 +21,7 @@ namespace Network
             connection = new UdpConnection(port, this);
 
             ID = 0;
+            IsServer = true;
 
             base.Init(port, ip);
             

@@ -14,13 +14,11 @@ namespace Network
         private readonly List<int> clientIds = new();
 
         private float LastPingTime { get; set; }
-        
+
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
             IPAddress = ip;
-            
-            IsServer = false;
 
             connection = new UdpConnection(ip, port, this);
             
@@ -56,6 +54,11 @@ namespace Network
         public override void SendData(byte[] data)
         {
             SendToServer(data);
+        }
+
+        public override void SendTo(byte[] data, IPEndPoint ip = null)
+        {
+            connection?.Send(data);
         }
 
         private void OnDestroy()
