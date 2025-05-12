@@ -22,6 +22,12 @@ namespace Network
                 Handlers[type] += handler;
         }
         
+        public static void TryRemoveHandler(MessageType type, Action<byte[], IPEndPoint> handler)
+        {
+            if (Handlers.ContainsKey(type))
+                Handlers[type] -= handler;
+        }
+        
         public static void Receive(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);

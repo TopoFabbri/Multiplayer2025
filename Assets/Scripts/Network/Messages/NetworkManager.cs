@@ -38,14 +38,6 @@ namespace Network.Messages
 
         protected override void Initialize()
         {
-            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
-            MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
-            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
-            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
-            MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
-
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
         }
 
@@ -55,26 +47,6 @@ namespace Network.Messages
             {
                 SendTo(pendingMessage.message, pendingMessage.ip);
             }
-        }
-
-        protected abstract void HandleHandshake(byte[] data, IPEndPoint ip);
-
-        protected virtual void HandleConsole(byte[] data, IPEndPoint ip)
-        {
-        }
-
-        protected abstract void HandlePosition(byte[] data, IPEndPoint ip);
-
-        protected virtual void HandleSpawnable(byte[] data, IPEndPoint ip)
-        {
-        }
-
-        protected virtual void HandlePing(byte[] data, IPEndPoint ip)
-        {
-        }
-
-        protected virtual void HandleDisconnect(byte[] data, IPEndPoint ip)
-        {
         }
 
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)

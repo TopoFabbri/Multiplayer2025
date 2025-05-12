@@ -17,6 +17,12 @@ namespace Network
 
         public override void Init(int port, IPAddress ip = null)
         {
+            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
+            MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
+            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
+            
             Port = port;
             connection = new UdpConnection(port, this);
 
@@ -83,25 +89,23 @@ namespace Network
             SendData(new NetHandShake(clients.Select(keyValuePair => keyValuePair.Key).ToList()).Serialize());
         }
 
-        protected override void HandleHandshake(byte[] data, IPEndPoint ip)
+        private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             AddClient(ip);
             SendToClient(new NetPing(0f).Serialize(), ipToId[ip]);
         }
 
-        protected override void HandleConsole(byte[] data, IPEndPoint ip)
-        {
-            base.HandleConsole(data, ip);
-
-            SendData(data);
-        }
-
-        protected override void HandlePosition(byte[] data, IPEndPoint ip)
+        private void HandleConsole(byte[] data, IPEndPoint ip)
         {
             SendData(data);
         }
 
-        protected override void HandleSpawnable(byte[] data, IPEndPoint ip)
+        private void HandlePosition(byte[] data, IPEndPoint ip)
+        {
+            SendData(data);
+        }
+
+        private void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
             List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
 
@@ -117,8 +121,8 @@ namespace Network
 
             SendData(new NetSpawnable(spawnedObjects).Serialize());
         }
-        
-        protected override void HandleDisconnect(byte[] data, IPEndPoint ip)
+
+        private void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
             RemoveClient(ip);
             
@@ -146,6 +150,15 @@ namespace Network
             clients[ipToId[ip]] = client;
 
             SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
+        }
+
+        private void OnDestroy()
+        {
+            MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
+            MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnable);
+            MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
         }
     }
 }

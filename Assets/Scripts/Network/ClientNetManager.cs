@@ -17,6 +17,9 @@ namespace Network
 
         public override void Init(int port, IPAddress ip = null)
         {
+            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
+            
             Port = port;
             IPAddress = ip;
 
@@ -32,7 +35,7 @@ namespace Network
             connection.Send(data);
         }
 
-        protected override void HandleHandshake(byte[] data, IPEndPoint ip)
+        private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             clientIds.AddRange(new NetHandShake(data).Deserialized());
             
@@ -40,11 +43,7 @@ namespace Network
                 ID = clientIds.Last();
         }
 
-        protected override void HandlePosition(byte[] data, IPEndPoint ip)
-        {
-        }
-
-        protected override void HandlePing(byte[] data, IPEndPoint ip)
+        private void HandlePing(byte[] data, IPEndPoint ip)
         {
             Ping = Time.time - LastPingTime;
             
@@ -64,6 +63,9 @@ namespace Network
         private void OnDestroy()
         {
             SendToServer(new NetDisconnect(Player.PlayerID).Serialize());
+            
+            MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);
         }
     }
 }
