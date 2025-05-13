@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Network.Messages
 {
-    internal struct Acknowledge
+    public struct Acknowledge
     {
         internal int mesId;
         internal int senderId;

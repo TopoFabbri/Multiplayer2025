@@ -136,6 +136,8 @@ namespace Network
 
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
+            base.SendTo(data, ip);
+            
             connection?.Send(data, ip);
         }
 

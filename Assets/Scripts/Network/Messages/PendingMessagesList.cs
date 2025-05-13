@@ -5,28 +5,37 @@ namespace Network.Messages
 {
     public class PendingMessagesList
     {
-        private readonly List<PendingMessage> pendingMessages = new();
-        
-        public void Add(float timeStamp, byte[] message, IPEndPoint endpoint) => pendingMessages.Add(new PendingMessage(timeStamp, message, endpoint));
+        private readonly Dictionary<int, PendingMessage> pendingMessagesById = new();
+
+        public void Add(float timeStamp, byte[] message, IPEndPoint endpoint)
+        {
+            MessageMetadata metadata = MessageMetadata.Deserialize(message);
+            
+            pendingMessagesById.Add(metadata.Id, new PendingMessage(timeStamp, message, endpoint));
+        }
 
         public List<PendingMessage> CheckMessages(float time, float timeout)
         {
             List<PendingMessage> messagesToResend = new();
             
-            foreach (PendingMessage pendingMessage in pendingMessages)
+            foreach (KeyValuePair<int, PendingMessage> pendingMessage in pendingMessagesById)
             {
-                if (!(time - pendingMessage.timeStamp > timeout)) continue;
+                if (!(time - pendingMessage.Value.timeStamp > timeout)) continue;
                 
-                messagesToResend.Add(pendingMessage);
+                messagesToResend.Add(pendingMessage.Value);
             }
             
             foreach (PendingMessage pendingMessage in messagesToResend)
             {
-                if (pendingMessages.Contains(pendingMessage))
-                    pendingMessages.Remove(pendingMessage);
+                pendingMessagesById.Remove(MessageMetadata.Deserialize(pendingMessage.message).Id);
             }
             
             return messagesToResend;
+        }
+
+        public void RemoveMessage(Acknowledge acknowledge)
+        {
+            pendingMessagesById.Remove(acknowledge.mesId);
         }
     }
 }

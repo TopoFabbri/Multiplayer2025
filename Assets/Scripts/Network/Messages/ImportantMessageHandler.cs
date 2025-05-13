@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Network.Messages
 {
@@ -33,11 +34,26 @@ namespace Network.Messages
                     OnShouldResendMessages?.Invoke(messagesToResend);
             }
         }
+
+        public void AddPendingMessage(float timeStamp, byte[] message, IPEndPoint endpoint)
+        {
+            MessageMetadata metadata = MessageMetadata.Deserialize(message);
+            
+            if (!pendingMessagesBySender.ContainsKey(metadata.SenderId))
+                pendingMessagesBySender.Add(metadata.SenderId, new PendingMessagesList());
+            
+            pendingMessagesBySender[metadata.SenderId].Add(timeStamp, message, endpoint);
+        }
         
         public void RemoveSender(int id)
         {
             acknowledgedMessageIdsBySender.Remove(id);
             pendingMessagesBySender.Remove(id);
+        }
+
+        public void RemoveMessage(MessageMetadata metadata, Acknowledge acknowledge)
+        {
+            pendingMessagesBySender[metadata.SenderId].RemoveMessage(acknowledge);
         }
     }
 }

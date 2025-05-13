@@ -50,7 +50,7 @@ namespace Network
             if (!ImportantMessageHandlersByMessageType.ContainsKey(metadata.Type))
                 ImportantMessageHandlersByMessageType.Add(metadata.Type, new ImportantMessageHandler());
             
-            
+            ImportantMessageHandlersByMessageType[metadata.Type].AddPendingMessage(Time.time, data, ip);
         }
         
         public static MessageMetadata GetMetadata(byte[] data)
@@ -61,6 +61,9 @@ namespace Network
         public static void HandleAcknowledge(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);
+            Acknowledge acknowledge = new NetAcknowledge(data).Deserialized();
+            
+            ImportantMessageHandlersByMessageType[acknowledge.mesType].RemoveMessage(metadata, acknowledge);
             
             if (OnAcknowledgedByMessageType.TryGetValue(metadata.Type, out Action<byte[], IPEndPoint> onAcknowledge))
                 onAcknowledge?.Invoke(data, ip);

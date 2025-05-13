@@ -72,6 +72,8 @@ namespace Network.Messages
         public virtual void Init(int port, IPAddress ip = null)
         {
             onConnectionEstablished?.Invoke();
+            
+            MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
         }
     }
 }
