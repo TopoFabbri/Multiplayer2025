@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Net;
 using Network.Messages;
-using Objects;
-using UnityEngine;
+using Utils;
 
 namespace Network
 {
@@ -12,6 +11,7 @@ namespace Network
         public IPAddress IPAddress { get; private set; }
         
         private readonly List<int> clientIds = new();
+        private int playerId;
 
         private float LastPingTime { get; set; }
 
@@ -45,9 +45,9 @@ namespace Network
 
         private void HandlePing(byte[] data, IPEndPoint ip)
         {
-            Ping = Time.time - LastPingTime;
+            Ping = Timer.Time - LastPingTime;
             
-            LastPingTime = Time.time;
+            LastPingTime = Timer.Time;
         }
 
         public override void SendData(byte[] data)
@@ -58,12 +58,12 @@ namespace Network
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
-            connection?.Send(data);
+            connection.Send(data);
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
-            SendToServer(new NetDisconnect(Player.PlayerID).Serialize());
+            SendToServer(new NetDisconnect(playerId).Serialize());
             
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);
