@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5f39ea19-1161-456e-8eef-720350fb8e9d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Multiplayer2025/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Multiplayer2025/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Multiplayer2025/.idea/indexLayout.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Multiplayer2025/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vsconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assembly-CSharp.csproj~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InputSystem_Actions.inputactions" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InputSystem_Actions.inputactions.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/ParrelSync.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/ParrelSync/ScriptableObjects.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/ParrelSync/ScriptableObjects/ParrelSyncProjectSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Plugins/ParrelSync/ScriptableObjects/ParrelSyncProjectSettings.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Cube.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Cube.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Map.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Map.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Player.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Player.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Client.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Client.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Selector.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Selector.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Server.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Server.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Game.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Game/GameManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Game/GameManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Game/InputListener.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Game/InputListener.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/ClientNetManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/ClientNetManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/MessageHandler.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/MessageHandler.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/Acknowledge.cs~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/Akcnowledge.cs~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/ImportantMessageHandler.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/ImportantMessageHandler.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/Message.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/Message.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/MessageIds.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/MessageIds.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/MessageMetadata.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/MessageMetadata.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetAcknowledge.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetAcknowledge.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetConsole.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetConsole.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetDisconnect.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetDisconnect.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetHandShake.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetHandShake.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetPing.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetPing.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetPosition.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetPosition.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetSpawnable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetSpawnable.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetworkManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetworkManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessage.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessage.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessage.cs~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessages.cs~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessagesList.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/Messages/PendingMessagesList.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/ServerNetManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/ServerNetManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/UdpConnection.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/UdpConnection.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/interfaces.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/interfaces/IRecieveData.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/interfaces/IRecieveData.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/packets.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/packets/NetworkPacket.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Network/packets/NetworkPacket.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/GenericSpawnable.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/GenericSpawnable.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/ObjectManager.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/ObjectManager.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/Player.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/Player.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/SpawnableObject.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Objects/SpawnableObject.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ChatScreen.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ChatScreen.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ChatScreen.cs~" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ClientNetworkScreen.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ClientNetworkScreen.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/HUDController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/HUDController.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/NetworkScreen.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/NetworkScreen.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SceneLoader.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SceneLoader.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ServerNetworkScreen.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ServerNetworkScreen.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Utils.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Utils/MonoBehaviourSingleton.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Utils/MonoBehaviourSingleton.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Utils/Singleton.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Utils/Singleton.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/LiberationSans.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/LiberationSans.ttf.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Drop Shadow.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Drop Shadow.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Outline.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Outline.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Sprite Assets.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Style Sheets.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/TMP Settings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/TMP Settings.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/SDFFunctions.hlsl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/SDFFunctions.hlsl.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap-Mobile.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Bitmap.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF Overlay.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF Overlay.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF SSD.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF SSD.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-HDRP LIT.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-HDRP LIT.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-HDRP UNLIT.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-HDRP UNLIT.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Overlay.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile-2-Pass.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile-2-Pass.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Surface-Mobile.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-Surface.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-URP Lit.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-URP Lit.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-URP Unlit.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF-URP Unlit.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_SDF.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Sprite.shader" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMP_Sprite.shader.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro.cginc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro.cginc.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Mobile.cginc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Mobile.cginc.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Surface.cginc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Shaders/TMPro_Surface.cginc.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Sprites/EmojiOne.png.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Packages/packages-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/AudioManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ClusterInputManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/GraphicsSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/InputManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/MemorySettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/MultiplayerManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/NavMeshAreas.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/PackageManagerSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/Physics2DSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/PresetManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/SceneTemplateSettings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TimeManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TimelineSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/UnityConnectSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/VFXManager.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/VersionControlSettings.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/XRSettings.asset" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/13c0c460649d4ce49f991e2c222fa63546ae00/4c/65d58901/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/13c0c460649d4ce49f991e2c222fa63546ae00/6b/ca9842aa/BitConverter.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/612ea0208cc847f49d539e6511ed3cd51df400/88/feab7ebe/UnitySynchronizationContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fba24a13802445559d6435422e829b75285000/6e/47c4d87f/UdpClient.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d44b17e136d09081da1e8fd0e8c83fde60e11818b9f2442d7ed8cb733fae895e/System.Collections.Generic.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Game/InputListener.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Network/Messages/NetDisconnect.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2v8N94rSZfKAJUl2WqZxcP0qkEE" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Attach to Unity Editor.Attach to Unity Editor & Play.executor": "Debug",
+    "Attach to Unity Editor.Attach to Unity Editor.executor": "Debug",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Standalone Player.Standalone Player.executor": "Debug",
+    "com.codeium.enabled": "true",
+    "git-widget-placeholder": "create-checksum",
+    "settings.editor.selected.configurable": "CodeLensConfigurable"
+  }
+}]]></component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="$PROJECT_DIR$/Builds/0.1\Multiplayer25.exe" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Builds/0.1" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="PTY_MODE" value="Auto" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Users\Administrator\Documents\Unity\Editors\6000.0.42f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-projectPath D:\UnityProjects\Multiplayer2025 -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="D:\UnityProjects\Multiplayer2025" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="PTY_MODE" value="Auto" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Users\Administrator\Documents\Unity\Editors\6000.0.42f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath D:\UnityProjects\Multiplayer2025 -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="D:\UnityProjects\Multiplayer2025" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <option name="ENV_FILE_PATHS" value="" />
+      <option name="REDIRECT_INPUT_PATH" value="" />
+      <option name="PTY_MODE" value="Auto" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="useMixedMode" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="runtimes">
+        <list />
+      </option>
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <option name="useMixedMode" value="false" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5f39ea19-1161-456e-8eef-720350fb8e9d" name="Changes" comment="" />
+      <created>1743522588065</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743522588065</updated>
+      <workItem from="1743522591024" duration="9354000" />
+      <workItem from="1743554800686" duration="5740000" />
+      <workItem from="1743874496569" duration="12259000" />
+      <workItem from="1744043868770" duration="13808000" />
+      <workItem from="1744129162802" duration="4998000" />
+      <workItem from="1744385153129" duration="17302000" />
+      <workItem from="1744409987112" duration="1869000" />
+      <workItem from="1744645749863" duration="2589000" />
+      <workItem from="1744824220851" duration="1020000" />
+      <workItem from="1744834239455" duration="1631000" />
+      <workItem from="1744835971784" duration="103000" />
+      <workItem from="1744836093968" duration="5530000" />
+      <workItem from="1745337194521" duration="762000" />
+      <workItem from="1745353199679" duration="7010000" />
+      <workItem from="1745438173123" duration="758000" />
+      <workItem from="1745862432590" duration="98000" />
+      <workItem from="1745862570114" duration="962000" />
+      <workItem from="1745865002907" duration="50000" />
+      <workItem from="1745865154007" duration="40000" />
+      <workItem from="1745865213394" duration="2686000" />
+      <workItem from="1745870348228" duration="2060000" />
+      <workItem from="1745948524891" duration="645000" />
+      <workItem from="1745949645306" duration="9138000" />
+      <workItem from="1746041395038" duration="47000" />
+      <workItem from="1746041459842" duration="10069000" />
+      <workItem from="1746726522600" duration="1745000" />
+      <workItem from="1746728495869" duration="182000" />
+      <workItem from="1746728688605" duration="1442000" />
+      <workItem from="1747068498518" duration="4033000" />
+      <workItem from="1747072582236" duration="385000" />
+      <workItem from="1747072983048" duration="1895000" />
+      <workItem from="1747237867009" duration="4217000" />
+    </task>
+    <servers />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
+    <option name="unityProject" value="true" />
+    <option name="unityProjectFolder" value="true" />
+  </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="UNITY_DEBUG_RUN_CONFIGURATION">
+        <watch expression="ID" language="C#" />
+        <watch expression="Player.PlayerID" language="C#" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>
