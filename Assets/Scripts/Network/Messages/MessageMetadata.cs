@@ -47,4 +47,16 @@ namespace Network.Messages
             }
         }
     }
+
+    public class CheckSum
+    {
+        public uint CheckSum1 { get; set; }
+        public uint CheckSum2 { get; set; }
+        public bool Corrupted { get; private set; }
+
+        public CheckSum(byte[] data)
+        {
+            
+        }
+    }
 }

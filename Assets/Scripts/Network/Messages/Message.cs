@@ -15,9 +15,11 @@ namespace Network.Messages
     {
         protected readonly MessageMetadata metadata;
         protected readonly T data;
+        protected readonly CheckSum checksum;
 
         public MessageMetadata Metadata => metadata;
         public T Data => data;
+        public bool Corrupted => checksum.Corrupted;
         
         protected Message(T data)
         {
