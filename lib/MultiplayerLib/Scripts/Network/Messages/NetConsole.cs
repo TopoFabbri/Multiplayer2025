@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Network.Messages
+namespace Multiplayer.Network.Messages
 {
     public class NetConsole : Message<string>
     {

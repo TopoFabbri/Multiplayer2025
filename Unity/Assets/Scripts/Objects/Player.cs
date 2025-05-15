@@ -48,7 +48,7 @@ namespace Objects
             newPos += transform.forward * (Time.deltaTime * speed * moveInput.z);
             newPos += transform.right * (Time.deltaTime * speed * moveInput.x);
 
-            NetworkManager.Instance.SendData(new NetPosition(new Position(newPos, ID)).Serialize());
+            NetworkManager.Instance.SendData(new NetPosition(new Position(newPos.x, newPos.y, newPos.z, ID)).Serialize());
         }
 
         private void OnDestroy()

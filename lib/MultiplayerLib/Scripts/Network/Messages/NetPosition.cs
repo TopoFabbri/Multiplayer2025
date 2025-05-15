@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomMath;
+using Multiplayer.CustomMath;
 
-namespace Network.Messages
+namespace Multiplayer.Network.Messages
 {
     public struct Position
     {

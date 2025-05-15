@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Network.Messages;
-using Utils;
+using Multiplayer.Network.Messages;
+using Multiplayer.Utils;
 
-namespace Network
+namespace Multiplayer.Network
 {
     public class ServerNetManager : NetworkManager
     {

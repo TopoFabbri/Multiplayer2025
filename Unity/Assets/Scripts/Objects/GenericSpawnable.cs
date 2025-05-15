@@ -1,4 +1,5 @@
-﻿using Network.Messages;
+﻿using CustomMath;
+using Network.Messages;
 
 namespace Objects
 {
@@ -6,8 +7,11 @@ namespace Objects
     {
         private void Update()
         {
-            if (transform.hasChanged)
-                NetworkManager.Instance.SendData(new NetPosition(new Position(transform.position, ID)).Serialize());
+            if (!transform.hasChanged) return;
+            
+            Vector3 pos = new(transform.position.x, transform.position.y, transform.position.z);
+                
+            NetworkManager.Instance.SendData(new NetPosition(new Position(pos, ID)).Serialize());
         }
     }
 }

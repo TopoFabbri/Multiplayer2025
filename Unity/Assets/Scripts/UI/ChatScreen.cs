@@ -12,7 +12,7 @@ namespace UI
     {
         [SerializeField] private Text messages;
         [SerializeField] private InputField inputMessage;
-        
+
         private void Start()
         {
             if (inputMessage)
@@ -21,14 +21,13 @@ namespace UI
             gameObject.SetActive(false);
 
             NetworkManager.Instance.OnReceiveDataAction += OnReceiveConsoleHandler;
-            
+
             InputListener.Chat += OnChatHandler;
         }
 
         private void OnDestroy()
         {
-            if (NetworkManager.Instance)
-                NetworkManager.Instance.OnReceiveDataAction -= OnReceiveConsoleHandler;
+            NetworkManager.Instance.OnReceiveDataAction -= OnReceiveConsoleHandler;
 
             InputListener.Chat -= OnChatHandler;
         }

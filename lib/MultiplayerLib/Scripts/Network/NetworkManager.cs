@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using Network.interfaces;
-using Utils;
-using Timer = Utils.Timer;
+using Multiplayer.Network.interfaces;
+using Multiplayer.Network.Messages;
+using Multiplayer.Utils;
+using Timer = Multiplayer.Utils.Timer;
 
-namespace Network.Messages
+namespace Multiplayer.Network
 {
     public struct Client
     {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using Network.interfaces;
+using Multiplayer.Network.interfaces;
 
-namespace Network
+namespace Multiplayer.Network
 {
     public class UdpConnection
     {

@@ -1,4 +1,4 @@
-namespace Network.Messages
+namespace Multiplayer.Network.Messages
 {
     public enum MessageType
     {

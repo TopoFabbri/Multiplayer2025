@@ -77,13 +77,15 @@ namespace Objects
             return instance;
         }
 
-        private void UpdatePosition(int id, Vector3 position)
+        private void UpdatePosition(int id, CustomMath.Vector3 position)
         {
+            Vector3 vector3 = new(position.x, position.y, position.z);
+            
             if (!spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject)) return;
 
-            if (spawnedObject.transform.position == position) return;
+            if (spawnedObject.transform.position == vector3) return;
             
-            spawnedObject.transform.position = position;
+            spawnedObject.transform.position = vector3;
         }
 
         public void RequestSpawn(int objNumber)

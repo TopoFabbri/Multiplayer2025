@@ -9,15 +9,19 @@ namespace Game
     {
         [SerializeField] private ObjectManager objectManager;
 
+        private void Awake()
+        {
+            Timer.Start();
+        }
+
         private void OnEnable()
         {
             NetworkManager.Instance.onConnectionEstablished += OnConnectionEstablished;
         }
-        
+
         private void OnDisable()
         {
-            if (NetworkManager.Instance)
-                NetworkManager.Instance.onConnectionEstablished -= OnConnectionEstablished;
+            NetworkManager.Instance.onConnectionEstablished -= OnConnectionEstablished;
         }
 
         private void OnConnectionEstablished()

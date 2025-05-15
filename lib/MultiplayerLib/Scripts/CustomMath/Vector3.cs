@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomMath
+namespace Multiplayer.CustomMath
 {
     [Serializable]
     public struct Vector3 : IEquatable<Vector3>

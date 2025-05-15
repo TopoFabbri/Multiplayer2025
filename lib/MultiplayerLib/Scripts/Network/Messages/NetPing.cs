@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Network.Messages
+namespace Multiplayer.Network.Messages
 {
     public class NetPing : Message<float>
     {

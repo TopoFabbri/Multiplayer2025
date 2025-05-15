@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace Network.Messages
+namespace Multiplayer.Network.Messages
 {
     public class ImportantMessageHandler
     {
