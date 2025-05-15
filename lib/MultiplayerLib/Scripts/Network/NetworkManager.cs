@@ -77,10 +77,9 @@ namespace Multiplayer.Network
             MessageHandler.Receive(data, ip);
         }
 
-        protected virtual void Update()
+        public virtual void Update()
         {
-            // Flush the data in main thread
-            connection?.FlushReceiveData();
+            connection.FlushReceiveData();
         }
 
         public abstract void SendData(byte[] data);

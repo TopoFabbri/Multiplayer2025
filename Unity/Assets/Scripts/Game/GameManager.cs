@@ -1,4 +1,5 @@
-using Network.Messages;
+using Multiplayer.Network;
+using Multiplayer.Utils;
 using Objects;
 using UnityEngine;
 using Utils;
@@ -22,6 +23,11 @@ namespace Game
         private void OnDisable()
         {
             NetworkManager.Instance.onConnectionEstablished -= OnConnectionEstablished;
+        }
+
+        private void Update()
+        {
+            NetworkManager.Instance.Update();
         }
 
         private void OnConnectionEstablished()

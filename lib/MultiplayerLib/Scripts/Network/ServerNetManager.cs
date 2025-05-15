@@ -34,7 +34,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Acknowledge, OnAcknowledgePingHandler);
         }
 
-        protected override void Update()
+        public override void Update()
         {
             base.Update();
 

@@ -1,5 +1,6 @@
-﻿using CustomMath;
-using Network.Messages;
+﻿using Multiplayer.CustomMath;
+using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 
 namespace Objects
 {

@@ -1,6 +1,5 @@
 ﻿using System.Net;
-using Network;
-using Network.Messages;
+using Multiplayer.Network;
 using UnityEngine;
 using UnityEngine.UI;
 

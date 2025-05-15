@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Network;
-using Network.Messages;
+using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using UnityEngine;
 
 namespace Objects
@@ -77,7 +77,7 @@ namespace Objects
             return instance;
         }
 
-        private void UpdatePosition(int id, CustomMath.Vector3 position)
+        private void UpdatePosition(int id, Multiplayer.CustomMath.Vector3 position)
         {
             Vector3 vector3 = new(position.x, position.y, position.z);
             

@@ -1,5 +1,6 @@
 ﻿using Game;
-using Network.Messages;
+using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using UnityEngine;
 
 namespace Objects

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Net;
 using Game;
-using Network;
-using Network.Messages;
+using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using UnityEngine;
 using UnityEngine.UI;
 
