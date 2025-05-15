@@ -11,7 +11,7 @@ namespace Multiplayer.Network
         public IPAddress IPAddress { get; private set; }
         
         private readonly List<int> clientIds = new();
-        private int playerId;
+        public int PlayerId { private get; set; }
 
         private float LastPingTime { get; set; }
 
@@ -63,7 +63,7 @@ namespace Multiplayer.Network
 
         protected override void OnDestroy()
         {
-            SendToServer(new NetDisconnect(playerId).Serialize());
+            SendToServer(new NetDisconnect(PlayerId).Serialize());
             
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);

@@ -1,0 +1,10 @@
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Debug\netstandard2.1\MultiplayerLib.deps.json
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Debug\netstandard2.1\MultiplayerLib.dll
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Debug\netstandard2.1\MultiplayerLib.pdb
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.GeneratedMSBuildEditorConfig.editorconfig
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.AssemblyInfoInputs.cache
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.AssemblyInfo.cs
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.csproj.CoreCompileInputs.cache
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.sourcelink.json
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.dll
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Debug\netstandard2.1\MultiplayerLib.pdb

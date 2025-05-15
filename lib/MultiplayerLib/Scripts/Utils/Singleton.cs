@@ -10,8 +10,6 @@
             {
                 if (_instance != null) return _instance;
 
-                _instance.Init();
-
                 return _instance;
             }
         }
@@ -22,6 +20,8 @@
                 return;
             
             _instance = (T) this;
+            
+            _instance.Start();
         }
         
         ~Singleton()
@@ -30,7 +30,7 @@
                 OnDestroy();
         }
 
-        protected virtual void Init()
+        protected virtual void Start()
         {
         }
 

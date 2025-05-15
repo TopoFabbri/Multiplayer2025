@@ -25,22 +25,23 @@ namespace Multiplayer.Network
         }
     }
 
-    public abstract class NetworkManager : Singleton<NetworkManager>, IReceiveData, IDisposable
+    public abstract class NetworkManager : Singleton<NetworkManager>, IReceiveData
     {
         protected int ID { get; set; }
 
         protected int Port { get; set; }
         public float Ping { get; protected set; }
+        public bool IsInitiated { get; private set; }
 
         public Action onConnectionEstablished;
         public Action<byte[], IPEndPoint> OnReceiveDataAction;
         protected const float TimeOut = 5f;
 
         protected UdpConnection connection;
-        protected bool _disposed;
-        protected override void Init()
+        protected override void Start()
         {
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
+            MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
         }
 
         private void ResendMessages(List<PendingMessage> messagesToResend)
@@ -49,25 +50,6 @@ namespace Multiplayer.Network
             {
                 SendTo(pendingMessage.message, pendingMessage.ip);
             }
-        }
-        
-        public virtual void Dispose()
-        {
-            if (_disposed) return;
-
-            try
-            {
-                connection.FlushReceiveData();
-                Thread.Sleep(100);
-
-                connection.Close();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[NetworkManager] Disposal error: {e.Message}");
-            }
-
-            _disposed = true;
         }
         
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)
@@ -93,14 +75,7 @@ namespace Multiplayer.Network
         {
             onConnectionEstablished?.Invoke();
             
-            MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            
-            Dispose();
+            IsInitiated = true;
         }
     }
 }

@@ -42,7 +42,10 @@ namespace Objects
             List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
 
             if (spawnedObjects.Count <= 0)
+            {
                 Player.PlayerID = message.Last().id;
+                ((ClientNetManager)ClientNetManager.Instance).PlayerId = message.Last().id;
+            }
                 
             foreach (SpawnRequest spawnable in message)
             {

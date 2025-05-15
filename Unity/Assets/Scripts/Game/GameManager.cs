@@ -9,10 +9,19 @@ namespace Game
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
         [SerializeField] private ObjectManager objectManager;
+        
+        private ClientNetManager networkManager;
 
         private void Awake()
         {
             Timer.Start();
+            networkManager = new ClientNetManager();
+        }
+
+        private void Update()
+        {
+            if (networkManager.IsInitiated)
+                networkManager?.Update();
         }
 
         private void OnEnable()
@@ -24,12 +33,7 @@ namespace Game
         {
             NetworkManager.Instance.onConnectionEstablished -= OnConnectionEstablished;
         }
-
-        private void Update()
-        {
-            NetworkManager.Instance.Update();
-        }
-
+        
         private void OnConnectionEstablished()
         {
             objectManager.RequestSpawn(0);

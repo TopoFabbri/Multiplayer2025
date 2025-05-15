@@ -14,7 +14,9 @@ namespace Multiplayer.Network
 
         private int clientId = 1;
 
-        private readonly List<SpawnRequest> spawnedObjects = new();
+        private readonly Dictionary<int, SpawnRequest> spawnedObjectsById = new();
+
+        private readonly List<IPEndPoint> disconnectedClients = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -32,23 +34,25 @@ namespace Multiplayer.Network
             base.Init(port, ip);
             
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Acknowledge, OnAcknowledgePingHandler);
+            
+            Console.WriteLine("Server running.");
         }
 
         public override void Update()
         {
             base.Update();
-
-            List<IPEndPoint> disconnected = new();
-
+            
+            disconnectedClients.Clear();
+            
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-
+                
                 if (timeSinceLastPing > TimeOut)
-                    disconnected.Add(client.Value.ipEndPoint);
+                    disconnectedClients.Add(client.Value.ipEndPoint);
             }
-
-            foreach (IPEndPoint ipEndPoint in disconnected)
+            
+            foreach (IPEndPoint ipEndPoint in disconnectedClients)
                 RemoveClient(ipEndPoint);
         }
 
@@ -67,7 +71,7 @@ namespace Multiplayer.Network
         {
             if (ipToId.ContainsKey(ip)) return;
 
-            Console.WriteLine("Adding client: " + ip.Address);
+            Console.WriteLine("Adding client: " + clientId);
 
             ipToId[ip] = clientId;
 
@@ -82,7 +86,7 @@ namespace Multiplayer.Network
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
 
-            Console.WriteLine("Removing client: " + ip.Address);
+            Console.WriteLine("Removing client: " + id);
 
             ipToId.Remove(ip);
             clients.Remove(id);
@@ -112,15 +116,15 @@ namespace Multiplayer.Network
 
             int newId = 0;
 
-            while (spawnedObjects.Any(spawnable => spawnable.id == newId))
+            while (spawnedObjectsById.ContainsKey(newId))
                 newId++;
 
             SpawnRequest last = message.Last();
             last.id = newId;
 
-            spawnedObjects.Add(last);
+            spawnedObjectsById.Add(last.id, last);
 
-            SendData(new NetSpawnable(spawnedObjects).Serialize());
+            SendData(new NetSpawnable(spawnedObjectsById.Values.ToList()).Serialize());
         }
 
         private void HandleDisconnect(byte[] data, IPEndPoint ip)

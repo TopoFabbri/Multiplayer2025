@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiplayerLib", "MultiplayerLib\MultiplayerLib.csproj", "{B9073BC7-94CB-4225-8456-F276C53C466D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "..\srv\Server\Server.csproj", "{ACD1ABE5-5969-41C9-B85B-54FA3E347A64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,5 +15,9 @@ Global
 		{B9073BC7-94CB-4225-8456-F276C53C466D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9073BC7-94CB-4225-8456-F276C53C466D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B9073BC7-94CB-4225-8456-F276C53C466D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{ACD1ABE5-5969-41C9-B85B-54FA3E347A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACD1ABE5-5969-41C9-B85B-54FA3E347A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACD1ABE5-5969-41C9-B85B-54FA3E347A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACD1ABE5-5969-41C9-B85B-54FA3E347A64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
