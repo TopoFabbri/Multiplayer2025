@@ -1,30 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
-    public class NetHandShake : Message<List<int>>
+    public struct HandShake
     {
-        public NetHandShake(List<int> data) : base(data)
+        public readonly List<int> clients;
+        public readonly uint randomSeed;
+        
+        public HandShake(uint randomSeed, List<int> clients)
+        {
+            this.randomSeed = randomSeed;
+            this.clients = clients;
+        }
+    }
+    
+    public class NetHandShake : Message<HandShake>
+    {
+        public NetHandShake(HandShake data, bool important) : base(data)
         {
             metadata.Type = MessageType.HandShake;
+            
+            if (important)
+                metadata.Flags = Flags.Important;
         }
 
         public NetHandShake(byte[] data) : base(data)
         {
         }
 
-        protected override List<int> Deserialize(byte[] message)
+        protected override HandShake Deserialize(byte[] message)
         {
-            List<int> outData = new();
-
-            for (int i = MessageMetadata.Size; i < message.Length; i += 4)
+            uint randomSeed  = BitConverter.ToUInt32(message, MessageMetadata.Size);
+            List<int> clients = new();
+            
+            for (int i = MessageMetadata.Size + sizeof(int); i < message.Length; i += 4)
             {
                 byte[] curInt = { message[i], message[i + 1], message[i + 2], message[i + 3] };
-                outData.Add(BitConverter.ToInt32(curInt, 0));
+                clients.Add(BitConverter.ToInt32(curInt, 0));
             }
 
-            return outData;
+            return new HandShake(randomSeed, clients);
         }
 
         public override byte[] Serialize()
@@ -32,7 +49,9 @@ namespace Multiplayer.Network.Messages
             List<byte> outData = new();
             outData.AddRange(metadata.Serialize());
 
-            foreach (int i in data)
+            outData.AddRange(BitConverter.GetBytes(data.randomSeed));
+            
+            foreach (int i in data.clients)
                 outData.AddRange(BitConverter.GetBytes(i));
 
             return outData.ToArray();

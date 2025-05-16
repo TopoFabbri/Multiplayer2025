@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace Multiplayer.Network.Messages
+namespace Multiplayer.Network.Messages.MessageInfo
 {
     public class PendingMessagesList
     {
@@ -11,7 +11,8 @@ namespace Multiplayer.Network.Messages
         {
             MessageMetadata metadata = MessageMetadata.Deserialize(message);
             
-            pendingMessagesById.Add(metadata.Id, new PendingMessage(timeStamp, message, endpoint));
+            if (!pendingMessagesById.ContainsKey(metadata.MsgId))
+                pendingMessagesById.Add(metadata.MsgId, new PendingMessage(timeStamp, message, endpoint));
         }
 
         public List<PendingMessage> CheckMessages(float time, float timeout)
@@ -27,7 +28,7 @@ namespace Multiplayer.Network.Messages
             
             foreach (PendingMessage pendingMessage in messagesToResend)
             {
-                pendingMessagesById.Remove(MessageMetadata.Deserialize(pendingMessage.message).Id);
+                pendingMessagesById.Remove(MessageMetadata.Deserialize(pendingMessage.message).MsgId);
             }
             
             return messagesToResend;

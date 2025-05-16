@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using Multiplayer.Network.interfaces;
 using Multiplayer.Network.Messages;
+using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.Utils;
 using Timer = Multiplayer.Utils.Timer;
 
@@ -27,7 +28,7 @@ namespace Multiplayer.Network
 
     public abstract class NetworkManager : Singleton<NetworkManager>, IReceiveData
     {
-        protected int ID { get; set; }
+        public int Id { get; protected set; }
 
         protected int Port { get; set; }
         public float Ping { get; protected set; }
@@ -42,6 +43,7 @@ namespace Multiplayer.Network
         {
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
             MessageHandler.TryAddHandler(MessageType.Acknowledge, MessageHandler.HandleAcknowledge);
+            MessageHandler.onShouldAcknowledge += OnShouldAcknowledge;
         }
 
         private void ResendMessages(List<PendingMessage> messagesToResend)
@@ -65,7 +67,7 @@ namespace Multiplayer.Network
         }
 
         public abstract void SendData(byte[] data);
-
+        
         public virtual void SendTo(byte[] data, IPEndPoint ip = null)
         {
             MessageHandler.OnSendData(data, ip);
@@ -73,9 +75,14 @@ namespace Multiplayer.Network
 
         public virtual void Init(int port, IPAddress ip = null)
         {
-            onConnectionEstablished?.Invoke();
-            
             IsInitiated = true;
+        }
+
+        private void OnShouldAcknowledge(MessageMetadata metadata, IPEndPoint ip)
+        {
+            Acknowledge acknowledge = new() { mesId = metadata.MsgId, senderId = metadata.SenderId, mesType = metadata.Type };
+
+            SendTo(new NetAcknowledge(acknowledge).Serialize(), ip);
         }
     }
 }

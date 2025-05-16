@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
@@ -15,6 +16,7 @@ namespace Multiplayer.Network.Messages
         public NetAcknowledge(Acknowledge data) : base(data)
         {
             Metadata.Type = MessageType.Acknowledge;
+            Metadata.Flags = Flags.Checksum;
         }
 
         public NetAcknowledge(byte[] data) : base(data)
@@ -29,6 +31,7 @@ namespace Multiplayer.Network.Messages
             outData.AddRange(BitConverter.GetBytes(data.mesId));
             outData.AddRange(BitConverter.GetBytes(data.senderId));
             outData.AddRange(BitConverter.GetBytes((int)data.mesType));
+            outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }

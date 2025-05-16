@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Multiplayer.CustomMath;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
@@ -29,7 +30,8 @@ namespace Multiplayer.Network.Messages
         public NetPosition(Position position) : base(position)
         {
             metadata.Type = MessageType.Position;
-            metadata.Id = _posIds++;
+            metadata.Flags = Flags.Sortable | Flags.Checksum;
+            metadata.MsgId = _posIds++;
         }
 
         public NetPosition(byte[] data) : base(data)
@@ -57,6 +59,7 @@ namespace Multiplayer.Network.Messages
             outData.AddRange(BitConverter.GetBytes(data.position.y));
             outData.AddRange(BitConverter.GetBytes(data.position.z));
             outData.AddRange(BitConverter.GetBytes(data.objId));
+            outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }

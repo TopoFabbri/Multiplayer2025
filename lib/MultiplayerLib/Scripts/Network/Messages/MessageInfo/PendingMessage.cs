@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Multiplayer.Network.Messages
+namespace Multiplayer.Network.Messages.MessageInfo
 {
     public class PendingMessage
     {

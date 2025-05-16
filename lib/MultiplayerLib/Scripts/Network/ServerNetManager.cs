@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
+using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
@@ -29,13 +30,18 @@ namespace Multiplayer.Network
             Port = port;
             connection = new UdpConnection(port, this);
 
-            ID = 0;
+            Id = 0;
 
             base.Init(port, ip);
+            onConnectionEstablished?.Invoke();
             
-            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Acknowledge, OnAcknowledgePingHandler);
+            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Ping, OnAcknowledgePingHandler);
+            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.HandShake, OnAcknowledgeHandshakeHandler);
             
-            Console.WriteLine("Server running.");
+            Console.WriteLine("Server running at port " + port);
+            
+            CheckSum.RandomSeed = (uint)Timer.Time;
+            CheckSum.CreateOperationsArrays((int)CheckSum.RandomSeed);
         }
 
         public override void Update()
@@ -79,7 +85,8 @@ namespace Multiplayer.Network
 
             clientId++;
 
-            SendData(new NetHandShake(clients.Select(keyValuePair => keyValuePair.Key).ToList()).Serialize());
+            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList());
+            SendData(new NetHandShake(hs, true).Serialize());
         }
 
         private void RemoveClient(IPEndPoint ip)
@@ -91,13 +98,13 @@ namespace Multiplayer.Network
             ipToId.Remove(ip);
             clients.Remove(id);
 
-            SendData(new NetHandShake(clients.Select(keyValuePair => keyValuePair.Key).ToList()).Serialize());
+            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList());
+            SendData(new NetHandShake(hs, true).Serialize());
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             AddClient(ip);
-            SendToClient(new NetPing(0f).Serialize(), ipToId[ip]);
         }
 
         private void HandleConsole(byte[] data, IPEndPoint ip)
@@ -157,6 +164,11 @@ namespace Multiplayer.Network
             clients[ipToId[ip]] = client;
 
             SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
+        }
+
+        private void OnAcknowledgeHandshakeHandler(byte[] data, IPEndPoint ip)
+        {
+            SendToClient(new NetPing(0f).Serialize(), ipToId[ip]);
         }
 
         protected override void OnDestroy()

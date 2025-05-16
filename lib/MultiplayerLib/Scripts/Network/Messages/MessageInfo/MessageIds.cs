@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Multiplayer.Network.Messages
+namespace Multiplayer.Network.Messages.MessageInfo
 {
     public class MessageIds
     {

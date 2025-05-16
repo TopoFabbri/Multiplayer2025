@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
@@ -10,8 +11,8 @@ namespace Multiplayer.Network.Messages
         public NetPing(float data) : base(data)
         {
             metadata.Type = MessageType.Ping;
-            metadata.Important = true;
-            metadata.Id = _ids++;
+            metadata.Flags = Flags.Checksum | Flags.Sortable | Flags.Important;
+            metadata.MsgId = _ids++;
         }
 
         public NetPing(byte[] data) : base(data)
@@ -24,6 +25,7 @@ namespace Multiplayer.Network.Messages
             
             outData.AddRange(metadata.Serialize());
             outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }

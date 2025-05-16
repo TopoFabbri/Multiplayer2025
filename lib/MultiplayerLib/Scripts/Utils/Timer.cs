@@ -17,7 +17,6 @@ namespace Multiplayer.Utils
                 
                 Console.WriteLine("Timer not started!");
                 return -1f;
-
             }
         }
         

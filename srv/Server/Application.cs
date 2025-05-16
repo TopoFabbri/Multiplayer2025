@@ -6,7 +6,8 @@ public class Application
 {
     private bool running;
     private readonly ServerNetManager networkManager;
-
+    private int port;
+    
     public Application()
     {
         Multiplayer.Utils.Timer.Start();
@@ -19,7 +20,7 @@ public class Application
     {
         running = true;
 
-        int port = PromptValidPort();
+        port = PromptValidPort();
 
         networkManager.Init(port);
         
@@ -31,6 +32,8 @@ public class Application
 
     private static int PromptValidPort()
     {
+        return 65432;
+        
         int port = 0;
 
         Console.Write("Enter port number: ");

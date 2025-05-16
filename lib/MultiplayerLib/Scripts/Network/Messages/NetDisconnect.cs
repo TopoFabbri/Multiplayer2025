@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
@@ -20,6 +21,7 @@ namespace Multiplayer.Network.Messages
     
             outData.AddRange(metadata.Serialize());
             outData.AddRange(BitConverter.GetBytes(data));
+            outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }

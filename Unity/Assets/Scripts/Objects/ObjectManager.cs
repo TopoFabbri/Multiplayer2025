@@ -62,12 +62,12 @@ namespace Objects
                 
             lastPosMessageByObjId.TryAdd(message.Data.objId, 0);
                 
-            if (message.Metadata.Id < lastPosMessageByObjId[message.Data.objId])
+            if (message.Metadata.MsgId < lastPosMessageByObjId[message.Data.objId])
                 return;
 
             UpdatePosition(message.Data.objId, message.Data.position);
                 
-            lastPosMessageByObjId[message.Data.objId] = message.Metadata.Id;
+            lastPosMessageByObjId[message.Data.objId] = message.Metadata.MsgId;
         }
 
         private SpawnableObject Spawn(int objectNumber, int id)

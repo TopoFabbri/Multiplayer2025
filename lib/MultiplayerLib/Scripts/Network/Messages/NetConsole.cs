@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages
 {
     public class NetConsole : Message<string>
     {
+        private static int _messageIds;
+        
         public NetConsole(string data) : base(data)
         {
-            metadata.Type = MessageType.Console;
+            Metadata.Type = MessageType.Console;
+            Metadata.Flags = Flags.Checksum | Flags.Important | Flags.Sortable;
+            Metadata.MsgId = _messageIds++;
         }
 
         public NetConsole(byte[] data) : base(data)
@@ -20,6 +25,7 @@ namespace Multiplayer.Network.Messages
 
             outData.AddRange(metadata.Serialize());
             outData.AddRange(Encoding.UTF8.GetBytes(data));
+            outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }

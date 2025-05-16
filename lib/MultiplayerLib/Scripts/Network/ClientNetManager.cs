@@ -2,14 +2,15 @@
 using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
+using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
 {
     public class ClientNetManager : NetworkManager
     {
-        public IPAddress IPAddress { get; private set; }
-        
+        public IPAddress IpAddress { get; private set; }
+
         private readonly List<int> clientIds = new();
         public int PlayerId { private get; set; }
 
@@ -17,42 +18,45 @@ namespace Multiplayer.Network
 
         public override void Init(int port, IPAddress ip = null)
         {
-            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
-            
             Port = port;
-            IPAddress = ip;
+            IpAddress = ip;
 
             connection = new UdpConnection(ip, port, this);
-            
-            SendToServer(new NetHandShake(new List<int>()).Serialize());
+
+            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
+
+            SendTo(new NetHandShake(new HandShake(0, new List<int>()), false).Serialize());
 
             base.Init(port, ip);
         }
 
-        private void SendToServer(byte[] data)
-        {
-            connection.Send(data);
-        }
-
         private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
-            clientIds.AddRange(new NetHandShake(data).Deserialized());
+            HandShake hs = new NetHandShake(data).Deserialized();
+
+            clientIds.AddRange(hs.clients);
             
-            if (ID == 0)
-                ID = clientIds.Last();
+            CheckSum.RandomSeed = hs.randomSeed;
+            CheckSum.CreateOperationsArrays((int)hs.randomSeed);
+
+            if (Id == 0)
+            {
+                Id = clientIds.Last();
+                onConnectionEstablished?.Invoke();
+            }
         }
 
         private void HandlePing(byte[] data, IPEndPoint ip)
         {
             Ping = Timer.Time - LastPingTime;
-            
+
             LastPingTime = Timer.Time;
         }
 
         public override void SendData(byte[] data)
         {
-            SendToServer(data);
+            SendTo(data);
         }
 
         public override void SendTo(byte[] data, IPEndPoint ip = null)
@@ -63,8 +67,8 @@ namespace Multiplayer.Network
 
         protected override void OnDestroy()
         {
-            SendToServer(new NetDisconnect(PlayerId).Serialize());
-            
+            SendTo(new NetDisconnect(PlayerId).Serialize());
+
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);
         }

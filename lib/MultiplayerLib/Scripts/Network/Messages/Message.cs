@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Multiplayer.Network.Messages.MessageInfo;
+
 namespace Multiplayer.Network.Messages
 {
     public enum MessageType
@@ -15,16 +20,15 @@ namespace Multiplayer.Network.Messages
     {
         protected readonly MessageMetadata metadata;
         protected readonly T data;
-        protected readonly CheckSum checksum;
 
         public MessageMetadata Metadata => metadata;
         public T Data => data;
-        public bool Corrupted => checksum.Corrupted;
         
         protected Message(T data)
         {
             this.data = data;
             metadata = new MessageMetadata();
+            Metadata.SenderId = NetworkManager.Instance.Id;
         }
 
         protected Message(byte[] data)
@@ -33,6 +37,22 @@ namespace Multiplayer.Network.Messages
             this.data = Deserialize(data);
         }
         public abstract byte[] Serialize();
+        protected byte[] GetCheckSum(List<byte> data)
+        {
+            List<byte> checksum = new();
+            List<byte> dataCopy = data.ToList();
+            
+            uint cs1 = CheckSum.Get(dataCopy.ToArray(), true);
+            dataCopy.AddRange(BitConverter.GetBytes(cs1));
+            
+            uint cs2 = CheckSum.Get(dataCopy.ToArray(), false);
+            
+            checksum.AddRange(BitConverter.GetBytes(cs1));
+            checksum.AddRange(BitConverter.GetBytes(cs2));
+            
+            return checksum.ToArray();
+        }
+        
         protected abstract T Deserialize(byte[] message);
         public T Deserialized() => data;
     }
