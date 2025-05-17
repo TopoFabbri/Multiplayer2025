@@ -6,13 +6,25 @@ namespace Multiplayer.Network.Messages
 {
     public struct SpawnRequest
     {
-        public int spawnableNumber;
-        public int id;
+        public int requesterId;
+        private Dictionary<int, int> spawnablesById;
+
+        public Dictionary<int, int> SpawnablesById
+        {
+            get { return spawnablesById ??= new Dictionary<int, int>(); }
+            private set => spawnablesById = value;
+        }
+
+        public SpawnRequest(int requesterId, Dictionary<int, int> spawnablesById)
+        {
+            this.requesterId = requesterId;
+            this.spawnablesById = spawnablesById;
+        }
     }
 
-    public class NetSpawnable : Message<List<SpawnRequest>>
+    public class NetSpawnable : Message<SpawnRequest>
     {
-        public NetSpawnable(List<SpawnRequest> data) : base(data)
+        public NetSpawnable(SpawnRequest data) : base(data)
         {
             metadata.Type = MessageType.SpawnRequest;
             metadata.Flags = Flags.Important;
@@ -28,32 +40,28 @@ namespace Multiplayer.Network.Messages
 
             outData.AddRange(metadata.Serialize());
 
-            foreach (SpawnRequest spawnable in data)
+            outData.AddRange(BitConverter.GetBytes(data.requesterId));
+
+            foreach (KeyValuePair<int, int> spawnableById in data.SpawnablesById)
             {
-                outData.AddRange(BitConverter.GetBytes(spawnable.spawnableNumber));
-                outData.AddRange(BitConverter.GetBytes(spawnable.id));
+                outData.AddRange(BitConverter.GetBytes(spawnableById.Key));
+                outData.AddRange(BitConverter.GetBytes(spawnableById.Value));
             }
-            
+
             outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
         }
 
-        protected override List<SpawnRequest> Deserialize(byte[] message)
+        protected override SpawnRequest Deserialize(byte[] message)
         {
-            List<SpawnRequest> outData = new();
+            SpawnRequest outData = new() { requesterId = BitConverter.ToInt32(message, MessageMetadata.Size) };
 
-            for (int i = MessageMetadata.Size; i < message.Length - 2 * sizeof(uint); i += sizeof(int) * 2)
+            for (int i = MessageMetadata.Size + sizeof(int); i < message.Length - 2 * sizeof(uint); i += sizeof(int) * 2)
             {
-                SpawnRequest spawnRequest = new()
-                {
-                    spawnableNumber = BitConverter.ToInt32(message, i),
-                    id = BitConverter.ToInt32(message, i + sizeof(int))
-                };
-                
-                outData.Add(spawnRequest);
+                outData.SpawnablesById.Add(BitConverter.ToInt32(message, i), BitConverter.ToInt32(message, i + sizeof(int)));
             }
-            
+
             return outData;
         }
     }

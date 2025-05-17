@@ -39,20 +39,20 @@ namespace Objects
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
         {
-            List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
+            SpawnRequest message = new NetSpawnable(data).Deserialized();
 
-            if (spawnedObjects.Count <= 0)
+            if (message.requesterId == NetworkManager.Instance.Id)
             {
-                Player.PlayerID = message.Last().id;
-                ((ClientNetManager)ClientNetManager.Instance).PlayerId = message.Last().id;
+                Player.PlayerID = message.SpawnablesById.Last().Key;
+                ((ClientNetManager)ClientNetManager.Instance).PlayerId = Player.PlayerID;
             }
                 
-            foreach (SpawnRequest spawnable in message)
+            foreach (KeyValuePair<int, int> spawnable in message.SpawnablesById)
             {
-                if (spawnedObjects.ContainsKey(spawnable.id)) continue;
-                    
-                SpawnableObject spawnedObject = Spawn(spawnable.spawnableNumber, spawnable.id);
-                spawnedObjects.Add(spawnable.id, spawnedObject);
+                if (spawnedObjects.ContainsKey(spawnable.Key)) continue;
+
+                SpawnableObject spawnedObject = Spawn(spawnable.Value, spawnable.Key);
+                spawnedObjects.Add(spawnable.Key, spawnedObject);
             }
         }
 
@@ -98,15 +98,11 @@ namespace Objects
                 Debug.LogWarning(objNumber + " is not a valid object number.");
                 return;
             }
-            
-            SpawnRequest spawnRequest = new()
-            {
-                spawnableNumber = objNumber
-            };
-            
-            List<SpawnRequest> message = new() { spawnRequest };
 
-            NetworkManager.Instance.SendData(new NetSpawnable(message).Serialize());
+            SpawnRequest spawnRequest = new();
+            spawnRequest.SpawnablesById.Add(0, objNumber);
+
+            NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }
     }
 }

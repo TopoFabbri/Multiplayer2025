@@ -13,9 +13,9 @@ namespace Multiplayer.Network
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
 
-        private readonly Dictionary<int, SpawnRequest> spawnedObjectsById = new();
-
         private readonly List<IPEndPoint> disconnectedClients = new();
+
+        private SpawnRequest spawnedObjects;
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -120,19 +120,20 @@ namespace Multiplayer.Network
 
         private void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
-            List<SpawnRequest> message = new NetSpawnable(data).Deserialized();
+            SpawnRequest message = new NetSpawnable(data).Deserialized();
 
             int newId = 0;
 
-            while (spawnedObjectsById.ContainsKey(newId))
+            if (spawnedObjects.SpawnablesById == null)
+                spawnedObjects = message;
+            
+            while (spawnedObjects.SpawnablesById.ContainsKey(newId))
                 newId++;
 
-            SpawnRequest last = message.Last();
-            last.id = newId;
+            spawnedObjects.SpawnablesById.TryAdd(newId, message.SpawnablesById.Last().Value);
+            spawnedObjects.requesterId = MessageMetadata.Deserialize(data).SenderId;
 
-            spawnedObjectsById.Add(newId, last);
-
-            SendData(new NetSpawnable(spawnedObjectsById.Values.ToList()).Serialize());
+            SendData(new NetSpawnable(spawnedObjects).Serialize());
         }
 
         private void HandleDisconnect(byte[] data, IPEndPoint ip)
