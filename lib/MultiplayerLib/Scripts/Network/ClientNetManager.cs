@@ -15,35 +15,64 @@ namespace Multiplayer.Network
         public int PlayerId { private get; set; }
 
         private float LastPingTime { get; set; }
+        private int MmPort { get; set; }
+        private bool ConnectToServer { get; set; }
+        private IPEndPoint MmIp { get; set; }
+
+        protected override void Start()
+        {
+            base.Start();
+            
+            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
+            MessageHandler.TryAddHandler(MessageType.ServerInfo, HandleServerInfo);
+
+            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
+        }
 
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
             IpAddress = ip;
 
+            Id = -1;
+            
             connection = new UdpConnection(ip, port, this);
 
-            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
-
-            SendTo(new NetHandShake(new HandShake(0, new List<int>()), false).Serialize());
+            SendTo(new NetHandShake(new HandShake(0, new List<int>(), false), false).Serialize());
 
             base.Init(port, ip);
+        }
+
+        public override void Update()
+        {
+            base.Update();
+
+            // if (Timer.Time - LastPingTime > TimeOut)
+            //     Disconnect();
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             HandShake hs = new NetHandShake(data).Deserialized();
 
-            clientIds.AddRange(hs.clients);
-            
             CheckSum.RandomSeed = hs.randomSeed;
-            CheckSum.CreateOperationsArrays((int)hs.randomSeed);
+            CheckSum.CreateOperationsArrays(hs.randomSeed);
 
-            if (Id == 0)
+            clientIds.AddRange(hs.clients);
+
+            if (Id > 0) return;
+
+            Id = clientIds.Last();
+
+            if (hs.fromServer)
             {
-                Id = clientIds.Last();
                 onConnectionEstablished?.Invoke();
+            }
+            else
+            {
+                MmPort = Port;
+                MmIp = ip;
             }
         }
 
@@ -52,6 +81,24 @@ namespace Multiplayer.Network
             Ping = Timer.Time - LastPingTime;
 
             LastPingTime = Timer.Time;
+        }
+
+        private void HandleServerInfo(byte[] data, IPEndPoint ip)
+        {
+            Port = new NetServerInfo(data).Deserialized().port;
+            ConnectToServer = true;
+
+            RequestDisconnect();
+        }
+
+        private void HandleAcknowledgedDisconnect(byte[] data, IPEndPoint ip)
+        {
+            Disconnect();
+
+            if (!ConnectToServer) return;
+
+            Init(Port, IpAddress);
+            ConnectToServer = false;
         }
 
         public override void SendData(byte[] data)
@@ -65,9 +112,21 @@ namespace Multiplayer.Network
             connection.Send(data);
         }
 
-        protected override void OnDestroy()
+        public void RequestDisconnect()
         {
             SendTo(new NetDisconnect(PlayerId).Serialize());
+        }
+
+        private void Disconnect()
+        {
+            clientIds.Clear();
+
+            connection?.Close();
+        }
+
+        protected override void OnDestroy()
+        {
+            Disconnect();
 
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);

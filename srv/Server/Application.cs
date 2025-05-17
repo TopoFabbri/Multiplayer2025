@@ -6,7 +6,6 @@ public class Application
 {
     private bool running;
     private readonly ServerNetManager networkManager;
-    private int port;
     
     public Application()
     {
@@ -16,11 +15,9 @@ public class Application
         networkManager = new ServerNetManager();
     }
 
-    public void Run()
+    public void Run(int port)
     {
         running = true;
-
-        port = PromptValidPort();
 
         networkManager.Init(port);
         
@@ -28,28 +25,5 @@ public class Application
             networkManager.Update();
 
         running = false;
-    }
-
-    private static int PromptValidPort()
-    {
-        return 65432;
-        
-        int port = 0;
-
-        Console.Write("Enter port number: ");
-
-        string input = Console.ReadLine();
-        if (input != null) port = int.Parse(input);
-
-        while (port is < 1024 or > 65535)
-        {
-            Console.WriteLine("Invalid port number!");
-            Console.Write("Enter port number: ");
-            
-            input = Console.ReadLine();
-            if (input != null) port = int.Parse(input);
-        }
-
-        return port;
     }
 }

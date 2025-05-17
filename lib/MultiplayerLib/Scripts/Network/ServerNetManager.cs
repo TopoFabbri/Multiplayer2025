@@ -13,8 +13,6 @@ namespace Multiplayer.Network
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
 
-        private int clientId = 1;
-
         private readonly Dictionary<int, SpawnRequest> spawnedObjectsById = new();
 
         private readonly List<IPEndPoint> disconnectedClients = new();
@@ -41,7 +39,7 @@ namespace Multiplayer.Network
             Console.WriteLine("Server running at port " + port);
             
             CheckSum.RandomSeed = (uint)Timer.Time;
-            CheckSum.CreateOperationsArrays((int)CheckSum.RandomSeed);
+            CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
         }
 
         public override void Update()
@@ -76,6 +74,11 @@ namespace Multiplayer.Network
         private void AddClient(IPEndPoint ip)
         {
             if (ipToId.ContainsKey(ip)) return;
+            
+            int clientId = 1;
+
+            while (clients.ContainsKey(clientId))
+                clientId++;
 
             Console.WriteLine("Adding client: " + clientId);
 
@@ -83,9 +86,7 @@ namespace Multiplayer.Network
 
             clients.Add(clientId, new Client(ip, clientId, Timer.Time));
 
-            clientId++;
-
-            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList());
+            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList(), true);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
@@ -98,7 +99,7 @@ namespace Multiplayer.Network
             ipToId.Remove(ip);
             clients.Remove(id);
 
-            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList());
+            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList(), true);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
@@ -129,7 +130,7 @@ namespace Multiplayer.Network
             SpawnRequest last = message.Last();
             last.id = newId;
 
-            spawnedObjectsById.Add(last.id, last);
+            spawnedObjectsById.Add(newId, last);
 
             SendData(new NetSpawnable(spawnedObjectsById.Values.ToList()).Serialize());
         }

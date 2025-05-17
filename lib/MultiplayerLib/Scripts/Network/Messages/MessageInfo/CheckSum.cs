@@ -10,6 +10,8 @@ namespace Multiplayer.Network.Messages.MessageInfo
         private static readonly List<BitOperations.Operations> Operations2 = new();
         public static uint RandomSeed {get; set;}
 
+        public static int Size => 2 * sizeof(uint);
+        
         public static uint Get(byte[] data, bool first)
         {
             uint sum = RandomSeed;
@@ -27,9 +29,9 @@ namespace Multiplayer.Network.Messages.MessageInfo
             return sum;
         }
 
-        public static void CreateOperationsArrays(int seed)
+        public static void CreateOperationsArrays(uint seed)
         {
-            Random random = new(seed);
+            Random random = new((int)seed);
 
             Operations1.Clear();
             Operations2.Clear();

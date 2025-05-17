@@ -13,7 +13,9 @@ namespace Multiplayer.Network.Messages
         SpawnRequest,
         Ping,
         Disconnect,
-        Acknowledge
+        Acknowledge,
+        RequestMessage,
+        ServerInfo
     }
     
     public abstract class Message<T>

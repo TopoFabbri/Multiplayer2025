@@ -9,6 +9,7 @@ namespace Multiplayer.Network.Messages
         public NetDisconnect(int data) : base(data)
         {
             metadata.Type = MessageType.Disconnect;
+            metadata.Flags = Flags.Important;
         }
         
         public NetDisconnect(byte[] data) : base(data)
