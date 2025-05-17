@@ -6,10 +6,7 @@ try
 {
     app.Run(int.Parse(args[0]));
 }
-catch (Exception e)
+finally
 {
-    Console.WriteLine(e);
-    throw;
+    Console.ReadKey();
 }
-
-Console.ReadKey();

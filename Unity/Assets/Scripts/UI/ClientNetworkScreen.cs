@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Multiplayer.Network;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,8 @@ namespace UI
         [SerializeField] private InputField addressInputField;
 
         [SerializeField] private string defaultAddress = "127.0.0.1";
+
+        public static event Action Connect;
         
         private void Awake()
         {
@@ -27,11 +30,12 @@ namespace UI
                 portInputField.text = defaultPort;
             
             IPAddress ipAddress = IPAddress.Parse(addressInputField.text);
-            int port = System.Convert.ToInt32(portInputField.text);
+            int port = Convert.ToInt32(portInputField.text);
 
             NetworkManager.Instance.Init(port, ipAddress);
-        
-            SwitchToChatScreen();
+            
+            Connect?.Invoke();
+            ToggleNetworkScreen();
         }
     }
 }

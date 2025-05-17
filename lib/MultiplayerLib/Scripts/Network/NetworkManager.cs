@@ -78,7 +78,7 @@ namespace Multiplayer.Network
             IsInitiated = true;
         }
 
-        private void OnShouldAcknowledge(MessageMetadata metadata, IPEndPoint ip)
+        protected virtual void OnShouldAcknowledge(MessageMetadata metadata, IPEndPoint ip)
         {
             Acknowledge acknowledge = new() { mesId = metadata.MsgId, senderId = metadata.SenderId, mesType = metadata.Type };
 

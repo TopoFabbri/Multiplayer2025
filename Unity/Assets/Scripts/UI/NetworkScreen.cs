@@ -6,15 +6,11 @@ namespace UI
     public class NetworkScreen : MonoBehaviour
     {
         [SerializeField] protected InputField portInputField;
-        [SerializeField] private GameObject chatScreen;
         [SerializeField] protected string defaultPort = "65432";
 
-        protected void SwitchToChatScreen()
+        public void ToggleNetworkScreen()
         {
-            if (chatScreen)
-                chatScreen.SetActive(true);
-            
-            gameObject.SetActive(false);
+            gameObject.SetActive(!gameObject.activeSelf);
         }
     }
 }

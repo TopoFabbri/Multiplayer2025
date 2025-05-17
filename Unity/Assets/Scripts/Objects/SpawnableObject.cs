@@ -16,5 +16,10 @@ namespace Objects
             
             return instance;
         }
+
+        public void Destroy()
+        {
+            Destroy(gameObject);
+        }
     }
 }

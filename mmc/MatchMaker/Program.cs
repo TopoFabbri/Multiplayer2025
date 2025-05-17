@@ -2,4 +2,11 @@
 
 Application application = new();
 
-application.Run();
+try
+{
+    application.Run();
+}
+finally
+{
+    Console.ReadKey();
+}

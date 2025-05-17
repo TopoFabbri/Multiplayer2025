@@ -9,6 +9,7 @@ namespace Game
         public static event Action<Vector2> Move;
         public static event Action<Vector2> Look;
         public static event Action Chat;
+        public static event Action Disconnect;
 
         private void OnMove(InputValue input)
         {
@@ -23,6 +24,11 @@ namespace Game
         private void OnChat()
         {
             Chat?.Invoke();
+        }
+
+        private void OnDisconnect()
+        {
+            Disconnect?.Invoke();
         }
     }
 }

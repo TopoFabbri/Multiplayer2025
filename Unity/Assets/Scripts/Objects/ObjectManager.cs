@@ -12,16 +12,16 @@ namespace Objects
         [SerializeField] private List<SpawnableObject> prefabList = new();
 
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
-        
+
         private readonly Dictionary<int, int> lastPosMessageByObjId = new();
-        
+
         private void OnEnable()
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
         }
-        
+
         private void OnDisable()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
@@ -31,10 +31,10 @@ namespace Objects
 
         private void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
-                int disconnectedID = new NetDisconnect(data).Deserialized();
-                
-                Destroy(spawnedObjects[disconnectedID].gameObject);
-                spawnedObjects.Remove(disconnectedID);
+            int disconnectedID = new NetDisconnect(data).Deserialized();
+
+            Destroy(spawnedObjects[disconnectedID].gameObject);
+            spawnedObjects.Remove(disconnectedID);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -46,7 +46,7 @@ namespace Objects
                 Player.PlayerID = message.SpawnablesById.Last().Key;
                 ((ClientNetManager)ClientNetManager.Instance).PlayerId = Player.PlayerID;
             }
-                
+
             foreach (KeyValuePair<int, int> spawnable in message.SpawnablesById)
             {
                 if (spawnedObjects.ContainsKey(spawnable.Key)) continue;
@@ -59,14 +59,14 @@ namespace Objects
         private void HandlePosition(byte[] data, IPEndPoint ip)
         {
             NetPosition message = new(data);
-                
+
             lastPosMessageByObjId.TryAdd(message.Data.objId, 0);
-                
+
             if (message.Metadata.MsgId < lastPosMessageByObjId[message.Data.objId])
                 return;
 
             UpdatePosition(message.Data.objId, message.Data.position);
-                
+
             lastPosMessageByObjId[message.Data.objId] = message.Metadata.MsgId;
         }
 
@@ -76,18 +76,18 @@ namespace Objects
 
             if (instance)
                 instance.transform.parent = transform;
-            
+
             return instance;
         }
 
         private void UpdatePosition(int id, Multiplayer.CustomMath.Vector3 position)
         {
             Vector3 vector3 = new(position.x, position.y, position.z);
-            
+
             if (!spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject)) return;
 
             if (spawnedObject.transform.position == vector3) return;
-            
+
             spawnedObject.transform.position = vector3;
         }
 
@@ -103,6 +103,14 @@ namespace Objects
             spawnRequest.SpawnablesById.Add(0, objNumber);
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
+        }
+
+        public void Disconnect()
+        {
+            foreach (KeyValuePair<int, SpawnableObject> spawnedObj in spawnedObjects)
+                spawnedObj.Value.Destroy();
+
+            spawnedObjects.Clear();
         }
     }
 }

@@ -13,22 +13,13 @@ namespace Multiplayer.Network
 
         private readonly List<int> clientIds = new();
         public int PlayerId { private get; set; }
+        public bool IsConnectedToServer { get;  private set; }
 
         private float LastPingTime { get; set; }
         private int MmPort { get; set; }
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
 
-        protected override void Start()
-        {
-            base.Start();
-            
-            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
-            MessageHandler.TryAddHandler(MessageType.ServerInfo, HandleServerInfo);
-
-            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
-        }
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -36,8 +27,14 @@ namespace Multiplayer.Network
             IpAddress = ip;
 
             Id = -1;
-            
+
             connection = new UdpConnection(ip, port, this);
+
+            MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
+            MessageHandler.TryAddHandler(MessageType.ServerInfo, HandleServerInfo);
+
+            MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
 
             SendTo(new NetHandShake(new HandShake(0, new List<int>(), false), false).Serialize());
 
@@ -48,8 +45,10 @@ namespace Multiplayer.Network
         {
             base.Update();
 
-            // if (Timer.Time - LastPingTime > TimeOut)
-            //     Disconnect();
+            if (LastPingTime <= 0) return;
+            
+            if (Timer.Time - LastPingTime > TimeOut)
+                Disconnect();
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
@@ -93,11 +92,15 @@ namespace Multiplayer.Network
 
         private void HandleAcknowledgedDisconnect(byte[] data, IPEndPoint ip)
         {
+            if (IsConnectedToServer)
+                IsConnectedToServer = false;
+
             Disconnect();
 
             if (!ConnectToServer) return;
 
             Init(Port, IpAddress);
+            IsConnectedToServer = true;
             ConnectToServer = false;
         }
 
@@ -122,14 +125,25 @@ namespace Multiplayer.Network
             clientIds.Clear();
 
             connection?.Close();
+
+            MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
+            MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);
+            MessageHandler.TryRemoveHandler(MessageType.ServerInfo, HandleServerInfo);
+
+            MessageHandler.TryRemoveOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
+        }
+
+        protected override void OnShouldAcknowledge(MessageMetadata metadata, IPEndPoint ip)
+        {
+            if (IsConnectedToServer && Equals(ip, MmIp))
+                return;
+
+            base.OnShouldAcknowledge(metadata, ip);
         }
 
         protected override void OnDestroy()
         {
             Disconnect();
-
-            MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryRemoveHandler(MessageType.Ping, HandlePing);
         }
     }
 }

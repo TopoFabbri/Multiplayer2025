@@ -68,7 +68,7 @@ namespace Multiplayer.Network
         {
             return MessageMetadata.Deserialize(data);
         }
-
+        
         public static void HandleAcknowledge(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);
@@ -86,6 +86,12 @@ namespace Multiplayer.Network
                 OnAcknowledgedByMessageType.TryAdd(type, handler);
             else
                 OnAcknowledgedByMessageType[type] += handler;
+        }
+
+        public static void TryRemoveOnAcknowledgeHandler(MessageType type, Action<byte[], IPEndPoint> handler)
+        {
+            if (OnAcknowledgedByMessageType.ContainsKey(type))
+                OnAcknowledgedByMessageType[type] -= handler;
         }
         
         private static void CheckReceivedImportantMessage(MessageMetadata metadata, IPEndPoint ip)

@@ -36,7 +36,8 @@ namespace Multiplayer.Network
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Ping, OnAcknowledgePingHandler);
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.HandShake, OnAcknowledgeHandshakeHandler);
             
-            Console.WriteLine("Server running at port " + port);
+            Log.Write("Server running at port " + port);
+            Log.NewLine(2);
             
             CheckSum.RandomSeed = (uint)Timer.Time;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
@@ -80,7 +81,8 @@ namespace Multiplayer.Network
             while (clients.ContainsKey(clientId))
                 clientId++;
 
-            Console.WriteLine("Adding client: " + clientId);
+            Log.Write("Adding client: " + clientId);
+            Log.NewLine();
 
             ipToId[ip] = clientId;
 
@@ -94,7 +96,8 @@ namespace Multiplayer.Network
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
 
-            Console.WriteLine("Removing client: " + id);
+            Log.Write("Removing client: " + id);
+            Log.NewLine();
 
             ipToId.Remove(ip);
             clients.Remove(id);
