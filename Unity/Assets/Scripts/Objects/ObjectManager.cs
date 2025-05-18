@@ -6,16 +6,12 @@ using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.NetworkFactory;
 using UnityEngine;
 using Utils;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Objects
 {
     public class ObjectManager : MonoBehaviourSingleton<ObjectManager>, INetworkFactory
     {
         [SerializeField] private List<SpawnableObject> prefabList = new();
-
-        [SerializeField] private List<Transform> spawns;
         
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
         private readonly Dictionary<int, int> lastPosMessageByObjId = new();
@@ -29,6 +25,7 @@ namespace Objects
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
+            MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
         }
 
         private void OnDisable()
@@ -37,6 +34,7 @@ namespace Objects
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
+            MessageHandler.TryRemoveHandler(MessageType.Jump, HandleJump);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -52,7 +50,7 @@ namespace Objects
             if (parentsByPrefabName.TryGetValue(prefabName, out GameObject parent))
                 return parent;
 
-            GameObject newParent = new(prefabName + "s") { transform = { rotation = Quaternion.identity, position = UnityEngine.Vector3.zero } };
+            GameObject newParent = new(prefabName + "s") { transform = { rotation = Quaternion.identity, position = Vector3.zero } };
 
             parentsByPrefabName.Add(prefabName, newParent);
             return newParent;
@@ -97,6 +95,15 @@ namespace Objects
             ((Player)spawnedObject).Crouch();
         }
         
+        private void HandleJump(byte[] data, IPEndPoint ip)
+        {
+            int objId = new NetJump(data).Deserialized();
+            
+            if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
+
+            ((Player)spawnedObject).Jump();
+        }
+        
         public void SpawnObject(SpawnableObjectData data)
         {
             if (spawnedObjects.ContainsKey(data.Id))
@@ -108,17 +115,15 @@ namespace Objects
             spawnedObjects.Add(data.Id, spawnedObject);
         }
 
-        public void RequestSpawn(int objNumber)
+        public void RequestSpawn(SpawnableObjectData spawnableData)
         {
-            if (objNumber < 0 || objNumber >= prefabList.Count)
+            if (spawnableData.PrefabId < 0 || spawnableData.PrefabId >= prefabList.Count)
             {
-                Debug.LogWarning(objNumber + " is not a valid object number.");
+                Debug.LogWarning(spawnableData.PrefabId + " is not a valid object number.");
                 return;
             }
 
-            SpawnableObjectData data = new() { OwnerId = NetworkManager.Instance.Id, PrefabId = objNumber, Pos = Vector3.Zero, Rot = Vector2.Zero };
-
-            SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { data });
+            SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { spawnableData });
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }

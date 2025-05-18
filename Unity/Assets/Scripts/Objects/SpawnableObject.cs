@@ -1,4 +1,5 @@
-﻿using Multiplayer.NetworkFactory;
+﻿using System;
+using Multiplayer.NetworkFactory;
 using UnityEngine;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = Multiplayer.CustomMath.Vector3;

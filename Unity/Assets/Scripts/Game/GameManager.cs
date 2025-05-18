@@ -1,4 +1,5 @@
 using Multiplayer.Network;
+using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 using Objects;
 using UI;
@@ -75,7 +76,17 @@ namespace Game
         {
             State = GameState.InGame;
             chatScreen.gameObject.SetActive(true);
-            ObjectManager.Instance.RequestSpawn(0);
+            
+            SpawnableObjectData spawnableData = new()
+            {
+                OwnerId = NetworkManager.Instance.Id,
+                PrefabId = 0,
+                Pos = Multiplayer.CustomMath.Vector3.Zero,
+                Rot = System.Numerics.Vector2.Zero
+            };
+            
+            
+            ObjectManager.Instance.RequestSpawn(spawnableData);
         }
     }
 }

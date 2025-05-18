@@ -1,5 +1,5 @@
-﻿using System.Net;
-using Game;
+﻿using Game;
+using Interfaces;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -7,27 +7,32 @@ using UnityEngine;
 
 namespace Objects
 {
-    public class Player : SpawnableObject
+    public class Player : SpawnableObject, IDamageable
     {
         [SerializeField] private float speed = 10f;
         [SerializeField] private float cameraSensitivity = 2f;
+        [SerializeField] private float jumpForce = 10f;
         [SerializeField] private Transform camPos;
+        [SerializeField] private Transform gunPoint;
         [SerializeField] private Animator animator;
+        [SerializeField] private Rigidbody rb;
         [SerializeField] private string crouchParameterName = "Crouching";
+        [SerializeField] private int bulletPrefabIndex = 1;
+        [SerializeField] private int health = 100;
         
         private Vector3 moveInput;
         private Vector2 rotationInput;
         private bool canMove;
         private bool crouching;
-        
+
         private static Camera _cam;
 
-        public static int PlayerID { get; set; }
-        
+        private bool IsGrounded => Physics.Raycast(rb.transform.position, Vector3.down, 1.2f);
+
         private void Awake()
         {
             if (_cam) return;
-            
+
             _cam = Camera.main;
         }
 
@@ -47,9 +52,8 @@ namespace Objects
         private void Rotate()
         {
             if (rotationInput == Vector2.zero) return;
-            
-            Data.Rot = new System.Numerics.Vector2(
-                Data.Rot.X + rotationInput.x * cameraSensitivity * Time.deltaTime,
+
+            Data.Rot = new System.Numerics.Vector2(Data.Rot.X + rotationInput.x * cameraSensitivity * Time.deltaTime,
                 Data.Rot.Y + rotationInput.y * cameraSensitivity * Time.deltaTime);
 
             if (rotationInput != Vector2.zero)
@@ -89,7 +93,7 @@ namespace Objects
             if (!_cam) return;
 
             _cam.transform.parent = camPos;
-            
+
             _cam.transform.localPosition = Vector3.zero;
             _cam.transform.localRotation = Quaternion.identity;
 
@@ -97,6 +101,8 @@ namespace Objects
             InputListener.Look += OnLookHandler;
             InputListener.Chat += OnChatHandler;
             InputListener.Crouch += OnCrouchHandler;
+            InputListener.Jump += OnJumpHandler;
+            InputListener.Shoot += OnShootHandler;
         }
 
         private void UnPossess()
@@ -104,7 +110,7 @@ namespace Objects
             if (!_cam) return;
 
             _cam.transform.parent = null;
-            
+
             _cam.transform.position = Vector3.zero;
             _cam.transform.rotation = Quaternion.identity;
 
@@ -112,6 +118,8 @@ namespace Objects
             InputListener.Look -= OnLookHandler;
             InputListener.Chat -= OnChatHandler;
             InputListener.Crouch -= OnCrouchHandler;
+            InputListener.Jump -= OnJumpHandler;
+            InputListener.Shoot -= OnShootHandler;
         }
 
         private void OnMoveHandler(Vector2 input)
@@ -131,12 +139,36 @@ namespace Objects
             crouching = !crouching;
             animator.SetBool(crouchParameterName, crouching);
         }
-        
+
+        public void Jump()
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        }
+
         private void OnCrouchHandler()
         {
             NetworkManager.Instance.SendData(new NetCrouch(Data.Id).Serialize());
         }
-        
+
+        private void OnJumpHandler()
+        {
+            if (IsGrounded && canMove)
+                NetworkManager.Instance.SendData(new NetJump(Data.Id).Serialize());
+        }
+
+        private void OnShootHandler()
+        {
+            SpawnableObjectData spawnableData = new()
+            {
+                OwnerId = NetworkManager.Instance.Id,
+                PrefabId = bulletPrefabIndex,
+                Pos = new Multiplayer.CustomMath.Vector3(gunPoint.position.x, gunPoint.position.y, gunPoint.position.z),
+                Rot = new System.Numerics.Vector2(gunPoint.rotation.eulerAngles.y, gunPoint.rotation.eulerAngles.x)
+            };
+            
+            ObjectManager.Instance.RequestSpawn(spawnableData);
+        }
+
         private void OnChatHandler() => canMove = !canMove;
 
         public override void Spawn(SpawnableObjectData data)
@@ -145,6 +177,11 @@ namespace Objects
 
             if (data.OwnerId == NetworkManager.Instance.Id)
                 Possess();
+        }
+
+        public void TakeDamage(int damage)
+        {
+            health -= damage;
         }
     }
 }
