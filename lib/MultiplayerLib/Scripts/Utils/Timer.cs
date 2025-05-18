@@ -21,6 +21,7 @@ namespace Multiplayer.Utils
         }
         
         public static DateTime DateTime => DateTime.UtcNow;
+        public static DateTime DateTimeNow => DateTime.Now;
         public static DateTime StartTime { get; private set; }
     }
 }

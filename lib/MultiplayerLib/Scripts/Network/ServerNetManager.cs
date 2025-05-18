@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
+using Multiplayer.Network.Objects;
+using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
@@ -11,10 +13,11 @@ namespace Multiplayer.Network
     {
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
+        private readonly Dictionary<int, int> PlayerIdsByClientIds = new();
 
         private readonly List<IPEndPoint> disconnectedClients = new();
 
-        private SpawnRequest spawnedObjects;
+        private readonly ObjectManager spawnedObjects = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -23,7 +26,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
-            
+
             Port = port;
             connection = new UdpConnection(port, this);
 
@@ -31,13 +34,13 @@ namespace Multiplayer.Network
 
             base.Init(port, ip);
             onConnectionEstablished?.Invoke();
-            
+
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Ping, OnAcknowledgePingHandler);
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.HandShake, OnAcknowledgeHandshakeHandler);
-            
+
             Log.Write("Server running at port " + port);
             Log.NewLine(2);
-            
+
             CheckSum.RandomSeed = (uint)Timer.Time;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
         }
@@ -45,17 +48,17 @@ namespace Multiplayer.Network
         public override void Update()
         {
             base.Update();
-            
+
             disconnectedClients.Clear();
-            
+
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-                
+
                 if (timeSinceLastPing > TimeOut)
                     disconnectedClients.Add(client.Value.ipEndPoint);
             }
-            
+
             foreach (IPEndPoint ipEndPoint in disconnectedClients)
                 RemoveClient(ipEndPoint);
         }
@@ -74,7 +77,7 @@ namespace Multiplayer.Network
         private void AddClient(IPEndPoint ip)
         {
             if (ipToId.ContainsKey(ip)) return;
-            
+
             int clientId = 1;
 
             while (clients.ContainsKey(clientId))
@@ -123,25 +126,25 @@ namespace Multiplayer.Network
         private void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
             SpawnRequest message = new NetSpawnable(data).Deserialized();
-
-            int newId = 0;
-
-            if (spawnedObjects.SpawnablesById == null)
-                spawnedObjects = message;
             
-            while (spawnedObjects.SpawnablesById.ContainsKey(newId))
-                newId++;
+            foreach (SpawnableObjectData spawnableObj in message.spawnableObjects)
+            {
+                spawnableObj.Id = spawnedObjects.FreeId;
+                spawnedObjects.SpawnObject(spawnableObj);
+            }
+            
+            string messageString = "Spawned " + message.spawnableObjects.Count + " objects by client " + ipToId[ip] + " request.";
+            
+            Log.Write(messageString);
+            Log.NewLine();
 
-            spawnedObjects.SpawnablesById.TryAdd(newId, message.SpawnablesById.Last().Value);
-            spawnedObjects.requesterId = MessageMetadata.Deserialize(data).SenderId;
-
-            SendData(new NetSpawnable(spawnedObjects).Serialize());
+            SendData(new NetSpawnable(new SpawnRequest(spawnedObjects.SpawnablesData)).Serialize());
         }
 
         private void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
             RemoveClient(ip);
-            
+
             SendData(data);
         }
 
@@ -153,7 +156,7 @@ namespace Multiplayer.Network
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
-            
+
             connection?.Send(data, ip);
         }
 
@@ -178,7 +181,7 @@ namespace Multiplayer.Network
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            
+
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);

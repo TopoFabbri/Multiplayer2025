@@ -32,7 +32,7 @@ namespace Multiplayer.Network.Messages
 
         protected override string Deserialize(byte[] message)
         {
-            int dataSize = message.Length - MessageMetadata.Size;
+            int dataSize = message.Length - MessageMetadata.Size - CheckSum.Size;
 
             return Encoding.UTF8.GetString(message, MessageMetadata.Size, dataSize);
         }

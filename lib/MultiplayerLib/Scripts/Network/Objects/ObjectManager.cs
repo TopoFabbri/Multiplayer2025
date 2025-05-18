@@ -6,29 +6,56 @@ namespace Multiplayer.Network.Objects
 {
     public class ObjectManager : INetworkFactory
     {
-        private readonly Dictionary<int, Spawnable> spawnablesById = new();
+        private readonly Dictionary<int, Spawnable> spawnedById = new();
         
+        public int FreeId
+        {
+            get
+            {
+                int id = 0;
+                
+                while (spawnedById.ContainsKey(id)) id++;
+                
+                return id;
+            }
+        }
+
+        public List<SpawnableObjectData> SpawnablesData
+        {
+            get
+            {
+                List<SpawnableObjectData> data = new();
+                
+                foreach (Spawnable spawnable in spawnedById.Values)
+                    data.Add(spawnable.Data);
+                
+                return data;
+            }
+        }
+
         public void SpawnObject(SpawnableObjectData data)
         {
+            if (spawnedById.ContainsKey(data.Id)) return;
+            
             Spawnable spawnable = new();
             spawnable.Spawn(data);
             
-            spawnablesById.Add(data.Id, spawnable);
+            spawnedById.Add(data.Id, spawnable);
         }
 
         public void MoveObjectTo(int id, float x, float y, float z)
         {
-            spawnablesById[id].MoveTo(x, y, z);
+            spawnedById[id].MoveTo(x, y, z);
         }
 
         public void RotateObjectTo(int id, Quaternion rot)
         {
-            spawnablesById[id].RotateTo(rot);
+            spawnedById[id].RotateTo(rot);
         }
         
         public void DestroyObject(int id)
         {
-            spawnablesById[id].Destroy();
+            spawnedById[id].Destroy();
         }
     }
 }

@@ -1741,7 +1741,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a33e31ff0c4256458525f0676ce7b1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectManager: {fileID: 1320282974}
   clientNetworkScreen: {fileID: 294039877}
   chatScreen: {fileID: 1130635392}
 --- !u!1 &1253435171
@@ -1889,6 +1888,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabList:
   - {fileID: 2956195938844261500, guid: 2045a3ec62b471b4f8c9cf4b46dcd0b6, type: 3}
+  spawns:
+  - {fileID: 1497296138}
+  - {fileID: 1497296137}
 --- !u!4 &1320282975
 Transform:
   m_ObjectHideFlags: 0
@@ -2226,6 +2228,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c9dd91c8aa5245747af005eab667ec34, type: 3}
+--- !u!4 &1497296137 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3372111541866636048, guid: c9dd91c8aa5245747af005eab667ec34,
+    type: 3}
+  m_PrefabInstance: {fileID: 1497296136}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1497296138 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3790507621736301223, guid: c9dd91c8aa5245747af005eab667ec34,
+    type: 3}
+  m_PrefabInstance: {fileID: 1497296136}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1526544162
 GameObject:
   m_ObjectHideFlags: 0

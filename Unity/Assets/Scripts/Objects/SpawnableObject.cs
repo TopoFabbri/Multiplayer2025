@@ -1,20 +1,29 @@
-﻿using UnityEngine;
+﻿using Multiplayer.NetworkFactory;
+using UnityEngine;
+using Quaternion = System.Numerics.Quaternion;
 
 namespace Objects
 {
-    public abstract class SpawnableObject : MonoBehaviour
+    public abstract class SpawnableObject : MonoBehaviour, ISpawnable
     {
-        public int ID { get; private set; }
-        protected ObjectManager objectManager;
-        
-        public virtual SpawnableObject Spawn(ObjectManager objectManager, int id)
+        public SpawnableObjectData Data { get; private set; }
+
+        public virtual void Spawn(SpawnableObjectData data)
         {
-            SpawnableObject instance = Instantiate(this);
-            instance.transform.position = Vector3.zero;
-            instance.objectManager = objectManager;
-            instance.ID = id;
+            Data = data;
             
-            return instance;
+            MoveTo(Data.Pos.x, Data.Pos.y, Data.Pos.z);
+            RotateTo(Data.Rot);
+        }
+
+        public void MoveTo(float x, float y, float z)
+        {
+            transform.position = new Vector3(x, y, z);
+        }
+
+        public void RotateTo(Quaternion quaternion)
+        {
+            transform.rotation = new UnityEngine.Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
         }
 
         public void Destroy()

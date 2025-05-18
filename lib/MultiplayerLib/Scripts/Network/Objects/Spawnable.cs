@@ -6,21 +6,21 @@ namespace Multiplayer.Network.Objects
 {
     public class Spawnable : ISpawnable
     {
-        private SpawnableObjectData data;
+        public SpawnableObjectData Data { get; private set; }
 
         public void Spawn(SpawnableObjectData data)
         {
-            this.data = data;
+            Data = data;
         }
 
         public void MoveTo(float x, float y, float z)
         {
-            data.Pos = new Vector3(x, y, z);
+            Data.Pos = new Vector3(x, y, z);
         }
 
         public void RotateTo(Quaternion quaternion)
         {
-            data.Rot = quaternion;
+            Data.Rot = quaternion;
         }
 
         public void Destroy()

@@ -16,7 +16,6 @@ namespace Game
     
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
-        [SerializeField] private ObjectManager objectManager;
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         
@@ -58,7 +57,7 @@ namespace Game
             if (State == GameState.InGame)
             {
                 State = GameState.MatchMaking;
-                objectManager.Disconnect();
+                ObjectManager.Instance.Disconnect();
             }
             else
             {
@@ -76,7 +75,7 @@ namespace Game
         {
             State = GameState.InGame;
             chatScreen.gameObject.SetActive(true);
-            objectManager.RequestSpawn(0);
+            ObjectManager.Instance.RequestSpawn(0);
         }
     }
 }

@@ -1,94 +1,93 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
+using Multiplayer.Network.Messages.MessageInfo;
+using Multiplayer.NetworkFactory;
 using UnityEngine;
+using Utils;
+using Quaternion = System.Numerics.Quaternion;
+using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Objects
 {
-    public class ObjectManager : MonoBehaviour
+    public class ObjectManager : MonoBehaviourSingleton<ObjectManager>, INetworkFactory
     {
         [SerializeField] private List<SpawnableObject> prefabList = new();
 
+        [SerializeField] private List<Transform> spawns;
+        
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
-
         private readonly Dictionary<int, int> lastPosMessageByObjId = new();
+
+        private readonly Dictionary<string, GameObject> parentsByPrefabName = new();
 
         private void OnEnable()
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
         }
 
         private void OnDisable()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
-        }
-
-        private void HandleDisconnect(byte[] data, IPEndPoint ip)
-        {
-            int disconnectedID = new NetDisconnect(data).Deserialized();
-
-            Destroy(spawnedObjects[disconnectedID].gameObject);
-            spawnedObjects.Remove(disconnectedID);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
         {
             SpawnRequest message = new NetSpawnable(data).Deserialized();
 
-            if (message.requesterId == NetworkManager.Instance.Id)
-            {
-                Player.PlayerID = message.SpawnablesById.Last().Key;
-                ((ClientNetManager)ClientNetManager.Instance).PlayerId = Player.PlayerID;
-            }
-
-            foreach (KeyValuePair<int, int> spawnable in message.SpawnablesById)
-            {
-                if (spawnedObjects.ContainsKey(spawnable.Key)) continue;
-
-                SpawnableObject spawnedObject = Spawn(spawnable.Value, spawnable.Key);
-                spawnedObjects.Add(spawnable.Key, spawnedObject);
-            }
+            foreach (SpawnableObjectData spawnableObject in message.spawnableObjects)
+                SpawnObject(spawnableObject);
         }
 
+        private GameObject GetParent(string prefabName)
+        {
+            if (parentsByPrefabName.TryGetValue(prefabName, out GameObject parent))
+                return parent;
+
+            GameObject newParent = Instantiate(new GameObject(prefabName + "s"));
+
+            newParent.transform.rotation = UnityEngine.Quaternion.identity;
+            newParent.transform.position = UnityEngine.Vector3.zero;
+
+            parentsByPrefabName.Add(prefabName, newParent);
+            return newParent;
+        }
+        
         private void HandlePosition(byte[] data, IPEndPoint ip)
         {
-            NetPosition message = new(data);
+            MessageMetadata metadata = MessageMetadata.Deserialize(data);
+            Position position = new NetPosition(data).Deserialized();
 
-            lastPosMessageByObjId.TryAdd(message.Data.objId, 0);
+            lastPosMessageByObjId.TryAdd(position.objId, 0);
 
-            if (message.Metadata.MsgId < lastPosMessageByObjId[message.Data.objId])
+            if (metadata.MsgId < lastPosMessageByObjId[position.objId])
                 return;
 
-            UpdatePosition(message.Data.objId, message.Data.position);
+            spawnedObjects[position.objId].MoveTo(position.position.x, position.position.y, position.position.z);
 
-            lastPosMessageByObjId[message.Data.objId] = message.Metadata.MsgId;
+            lastPosMessageByObjId[position.objId] = metadata.MsgId;
         }
 
-        private SpawnableObject Spawn(int objectNumber, int id)
+        private void HandleRotation(byte[] data, IPEndPoint ip)
         {
-            SpawnableObject instance = !prefabList[objectNumber] ? null : prefabList[objectNumber].Spawn(this, id);
-
-            if (instance)
-                instance.transform.parent = transform;
-
-            return instance;
+            // MessageMetadata metadata = MessageMetadata.Deserialize(data);
+            // Rotation rotation = new NetRotation(data).Deserialized();
         }
-
-        private void UpdatePosition(int id, Multiplayer.CustomMath.Vector3 position)
+        
+        public void SpawnObject(SpawnableObjectData data)
         {
-            Vector3 vector3 = new(position.x, position.y, position.z);
+            if (spawnedObjects.ContainsKey(data.Id))
+                return;
 
-            if (!spawnedObjects.TryGetValue(id, out SpawnableObject spawnedObject)) return;
+            SpawnableObject spawnedObject = Instantiate(prefabList[data.PrefabId], GetParent(prefabList[data.PrefabId].name).transform);
 
-            if (spawnedObject.transform.position == vector3) return;
-
-            spawnedObject.transform.position = vector3;
+            spawnedObject.Spawn(data);
+            spawnedObjects.Add(data.Id, spawnedObject);
+            
+            spawnedObject.transform.position = spawns[spawnedObject.Data.Id % spawns.Count].position;
         }
 
         public void RequestSpawn(int objNumber)
@@ -99,8 +98,9 @@ namespace Objects
                 return;
             }
 
-            SpawnRequest spawnRequest = new();
-            spawnRequest.SpawnablesById.Add(0, objNumber);
+            SpawnableObjectData data = new() { OwnerId = NetworkManager.Instance.Id, PrefabId = objNumber, Pos = Vector3.Zero, Rot = Quaternion.Identity };
+
+            SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { data });
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }
@@ -111,6 +111,11 @@ namespace Objects
                 spawnedObj.Value.Destroy();
 
             spawnedObjects.Clear();
+        }
+
+        public void DestroyObject(int id)
+        {
+            spawnedObjects[id].Destroy();
         }
     }
 }

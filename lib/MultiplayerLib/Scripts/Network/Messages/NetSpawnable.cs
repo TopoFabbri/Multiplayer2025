@@ -1,24 +1,16 @@
-using System;
 using System.Collections.Generic;
 using Multiplayer.Network.Messages.MessageInfo;
+using Multiplayer.NetworkFactory;
 
 namespace Multiplayer.Network.Messages
 {
     public struct SpawnRequest
     {
-        public int requesterId;
-        private Dictionary<int, int> spawnablesById;
-
-        public Dictionary<int, int> SpawnablesById
+        public List<SpawnableObjectData> spawnableObjects;
+        
+        public SpawnRequest(List<SpawnableObjectData> spawnableObjects)
         {
-            get { return spawnablesById ??= new Dictionary<int, int>(); }
-            private set => spawnablesById = value;
-        }
-
-        public SpawnRequest(int requesterId, Dictionary<int, int> spawnablesById)
-        {
-            this.requesterId = requesterId;
-            this.spawnablesById = spawnablesById;
+            this.spawnableObjects = spawnableObjects;
         }
     }
 
@@ -39,14 +31,9 @@ namespace Multiplayer.Network.Messages
             List<byte> outData = new();
 
             outData.AddRange(metadata.Serialize());
-
-            outData.AddRange(BitConverter.GetBytes(data.requesterId));
-
-            foreach (KeyValuePair<int, int> spawnableById in data.SpawnablesById)
-            {
-                outData.AddRange(BitConverter.GetBytes(spawnableById.Key));
-                outData.AddRange(BitConverter.GetBytes(spawnableById.Value));
-            }
+            
+            foreach (SpawnableObjectData spawnableObj in data.spawnableObjects)
+                outData.AddRange(spawnableObj.Serialized);
 
             outData.AddRange(GetCheckSum(outData));
 
@@ -55,13 +42,15 @@ namespace Multiplayer.Network.Messages
 
         protected override SpawnRequest Deserialize(byte[] message)
         {
-            SpawnRequest outData = new() { requesterId = BitConverter.ToInt32(message, MessageMetadata.Size) };
+            SpawnRequest outData = new() ;
 
-            for (int i = MessageMetadata.Size + sizeof(int); i < message.Length - 2 * sizeof(uint); i += sizeof(int) * 2)
-            {
-                outData.SpawnablesById.Add(BitConverter.ToInt32(message, i), BitConverter.ToInt32(message, i + sizeof(int)));
-            }
-
+            int startIndex = MessageMetadata.Size;
+            
+            outData.spawnableObjects = new List<SpawnableObjectData>();
+            
+            while (startIndex < message.Length - CheckSum.Size)
+                outData.spawnableObjects.Add(SpawnableObjectData.Deserialize(message, ref startIndex));
+            
             return outData;
         }
     }

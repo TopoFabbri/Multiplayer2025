@@ -1,6 +1,7 @@
 ﻿using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
+using Multiplayer.NetworkFactory;
 using UnityEngine;
 
 namespace Objects
@@ -9,19 +10,22 @@ namespace Objects
     {
         [SerializeField] private float speed = 10f;
         [SerializeField] private Transform camPos;
-
+        [SerializeField] private Animator animator;
+        [SerializeField] private string crouchParameterName = "Crouching";
+        
         private Vector3 moveInput;
         private float rotationInput;
         private bool canMove;
+        private bool crouching;
         
         private static Camera _cam;
 
-        public bool IsPossessed => PlayerID == ID;
-        
         public static int PlayerID { get; set; }
 
         private void Awake()
         {
+            if (_cam) return;
+            
             _cam = Camera.main;
         }
 
@@ -29,7 +33,9 @@ namespace Objects
         {
             if (!canMove) return;
             
-            Move();
+            if (!crouching)
+                Move();
+            
             Rotate();
         }
 
@@ -49,7 +55,7 @@ namespace Objects
             newPos += transform.forward * (Time.deltaTime * speed * moveInput.z);
             newPos += transform.right * (Time.deltaTime * speed * moveInput.x);
 
-            NetworkManager.Instance.SendData(new NetPosition(new Position(newPos.x, newPos.y, newPos.z, ID)).Serialize());
+            NetworkManager.Instance.SendData(new NetPosition(new Position(newPos.x, newPos.y, newPos.z, Data.Id)).Serialize());
         }
 
         private void OnDestroy()
@@ -57,35 +63,24 @@ namespace Objects
             UnPossess();
         }
 
-        public override SpawnableObject Spawn(ObjectManager objectManager, int id)
-        {
-            SpawnableObject spawnedObject = base.Spawn(objectManager, id);
-
-            if (PlayerID == id)
-                (spawnedObject as Player)?.Possess();
-
-            spawnedObject.transform.position += Vector3.up;
-
-            return spawnedObject;
-        }
-
         private void Possess()
         {
             if (!_cam) return;
 
-            _cam.transform.parent = transform;
+            _cam.transform.parent = camPos;
             
-            _cam.transform.position = camPos.position;
-            _cam.transform.rotation = camPos.rotation;
+            _cam.transform.localPosition = Vector3.zero;
+            _cam.transform.localRotation = Quaternion.identity;
 
             InputListener.Move += OnMoveHandler;
             InputListener.Look += OnLookHandler;
             InputListener.Chat += OnChatHandler;
+            InputListener.Crouch += OnCrouchHandler;
         }
 
         private void UnPossess()
         {
-            if (!_cam || !IsPossessed) return;
+            if (!_cam) return;
 
             _cam.transform.parent = null;
             
@@ -95,6 +90,7 @@ namespace Objects
             InputListener.Move -= OnMoveHandler;
             InputListener.Look -= OnLookHandler;
             InputListener.Chat -= OnChatHandler;
+            InputListener.Crouch -= OnCrouchHandler;
         }
 
         private void OnMoveHandler(Vector2 input)
@@ -108,7 +104,21 @@ namespace Objects
         {
             rotationInput = input.x;
         }
+
+        private void OnCrouchHandler()
+        {
+            crouching = !crouching;
+            animator.SetBool(crouchParameterName, crouching);
+        }
         
         private void OnChatHandler() => canMove = !canMove;
+
+        public override void Spawn(SpawnableObjectData data)
+        {
+            base.Spawn(data);
+
+            if (data.OwnerId == NetworkManager.Instance.Id)
+                Possess();
+        }
     }
 }

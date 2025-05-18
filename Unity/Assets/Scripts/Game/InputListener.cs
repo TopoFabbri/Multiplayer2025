@@ -8,6 +8,7 @@ namespace Game
     {
         public static event Action<Vector2> Move;
         public static event Action<Vector2> Look;
+        public static event Action Crouch;
         public static event Action Chat;
         public static event Action Disconnect;
 
@@ -21,6 +22,11 @@ namespace Game
             Look?.Invoke(input.Get<Vector2>());
         }
 
+        private void OnCrouch()
+        {
+            Crouch?.Invoke();
+        }
+        
         private void OnChat()
         {
             Chat?.Invoke();

@@ -42,7 +42,7 @@ namespace Multiplayer.Utils
             
             Console.Write("[");
             
-            Console.Write(Timer.DateTime.ToString("HH:mm:ss") + "] ");
+            Console.Write(Timer.DateTimeNow.ToString("HH:mm:ss") + "] ");
             
             Color = color;
         }
