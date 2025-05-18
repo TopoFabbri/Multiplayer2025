@@ -9,6 +9,7 @@ namespace Objects
     public class Player : SpawnableObject
     {
         [SerializeField] private float speed = 10f;
+        [SerializeField] private float cameraSensitivity = 2f;
         [SerializeField] private Transform camPos;
         [SerializeField] private Animator animator;
         [SerializeField] private string crouchParameterName = "Crouching";
@@ -17,8 +18,6 @@ namespace Objects
         private Vector2 rotationInput;
         private bool canMove;
         private bool crouching;
-
-        private float yRot;
         
         private static Camera _cam;
 
@@ -31,25 +30,29 @@ namespace Objects
             _cam = Camera.main;
         }
 
-        private void Update()
+        protected override void Update()
         {
-            if (!canMove) return;
+            if (canMove)
+            {
+                if (!crouching)
+                    Move();
+
+                Rotate();
+            }
             
-            if (!crouching)
-                Move();
-            
-            Rotate();
+            base.Update();
         }
 
         private void Rotate()
         {
             if (rotationInput == Vector2.zero) return;
-
-            transform.Rotate(Vector3.up * (Time.deltaTime * rotationInput.x));
             
-            yRot -= Time.deltaTime * rotationInput.y;
-            yRot = Mathf.Clamp(yRot, -80f, 80f);
-            camPos.localRotation = Quaternion.Euler(yRot, 0f, 0f);
+            Data.Rot = new System.Numerics.Vector2(
+                Data.Rot.X + rotationInput.x * cameraSensitivity * Time.deltaTime,
+                Data.Rot.Y + rotationInput.y * cameraSensitivity * Time.deltaTime);
+
+            if (rotationInput != Vector2.zero)
+                NetworkManager.Instance.SendData(new NetRotation(new Rotation(Data.Rot, Data.Id)).Serialize());
         }
 
         private void Move()
@@ -62,6 +65,17 @@ namespace Objects
             newPos += transform.right * (Time.deltaTime * speed * moveInput.x);
 
             NetworkManager.Instance.SendData(new NetPosition(new Position(newPos.x, newPos.y, newPos.z, Data.Id)).Serialize());
+        }
+
+        protected override void ApplyPosition()
+        {
+            transform.position = new Vector3(Data.Pos.x, Data.Pos.y, Data.Pos.z);
+        }
+
+        protected override void ApplyRotation()
+        {
+            transform.localRotation = Quaternion.AngleAxis(Data.Rot.X, Vector3.up);
+            camPos.localRotation = Quaternion.AngleAxis(Data.Rot.Y, Vector3.right);
         }
 
         private void OnDestroy()

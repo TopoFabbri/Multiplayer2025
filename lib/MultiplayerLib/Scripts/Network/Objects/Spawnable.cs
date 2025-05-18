@@ -18,9 +18,9 @@ namespace Multiplayer.Network.Objects
             Data.Pos = new Vector3(x, y, z);
         }
 
-        public void RotateTo(Quaternion quaternion)
+        public void RotateTo(Vector2 vector2)
         {
-            Data.Rot = quaternion;
+            Data.Rot = vector2;
         }
 
         public void Destroy()

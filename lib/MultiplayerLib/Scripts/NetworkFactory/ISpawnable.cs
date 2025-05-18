@@ -6,7 +6,7 @@ namespace Multiplayer.NetworkFactory
     {
         public void Spawn(SpawnableObjectData data);
         public void MoveTo(float x, float y, float z);
-        public void RotateTo(Quaternion quaternion);
+        public void RotateTo(Vector2 vector2);
         public void Destroy();
     }
 }

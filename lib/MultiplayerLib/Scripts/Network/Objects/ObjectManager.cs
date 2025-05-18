@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
+using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
+using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Multiplayer.Network.Objects
 {
@@ -36,6 +38,14 @@ namespace Multiplayer.Network.Objects
         public void SpawnObject(SpawnableObjectData data)
         {
             if (spawnedById.ContainsKey(data.Id)) return;
+
+            if (data.PrefabId == 0)
+            {
+                Vector3 pos = data.Pos;
+            
+                pos.x += data.Id * 2;
+                data.Pos = pos;
+            }
             
             Spawnable spawnable = new();
             spawnable.Spawn(data);
@@ -48,9 +58,9 @@ namespace Multiplayer.Network.Objects
             spawnedById[id].MoveTo(x, y, z);
         }
 
-        public void RotateObjectTo(int id, Quaternion rot)
+        public void RotateObjectTo(int id, Vector2 vector2)
         {
-            spawnedById[id].RotateTo(rot);
+            spawnedById[id].RotateTo(vector2);
         }
         
         public void DestroyObject(int id)

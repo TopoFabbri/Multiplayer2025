@@ -14,11 +14,11 @@ namespace Multiplayer.NetworkFactory
         public int PrefabId { get; set; }
         
         public Vector3 Pos { get; set; }
-        public Quaternion Rot { get; set; }
+        public Vector2 Rot { get; set; }
 
         public byte[] Serialized => Serialize(this);
         
-        public static int Size => sizeof(int) * 3 + sizeof(float) * 7;
+        public static int Size => sizeof(int) * 3 + sizeof(float) * 5;
 
         public static byte[] Serialize(SpawnableObjectData data)
         {
@@ -36,8 +36,6 @@ namespace Multiplayer.NetworkFactory
             
             outData.AddRange(BitConverter.GetBytes(data.Rot.X));
             outData.AddRange(BitConverter.GetBytes(data.Rot.Y));
-            outData.AddRange(BitConverter.GetBytes(data.Rot.Z));
-            outData.AddRange(BitConverter.GetBytes(data.Rot.W));
                 
             return outData.ToArray();
         }
@@ -61,12 +59,10 @@ namespace Multiplayer.NetworkFactory
                 BitConverter.ToSingle(data, startIndex + sizeof(float) * 2));
             startIndex += sizeof(float) * 3;
             
-            objData.Rot = new Quaternion(
+            objData.Rot = new Vector2(
                 BitConverter.ToSingle(data, startIndex), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float)), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float) * 2), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float) * 3));
-            startIndex += sizeof(float) * 4;
+                BitConverter.ToSingle(data, startIndex + sizeof(float)));
+            startIndex += sizeof(float) * 2;
             
             return objData;
         }

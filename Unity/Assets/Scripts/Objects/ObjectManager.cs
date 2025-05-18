@@ -6,7 +6,7 @@ using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.NetworkFactory;
 using UnityEngine;
 using Utils;
-using Quaternion = System.Numerics.Quaternion;
+using Vector2 = System.Numerics.Vector2;
 using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Objects
@@ -19,6 +19,7 @@ namespace Objects
         
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
         private readonly Dictionary<int, int> lastPosMessageByObjId = new();
+        private readonly Dictionary<int, int> lastRotMessageByObjId = new();
 
         private readonly Dictionary<string, GameObject> parentsByPrefabName = new();
 
@@ -26,12 +27,14 @@ namespace Objects
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
         }
 
         private void OnDisable()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -47,10 +50,7 @@ namespace Objects
             if (parentsByPrefabName.TryGetValue(prefabName, out GameObject parent))
                 return parent;
 
-            GameObject newParent = Instantiate(new GameObject(prefabName + "s"));
-
-            newParent.transform.rotation = UnityEngine.Quaternion.identity;
-            newParent.transform.position = UnityEngine.Vector3.zero;
+            GameObject newParent = new(prefabName + "s") { transform = { rotation = Quaternion.identity, position = UnityEngine.Vector3.zero } };
 
             parentsByPrefabName.Add(prefabName, newParent);
             return newParent;
@@ -73,8 +73,17 @@ namespace Objects
 
         private void HandleRotation(byte[] data, IPEndPoint ip)
         {
-            // MessageMetadata metadata = MessageMetadata.Deserialize(data);
-            // Rotation rotation = new NetRotation(data).Deserialized();
+            MessageMetadata metadata = MessageMetadata.Deserialize(data);
+            Rotation rotation = new NetRotation(data).Deserialized();
+            
+            lastRotMessageByObjId.TryAdd(rotation.objId, 0);
+            
+            if (metadata.MsgId < lastRotMessageByObjId[rotation.objId])
+                return;
+            
+            spawnedObjects[rotation.objId].RotateTo(rotation.rotation);
+            
+            lastRotMessageByObjId[rotation.objId] = metadata.MsgId;
         }
         
         public void SpawnObject(SpawnableObjectData data)
@@ -86,8 +95,6 @@ namespace Objects
 
             spawnedObject.Spawn(data);
             spawnedObjects.Add(data.Id, spawnedObject);
-            
-            spawnedObject.transform.position = spawns[spawnedObject.Data.Id % spawns.Count].position;
         }
 
         public void RequestSpawn(int objNumber)
@@ -98,7 +105,7 @@ namespace Objects
                 return;
             }
 
-            SpawnableObjectData data = new() { OwnerId = NetworkManager.Instance.Id, PrefabId = objNumber, Pos = Vector3.Zero, Rot = Quaternion.Identity };
+            SpawnableObjectData data = new() { OwnerId = NetworkManager.Instance.Id, PrefabId = objNumber, Pos = Vector3.Zero, Rot = Vector2.Zero };
 
             SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { data });
 

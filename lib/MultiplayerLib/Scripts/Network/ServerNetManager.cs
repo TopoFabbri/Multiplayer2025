@@ -13,7 +13,6 @@ namespace Multiplayer.Network
     {
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
-        private readonly Dictionary<int, int> PlayerIdsByClientIds = new();
 
         private readonly List<IPEndPoint> disconnectedClients = new();
 
@@ -24,6 +23,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
 
@@ -120,9 +120,22 @@ namespace Multiplayer.Network
 
         private void HandlePosition(byte[] data, IPEndPoint ip)
         {
-            SendData(data);
+            Position pos = new NetPosition(data).Deserialized();
+            
+            spawnedObjects.MoveObjectTo(pos.objId, pos.position.x, pos.position.y, pos.position.z);
+            
+            SendData(new NetPosition(pos).Serialize());
         }
 
+        private void HandleRotation(byte[] data, IPEndPoint ip)
+        {
+            Rotation rot = new NetRotation(data).Deserialized();
+            
+            spawnedObjects.RotateObjectTo(rot.objId, rot.rotation);
+            
+            SendData(new NetRotation(rot).Serialize());
+        }
+        
         private void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
             SpawnRequest message = new NetSpawnable(data).Deserialized();
@@ -132,11 +145,6 @@ namespace Multiplayer.Network
                 spawnableObj.Id = spawnedObjects.FreeId;
                 spawnedObjects.SpawnObject(spawnableObj);
             }
-            
-            string messageString = "Spawned " + message.spawnableObjects.Count + " objects by client " + ipToId[ip] + " request.";
-            
-            Log.Write(messageString);
-            Log.NewLine();
 
             SendData(new NetSpawnable(new SpawnRequest(spawnedObjects.SpawnablesData)).Serialize());
         }
@@ -185,6 +193,7 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
+            MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
         }

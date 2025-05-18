@@ -1,6 +1,7 @@
 ﻿using Multiplayer.NetworkFactory;
 using UnityEngine;
-using Quaternion = System.Numerics.Quaternion;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Objects
 {
@@ -18,14 +19,23 @@ namespace Objects
 
         public void MoveTo(float x, float y, float z)
         {
-            transform.position = new Vector3(x, y, z);
+            Data.Pos = new Vector3(x, y, z);
         }
 
-        public void RotateTo(Quaternion quaternion)
+        public void RotateTo(Vector2 vector2)
         {
-            transform.rotation = new UnityEngine.Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
+            Data.Rot = vector2;
         }
 
+        protected virtual void Update()
+        {
+            ApplyPosition();
+            ApplyRotation();
+        }
+
+        protected abstract void ApplyRotation();
+        protected abstract void ApplyPosition();
+        
         public void Destroy()
         {
             Destroy(gameObject);
