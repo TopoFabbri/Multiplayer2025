@@ -14,9 +14,11 @@ namespace Objects
         [SerializeField] private string crouchParameterName = "Crouching";
         
         private Vector3 moveInput;
-        private float rotationInput;
+        private Vector2 rotationInput;
         private bool canMove;
         private bool crouching;
+
+        private float yRot;
         
         private static Camera _cam;
 
@@ -41,9 +43,13 @@ namespace Objects
 
         private void Rotate()
         {
-            if (rotationInput == 0f) return;
+            if (rotationInput == Vector2.zero) return;
 
-            transform.Rotate(Vector3.up * (Time.deltaTime * rotationInput));
+            transform.Rotate(Vector3.up * (Time.deltaTime * rotationInput.x));
+            
+            yRot -= Time.deltaTime * rotationInput.y;
+            yRot = Mathf.Clamp(yRot, -80f, 80f);
+            camPos.localRotation = Quaternion.Euler(yRot, 0f, 0f);
         }
 
         private void Move()
@@ -102,7 +108,7 @@ namespace Objects
 
         private void OnLookHandler(Vector2 input)
         {
-            rotationInput = input.x;
+            rotationInput = input;
         }
 
         private void OnCrouchHandler()
