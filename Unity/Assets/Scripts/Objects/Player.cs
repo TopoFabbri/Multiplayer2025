@@ -1,4 +1,5 @@
-﻿using Game;
+﻿using System.Net;
+using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -22,7 +23,7 @@ namespace Objects
         private static Camera _cam;
 
         public static int PlayerID { get; set; }
-
+        
         private void Awake()
         {
             if (_cam) return;
@@ -125,10 +126,15 @@ namespace Objects
             rotationInput = input;
         }
 
-        private void OnCrouchHandler()
+        public void Crouch()
         {
             crouching = !crouching;
             animator.SetBool(crouchParameterName, crouching);
+        }
+        
+        private void OnCrouchHandler()
+        {
+            NetworkManager.Instance.SendData(new NetCrouch(Data.Id).Serialize());
         }
         
         private void OnChatHandler() => canMove = !canMove;

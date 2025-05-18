@@ -28,6 +28,7 @@ namespace Objects
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
+            MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
         }
 
         private void OnDisable()
@@ -35,6 +36,7 @@ namespace Objects
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
+            MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -84,6 +86,15 @@ namespace Objects
             spawnedObjects[rotation.objId].RotateTo(rotation.rotation);
             
             lastRotMessageByObjId[rotation.objId] = metadata.MsgId;
+        }
+        
+        private void HandleCrouch(byte[] data, IPEndPoint ip)
+        {
+            int objId = new NetCrouch(data).Deserialized();
+            
+            if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
+
+            ((Player)spawnedObject).Crouch();
         }
         
         public void SpawnObject(SpawnableObjectData data)

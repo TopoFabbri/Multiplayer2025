@@ -24,6 +24,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
+            MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
 
@@ -136,6 +137,11 @@ namespace Multiplayer.Network
             SendData(new NetRotation(rot).Serialize());
         }
         
+        private void HandleCrouch(byte[] data, IPEndPoint ip)
+        {
+            SendData(data);
+        }
+        
         private void HandleSpawnable(byte[] data, IPEndPoint ip)
         {
             SpawnRequest message = new NetSpawnable(data).Deserialized();
@@ -194,6 +200,7 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
             MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
+            MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnable);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
         }

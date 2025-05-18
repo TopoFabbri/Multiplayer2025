@@ -15,7 +15,8 @@ namespace Multiplayer.Network.Messages
         Disconnect,
         Acknowledge,
         ServerInfo,
-        Rotation
+        Rotation,
+        Crouch,
     }
     
     public abstract class Message<T>
