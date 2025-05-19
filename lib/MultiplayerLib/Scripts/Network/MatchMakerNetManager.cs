@@ -22,7 +22,7 @@ namespace Multiplayer.Network
         private readonly List<IPEndPoint> disconnectedClients = new();
         private readonly Dictionary<int, Color> colorsByClientId = new();
 
-        private const int PlayerQty = 4;
+        private const int PlayerQty = 2;
 
         protected override void Start()
         {
@@ -164,7 +164,7 @@ namespace Multiplayer.Network
 
         private void HandleAcknowledgedHs(byte[] data, IPEndPoint ip)
         {
-            SendTo(new NetPing(0f).Serialize(), ip);
+            SendTo(new NetPing(new PingWrapper()).Serialize(), ip);
         }
 
         private void HandleAcknowledgedPing(byte[] data, IPEndPoint ip)
@@ -177,8 +177,12 @@ namespace Multiplayer.Network
             client.lastPingTime = Timer.Time;
 
             clients[id] = client;
+            Dictionary<int, float> pingsByClientId = new();
+            
+            foreach (KeyValuePair<int, Client> tmpClient in clients)
+                pingsByClientId.Add(tmpClient.Key, Timer.Time - tmpClient.Value.lastPingTime);
 
-            SendTo(new NetPing(ping).Serialize(), ip);
+            SendTo(new NetPing(new PingWrapper(pingsByClientId)).Serialize(), clients[id].ipEndPoint);
         }
 
         private void OpenServer(List<Client> clientsToConnect)

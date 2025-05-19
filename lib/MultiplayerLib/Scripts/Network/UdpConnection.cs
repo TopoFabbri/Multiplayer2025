@@ -72,8 +72,7 @@ namespace Multiplayer.Network
             }
             catch(SocketException e)
             {
-                // Log the error with more details
-                Log.Write($"[UdpConnection] Socket Error {e.SocketErrorCode}: {e.Message}");
+                
             }
 
             connection.BeginReceive(OnReceive, null);

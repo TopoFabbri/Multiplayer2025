@@ -74,7 +74,7 @@ namespace Game
 
         private static void OnDisconnectedHandler()
         {
-            GameStateController.State = GameStateController.State == GameState.InGame ? GameState.MatchMaking : GameState.Connecting;
+            GameStateController.State = GameStateController.State == GameState.InGame ? GameState.ColorPick : GameState.Connecting;
         }
 
         private static void ConnectHandler()

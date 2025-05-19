@@ -13,8 +13,9 @@ namespace Multiplayer.Network
         public IPAddress IpAddress { get; private set; }
 
         private readonly Dictionary<int, Color> colorsByClients = new();
+        public Dictionary<int, float> PingsByClientId { get; private set; } = new();
         public int PlayerId { private get; set; }
-        public bool IsConnectedToServer { get;  private set; }
+        public bool IsConnectedToServer { get; private set; }
 
         private float LastPingTime { get; set; }
         private int MmPort { get; set; }
@@ -24,7 +25,7 @@ namespace Multiplayer.Network
         public float AfkTime => 15f;
 
         private int level;
-        
+
         public event Action Disconnected;
 
         protected override void Start()
@@ -55,6 +56,8 @@ namespace Multiplayer.Network
 
             SendTo(new NetHandShake(new HandShake(0, newColor, false, level), false).Serialize());
 
+            LastPingTime = Timer.Time;
+
             base.Init(port, ip);
         }
 
@@ -63,7 +66,7 @@ namespace Multiplayer.Network
             base.Update();
 
             if (LastPingTime <= 0) return;
-            
+
             if (Timer.Time - LastPingTime > TimeOut)
                 Disconnect();
         }
@@ -78,6 +81,8 @@ namespace Multiplayer.Network
 
             foreach (KeyValuePair<int, Color> client in hs.clients)
                 colorsByClients.TryAdd(client.Key, client.Value);
+
+            LastPingTime = Timer.Time;
 
             if (Id > 0) return;
 
@@ -96,9 +101,14 @@ namespace Multiplayer.Network
 
         private void HandlePing(byte[] data, IPEndPoint ip)
         {
-            Ping = Timer.Time - LastPingTime;
+            PingWrapper ping = new NetPing(data).Deserialized();
+            PingsByClientId = ping.PingsByClientId;
 
+            Ping = Timer.Time - LastPingTime;
             LastPingTime = Timer.Time;
+
+            if (!PingsByClientId.TryAdd(Id, Ping))
+                PingsByClientId[Id] = Ping;
         }
 
         private void HandleServerInfo(byte[] data, IPEndPoint ip)
@@ -122,7 +132,7 @@ namespace Multiplayer.Network
             if (IsConnectedToServer)
             {
                 IsConnectedToServer = false;
-                
+
                 Init(MmPort, MmIp.Address);
             }
             else if (ConnectToServer)
@@ -141,10 +151,10 @@ namespace Multiplayer.Network
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
-            
+
             if (Crypt.IsCrypted(data))
                 data = Crypt.Encrypt(data);
-            
+
             connection.Send(data);
         }
 
@@ -156,6 +166,7 @@ namespace Multiplayer.Network
         private void Disconnect()
         {
             colorsByClients.Clear();
+            PingsByClientId.Clear();
 
             connection?.Close();
 

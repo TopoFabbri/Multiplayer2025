@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Game;
 using Multiplayer.Network;
 using TMPro;
@@ -49,9 +50,10 @@ namespace UI
 
         private void Update()
         {
-            int ping = (int)(NetworkManager.Instance.Ping * 1000f);
-
-            pingText.text = $"{ping}ms";
+            pingText.text = "";
+            
+            foreach (KeyValuePair<int, float> pingById in ((ClientNetManager)NetworkManager.Instance).PingsByClientId)
+                pingText.text += "Client " + pingById.Key + ": " + (int)(pingById.Value * 1000) + "ms\n";
         }
     }
 }

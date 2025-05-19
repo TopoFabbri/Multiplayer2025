@@ -120,6 +120,8 @@ namespace Multiplayer.Network
             
             if (clients.Count <= 0)
                 Active = false;
+            
+            SendData(new NetDisconnect(0).Serialize());
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
@@ -178,8 +180,6 @@ namespace Multiplayer.Network
         private void HandleDisconnect(byte[] data, IPEndPoint ip)
         {
             RemoveClient(ip);
-
-            SendData(data);
         }
 
         private void HandleHit(byte[] data, IPEndPoint ip)
@@ -232,14 +232,19 @@ namespace Multiplayer.Network
 
             clients[id] = client;
 
-            SendToClient(new NetPing(ping).Serialize(), id);
+            Dictionary<int, float> pingsByClientId = new();
+            
+            foreach (KeyValuePair<int, Client> tmpClient in clients)
+                pingsByClientId.Add(tmpClient.Key, Timer.Time - tmpClient.Value.lastPingTime);
+
+            SendToClient(new NetPing(new PingWrapper(pingsByClientId)).Serialize(), id);
         }
 
         private void OnAcknowledgeHandshakeHandler(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
             
-            SendToClient(new NetPing(0f).Serialize(), id);
+            SendToClient(new NetPing(new PingWrapper()).Serialize(), id);
         }
 
         protected override void OnDestroy()

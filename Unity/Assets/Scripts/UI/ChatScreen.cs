@@ -32,8 +32,9 @@ namespace UI
                 gameObject.SetActive(true);
                 return;
             }
-            
-            Cursor.lockState = CursorLockMode.Confined;
+
+            gameObject.SetActive(false);
+            Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
 
