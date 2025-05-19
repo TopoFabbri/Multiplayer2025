@@ -35,7 +35,6 @@ namespace UI
             NetworkManager.Instance.Init(port, ipAddress);
             
             Connect?.Invoke();
-            ToggleNetworkScreen();
         }
     }
 }

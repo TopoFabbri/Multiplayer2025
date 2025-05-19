@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Net;
+using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
@@ -28,6 +29,14 @@ namespace Objects
             MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
             MessageHandler.TryAddHandler(MessageType.Hit, HandleHit);
+
+            GameStateController.StateChanged += OnStateChanged;
+        }
+
+        private void OnStateChanged(GameState newState)
+        {
+            if (newState != GameState.InGame)
+                Disconnect();
         }
 
         private void OnDisable()

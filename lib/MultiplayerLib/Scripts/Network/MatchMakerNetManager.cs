@@ -137,7 +137,9 @@ namespace Multiplayer.Network
 
         private void HandleReady(byte[] data, IPEndPoint ip)
         {
-            readyClients.Add(ipToId[ip]);
+            if (!ipToId.TryGetValue(ip, out int id)) return;
+            
+            readyClients.Add(id);
         }
 
         private void RemoveClient(IPEndPoint ip)
@@ -146,6 +148,7 @@ namespace Multiplayer.Network
 
             readyClients.Remove(clientId);
             redirectedClients.Remove(clientId);
+            colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
             ipToId.Remove(ip);
             Log.Write("Client " + clientId + " disconnected!");

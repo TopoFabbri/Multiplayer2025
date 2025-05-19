@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game;
 using UnityEngine;
 
 namespace UI
@@ -8,11 +9,21 @@ namespace UI
     {
         [SerializeField] private List<Color> colors;
 
-        public static event Action<Color> ColorPicked; 
-        
-        public void SetActive(bool active)
+        public static event Action<Color> ColorPicked;
+
+        private void Awake()
         {
-            gameObject.SetActive(active);
+            GameStateController.StateChanged += OnStateChanged;
+        }
+
+        private void OnDestroy()
+        {
+            GameStateController.StateChanged -= OnStateChanged;
+        }
+
+        private void OnStateChanged(GameState newState)
+        {
+            gameObject.SetActive(newState == GameState.ColorPick);
         }
 
         public void OnColorClicked(int colorIndex)

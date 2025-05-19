@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Game;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI
@@ -8,9 +9,19 @@ namespace UI
         [SerializeField] protected InputField portInputField;
         [SerializeField] protected string defaultPort = "65432";
 
-        public void ToggleNetworkScreen()
+        private void Awake()
         {
-            gameObject.SetActive(!gameObject.activeSelf);
+            GameStateController.StateChanged += OnStateChanged;
+        }
+
+        private void OnDestroy()
+        {
+            GameStateController.StateChanged -= OnStateChanged;
+        }
+
+        private void OnStateChanged(GameState newState)
+        {
+            gameObject.SetActive(newState == GameState.Connecting);
         }
     }
 }

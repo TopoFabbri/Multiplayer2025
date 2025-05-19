@@ -13,21 +13,28 @@ namespace UI
         [SerializeField] private Text messages;
         [SerializeField] private InputField inputMessage;
 
-        private void Start()
+        private void Awake()
         {
             if (inputMessage)
                 inputMessage.onEndEdit.AddListener(OnEndEdit);
 
-            gameObject.SetActive(false);
-
-            NetworkManager.Instance.OnReceiveDataAction += OnReceiveConsoleHandler;
+            MessageHandler.TryAddHandler(MessageType.Console, OnReceiveConsoleHandler);
+            
+            GameStateController.StateChanged += OnStateChanged;
 
             InputListener.Chat += OnChatHandler;
         }
 
+        private void OnStateChanged(GameState newState)
+        {
+            gameObject.SetActive(newState == GameState.InGame);
+        }
+
         private void OnDestroy()
         {
-            NetworkManager.Instance.OnReceiveDataAction -= OnReceiveConsoleHandler;
+            MessageHandler.TryRemoveHandler(MessageType.Console, OnReceiveConsoleHandler);
+            
+            GameStateController.StateChanged -= OnStateChanged;
 
             InputListener.Chat -= OnChatHandler;
         }
@@ -42,9 +49,6 @@ namespace UI
 
         private void OnReceiveConsoleHandler(byte[] data, IPEndPoint ip)
         {
-            if (MessageHandler.GetMetadata(data).Type != MessageType.Console)
-                return;
-
             string message = new NetConsole(data).Deserialized();
             messages.text += message + Environment.NewLine;
         }

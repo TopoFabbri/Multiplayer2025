@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
@@ -21,6 +22,8 @@ namespace Multiplayer.Network
         private IPEndPoint MmIp { get; set; }
         public Color Color { get; set; } = new();
 
+        public event Action Disconnected;
+        
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
@@ -33,6 +36,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Ping, HandlePing);
             MessageHandler.TryAddHandler(MessageType.ServerInfo, HandleServerInfo);
+            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
 
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
 
@@ -94,18 +98,28 @@ namespace Multiplayer.Network
             RequestDisconnect();
         }
 
+        private void HandleDisconnect(byte[] data, IPEndPoint ip)
+        {
+            RequestDisconnect();
+        }
+
         private void HandleAcknowledgedDisconnect(byte[] data, IPEndPoint ip)
         {
-            if (IsConnectedToServer)
-                IsConnectedToServer = false;
-
+            Disconnected?.Invoke();
             Disconnect();
 
-            if (!ConnectToServer) return;
-
-            Init(Port, IpAddress);
-            IsConnectedToServer = true;
-            ConnectToServer = false;
+            if (IsConnectedToServer)
+            {
+                IsConnectedToServer = false;
+                
+                Init(MmPort, MmIp.Address);
+            }
+            else if (ConnectToServer)
+            {
+                Init(Port, IpAddress);
+                IsConnectedToServer = true;
+                ConnectToServer = false;
+            }
         }
 
         public override void SendData(byte[] data)
@@ -151,6 +165,7 @@ namespace Multiplayer.Network
 
         protected override void OnDestroy()
         {
+            RequestDisconnect();
             Disconnect();
         }
     }

@@ -1,38 +1,34 @@
+using System;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 using Objects;
 using UI;
+using UnityEditor;
 using UnityEngine;
 using Utils;
 using Color = UnityEngine.Color;
 
 namespace Game
 {
-    public enum GameState
-    {
-        Connecting,
-        ColorPick,
-        MatchMaking,
-        InGame
-    }
-    
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         [SerializeField] private ColorPicker colorPicker;
-        
+
         private ClientNetManager networkManager;
-        public static GameState State { get; private set; }
 
         private void Awake()
         {
             Timer.Start();
             networkManager = new ClientNetManager();
-            
-            State = GameState.Connecting;
+        }
+
+        private void Start()
+        {
+            GameStateController.State = GameState.Connecting;
         }
 
         private void Update()
@@ -44,6 +40,7 @@ namespace Game
         private void OnEnable()
         {
             networkManager.onConnectionEstablished += OnConnectionEstablished;
+            networkManager.Disconnected += OnDisconnectedHandler;
             InputListener.Disconnect += DisconnectHandler;
             ClientNetworkScreen.Connect += ConnectHandler;
             ColorPicker.ColorPicked += OnColorPicked;
@@ -52,6 +49,7 @@ namespace Game
         private void OnDisable()
         {
             networkManager.onConnectionEstablished -= OnConnectionEstablished;
+            networkManager.Disconnected -= OnDisconnectedHandler;
             InputListener.Disconnect -= DisconnectHandler;
             ClientNetworkScreen.Connect -= ConnectHandler;
             ColorPicker.ColorPicked -= OnColorPicked;
@@ -59,51 +57,46 @@ namespace Game
 
         private void DisconnectHandler()
         {
+            if (GameStateController.State == GameState.Connecting)
+            {
+#if UNITY_EDITOR
+                EditorApplication.ExitPlaymode();
+#else
+                Application.Quit();
+#endif
+            }
+            
             networkManager.RequestDisconnect();
-
-            if (State == GameState.InGame)
-            {
-                State = GameState.MatchMaking;
-                ObjectManager.Instance.Disconnect();
-            }
-            else
-            {
-                State = GameState.Connecting;
-                clientNetworkScreen.ToggleNetworkScreen();
-            }
         }
 
-        private void ConnectHandler()
+        private static void OnDisconnectedHandler()
         {
-            State = GameState.ColorPick;
-            
-            colorPicker.SetActive(true);
+            GameStateController.State = GameStateController.State == GameState.InGame ? GameState.MatchMaking : GameState.Connecting;
+        }
+
+        private static void ConnectHandler()
+        {
+            GameStateController.State = GameState.ColorPick;
         }
 
         private void OnColorPicked(Color color)
         {
             networkManager.Color = new Multiplayer.Network.Messages.Color(color.r, color.g, color.b, color.a);
             
-            colorPicker.SetActive(false);
-            State = GameState.MatchMaking;
-            
+            GameStateController.State = GameState.MatchMaking;
+
             networkManager.SendData(new NetReady(0).Serialize());
         }
-        
-        private void OnConnectionEstablished()
+
+        private static void OnConnectionEstablished()
         {
-            State = GameState.InGame;
-            chatScreen.gameObject.SetActive(true);
+            GameStateController.State = GameState.InGame;
             
             SpawnableObjectData spawnableData = new()
             {
-                OwnerId = NetworkManager.Instance.Id,
-                PrefabId = 0,
-                Pos = Multiplayer.CustomMath.Vector3.Zero,
-                Rot = System.Numerics.Vector2.Zero
+                OwnerId = NetworkManager.Instance.Id, PrefabId = 0, Pos = Multiplayer.CustomMath.Vector3.Zero, Rot = System.Numerics.Vector2.Zero
             };
-            
-            
+
             ObjectManager.Instance.RequestSpawn(spawnableData);
         }
     }

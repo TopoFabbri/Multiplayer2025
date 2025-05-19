@@ -19,6 +19,8 @@ namespace Multiplayer.Network
 
         private readonly ObjectManager objectManager = new();
 
+        public bool Active { get; private set; } = true;
+        
         public override void Init(int port, IPAddress ip = null)
         {
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
@@ -49,6 +51,8 @@ namespace Multiplayer.Network
             CheckSum.RandomSeed = (uint)Timer.Time;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
             Crypt.GenerateOperations(CheckSum.RandomSeed);
+            
+            Active = true;
         }
 
         public override void Update()
@@ -67,6 +71,8 @@ namespace Multiplayer.Network
 
             foreach (IPEndPoint ipEndPoint in disconnectedClients)
                 RemoveClient(ipEndPoint);
+            
+            disconnectedClients.Clear();
         }
 
         private void Broadcast(byte[] data)
@@ -110,8 +116,10 @@ namespace Multiplayer.Network
 
             ipToId.Remove(ip);
             clients.Remove(id);
+            colorsByClientId.Remove(id);
             
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true);
+            if (clients.Count <= 0)
+                Active = false;
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
@@ -217,20 +225,24 @@ namespace Multiplayer.Network
 
         private void OnAcknowledgePingHandler(byte[] data, IPEndPoint ip)
         {
-            float ping = Timer.Time - clients[ipToId[ip]].lastPingTime;
+            if (!ipToId.TryGetValue(ip, out int id)) return;
+            
+            float ping = Timer.Time - clients[id].lastPingTime;
 
-            Client client = clients[ipToId[ip]];
+            Client client = clients[id];
 
             client.lastPingTime = Timer.Time;
 
-            clients[ipToId[ip]] = client;
+            clients[id] = client;
 
-            SendToClient(new NetPing(ping).Serialize(), ipToId[ip]);
+            SendToClient(new NetPing(ping).Serialize(), id);
         }
 
         private void OnAcknowledgeHandshakeHandler(byte[] data, IPEndPoint ip)
         {
-            SendToClient(new NetPing(0f).Serialize(), ipToId[ip]);
+            if (!ipToId.TryGetValue(ip, out int id)) return;
+            
+            SendToClient(new NetPing(0f).Serialize(), id);
         }
 
         protected override void OnDestroy()
@@ -247,6 +259,8 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryRemoveHandler(MessageType.Hit, HandleHit);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
+            
+            connection.Close();
         }
     }
 }

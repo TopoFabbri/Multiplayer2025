@@ -1,29 +1,38 @@
 ﻿using Multiplayer.Network;
+using Multiplayer.Utils;
 
 namespace Server;
 
 public class Application
 {
-    private bool running;
     private readonly ServerNetManager networkManager;
     
     public Application()
     {
         Multiplayer.Utils.Timer.Start();
-        running = false;
 
         networkManager = new ServerNetManager();
     }
 
     public void Run(int port)
     {
-        running = true;
+        try
+        {
 
-        networkManager.Init(port);
+            networkManager.Init(port);
         
-        while (running)
-            networkManager.Update();
+            while (networkManager.Active)
+                networkManager.Update();
 
-        running = false;
+            Log.NewLine();
+            Log.Write("Server at port " + port + " closed.");
+        }
+        finally
+        {
+            if (networkManager.Active)
+                Console.ReadKey();
+            else
+                Thread.Sleep(3000);
+        }
     }
 }

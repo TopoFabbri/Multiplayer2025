@@ -10,35 +10,48 @@ namespace UI
         [SerializeField] private TextMeshProUGUI pingText;
         [SerializeField] private TextMeshProUGUI matchMakerText;
 
-        private void Update()
+        private void Start()
         {
-            int ping = (int)(NetworkManager.Instance.Ping * 1000f);
+            GameStateController.StateChanged += OnStateChanged;
+        }
 
-            pingText.text = $"{ping}ms";
+        private void OnDestroy()
+        {
+            GameStateController.StateChanged -= OnStateChanged;
+        }
 
-            switch (GameManager.State)
+        private void OnStateChanged(GameState newState)
+        {
+            switch (newState)
             {
                 case GameState.Connecting:
                     pingText.gameObject.SetActive(false);
                     matchMakerText.gameObject.SetActive(false);
                     break;
-                
+
                 case GameState.MatchMaking:
                     pingText.gameObject.SetActive(true);
                     matchMakerText.gameObject.SetActive(true);
                     break;
-                
+
                 case GameState.ColorPick:
                 case GameState.InGame:
                     pingText.gameObject.SetActive(true);
                     matchMakerText.gameObject.SetActive(false);
                     break;
-                
+
                 default:
                     pingText.gameObject.SetActive(false);
                     matchMakerText.gameObject.SetActive(false);
                     break;
             }
+        }
+
+        private void Update()
+        {
+            int ping = (int)(NetworkManager.Instance.Ping * 1000f);
+
+            pingText.text = $"{ping}ms";
         }
     }
 }
