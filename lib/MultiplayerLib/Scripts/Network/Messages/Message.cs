@@ -19,7 +19,8 @@ namespace Multiplayer.Network.Messages
         Crouch,
         Jump,
         Hit,
-        Despawn
+        Despawn,
+        Ready
     }
     
     public abstract class Message<T>

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using Multiplayer.Network.Messages;
@@ -16,11 +15,12 @@ namespace Multiplayer.Network
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
         private readonly List<int> redirectedClients = new();
-
+        private readonly List<int> readyClients = new();
         private readonly List<int> openServers = new();
 
         private string serverPath;
         private readonly List<IPEndPoint> disconnectedClients = new();
+        private readonly Dictionary<int, Color> colorsByClientId = new();
 
         protected override void Start()
         {
@@ -40,6 +40,7 @@ namespace Multiplayer.Network
 
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandShake);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
+            MessageHandler.TryAddHandler(MessageType.Ready, HandleReady);
 
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.HandShake, HandleAcknowledgedHs);
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Ping, HandleAcknowledgedPing);
@@ -55,40 +56,34 @@ namespace Multiplayer.Network
         {
             base.Update();
 
-            if (clients.Count < 2) return;
-
-            int clientsWaiting = 0;
-
-            foreach (KeyValuePair<int, Client> client in clients)
-            {
-                if (!redirectedClients.Contains(client.Key))
-                    clientsWaiting++;
-            }
-
-            if (clientsWaiting < 2) return;
+            if (readyClients.Count < 2) return;
 
             List<Client> clientsToConnect = new();
 
-            foreach (KeyValuePair<int, Client> client in clients)
+            foreach (int clientId in readyClients)
             {
-                clientsToConnect.Add(client.Value);
-                redirectedClients.Add(client.Key);
+                if (redirectedClients.Contains(clientId)) continue;
+                
+                redirectedClients.Add(clientId);
+                clientsToConnect.Add(clients[clientId]);
             }
+            
+            if (clientsToConnect.Count < 2) return;
 
             OpenServer(clientsToConnect);
-            
-            disconnectedClients.Clear();
-            
+
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-                
+            
                 if (timeSinceLastPing > TimeOut)
                     disconnectedClients.Add(client.Value.ipEndPoint);
             }
-            
+
             foreach (IPEndPoint ipEndPoint in disconnectedClients)
                 RemoveClient(ipEndPoint);
+
+            disconnectedClients.Clear();
         }
 
         private void HandleHandShake(byte[] data, IPEndPoint ip)
@@ -105,13 +100,14 @@ namespace Multiplayer.Network
 
             clients.Add(clientId, new Client(ip, clientId, Timer.Time));
             ipToId.Add(ip, clientId);
+            colorsByClientId.Add(clientId, new Color());
 
-            HandShake hs = new(CheckSum.RandomSeed, clients.Keys.ToList(), false);
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, false);
             SendTo(new NetHandShake(hs, true).Serialize(), ip);
 
             Log.Write("Client " + clientId + " connected!");
             Log.NewLine();
-            
+
             LogConnectedClients();
         }
 
@@ -138,19 +134,22 @@ namespace Multiplayer.Network
             RemoveClient(ip);
         }
 
+        private void HandleReady(byte[] data, IPEndPoint ip)
+        {
+            readyClients.Add(ipToId[ip]);
+        }
+
         private void RemoveClient(IPEndPoint ip)
         {
-            if (ipToId.ContainsKey(ip))
-            {
-                int clientId = ipToId[ip];
+            if (!ipToId.TryGetValue(ip, out int clientId)) return;
 
-                clients.Remove(clientId);
-                redirectedClients.Remove(clientId);
-                ipToId.Remove(ip);
-                Log.Write("Client " + clientId + " disconnected!");
-                Log.NewLine();
-                LogConnectedClients();
-            }
+            readyClients.Remove(clientId);
+            redirectedClients.Remove(clientId);
+            clients.Remove(clientId);
+            ipToId.Remove(ip);
+            Log.Write("Client " + clientId + " disconnected!");
+            Log.NewLine();
+            LogConnectedClients();
         }
 
         private void HandleAcknowledgedHs(byte[] data, IPEndPoint ip)

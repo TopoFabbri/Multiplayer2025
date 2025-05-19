@@ -266,6 +266,7 @@ MonoBehaviour:
   bulletPrefabIndex: 1
   health: 100
   damageCaster: {fileID: 4999892399428427636}
+  meshRenderer: {fileID: 3313820937429310679}
 --- !u!95 &3937773284147728412
 Animator:
   serializedVersion: 7

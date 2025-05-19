@@ -3,6 +3,7 @@ using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
 using UnityEngine;
+using Color = UnityEngine.Color;
 
 namespace Objects
 {
@@ -19,18 +20,25 @@ namespace Objects
         [SerializeField] private int bulletPrefabIndex = 1;
         [SerializeField] private int health = 100;
         [SerializeField] private DamageCaster damageCaster;
-        
+        [SerializeField] private MeshRenderer meshRenderer;
+                
         private Vector3 moveInput;
         private Vector2 rotationInput;
         private bool canMove;
         private bool crouching;
 
         private static Camera _cam;
+        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         private bool IsGrounded => Physics.Raycast(rb.transform.position, Vector3.down, 1.2f);
 
         private void Awake()
         {
+            Multiplayer.Network.Messages.Color color = ((ClientNetManager)NetworkManager.Instance).Color;
+
+            meshRenderer.material.color = new Color(color.r, color.g, color.b, color.a);
+            meshRenderer.material.SetColor(EmissionColor, new Color(color.r, color.g, color.b, color.a));
+            
             if (_cam) return;
 
             _cam = Camera.main;
@@ -158,6 +166,8 @@ namespace Objects
 
         private void OnShootHandler()
         {
+            if (!canMove) return;
+            
             SpawnableObjectData spawnableData = new()
             {
                 OwnerId = NetworkManager.Instance.Id,

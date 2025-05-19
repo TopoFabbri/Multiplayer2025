@@ -28,6 +28,7 @@ namespace UI
                     matchMakerText.gameObject.SetActive(true);
                     break;
                 
+                case GameState.ColorPick:
                 case GameState.InGame:
                     pingText.gameObject.SetActive(true);
                     matchMakerText.gameObject.SetActive(false);

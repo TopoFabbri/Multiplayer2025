@@ -1,16 +1,19 @@
 using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 using Objects;
 using UI;
 using UnityEngine;
 using Utils;
+using Color = UnityEngine.Color;
 
 namespace Game
 {
     public enum GameState
     {
         Connecting,
+        ColorPick,
         MatchMaking,
         InGame
     }
@@ -19,6 +22,7 @@ namespace Game
     {
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
+        [SerializeField] private ColorPicker colorPicker;
         
         private ClientNetManager networkManager;
         public static GameState State { get; private set; }
@@ -42,6 +46,7 @@ namespace Game
             networkManager.onConnectionEstablished += OnConnectionEstablished;
             InputListener.Disconnect += DisconnectHandler;
             ClientNetworkScreen.Connect += ConnectHandler;
+            ColorPicker.ColorPicked += OnColorPicked;
         }
 
         private void OnDisable()
@@ -49,6 +54,7 @@ namespace Game
             networkManager.onConnectionEstablished -= OnConnectionEstablished;
             InputListener.Disconnect -= DisconnectHandler;
             ClientNetworkScreen.Connect -= ConnectHandler;
+            ColorPicker.ColorPicked -= OnColorPicked;
         }
 
         private void DisconnectHandler()
@@ -67,9 +73,21 @@ namespace Game
             }
         }
 
-        private static void ConnectHandler()
+        private void ConnectHandler()
         {
+            State = GameState.ColorPick;
+            
+            colorPicker.SetActive(true);
+        }
+
+        private void OnColorPicked(Color color)
+        {
+            networkManager.Color = new Multiplayer.Network.Messages.Color(color.r, color.g, color.b, color.a);
+            
+            colorPicker.SetActive(false);
             State = GameState.MatchMaking;
+            
+            networkManager.SendData(new NetReady(0).Serialize());
         }
         
         private void OnConnectionEstablished()

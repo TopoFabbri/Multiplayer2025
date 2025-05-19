@@ -15,6 +15,7 @@ namespace Multiplayer.Network
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
 
         private readonly List<IPEndPoint> disconnectedClients = new();
+        private readonly Dictionary<int, Color> colorsByClientId = new();
 
         private readonly ObjectManager objectManager = new();
 
@@ -78,7 +79,7 @@ namespace Multiplayer.Network
             SendTo(data, clients[id].ipEndPoint);
         }
 
-        private void AddClient(IPEndPoint ip)
+        private void AddClient(IPEndPoint ip, Color color)
         {
             if (ipToId.ContainsKey(ip)) return;
 
@@ -93,8 +94,9 @@ namespace Multiplayer.Network
             ipToId[ip] = clientId;
 
             clients.Add(clientId, new Client(ip, clientId, Timer.Time));
+            colorsByClientId.Add(clientId, color);
 
-            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList(), true);
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
@@ -107,14 +109,15 @@ namespace Multiplayer.Network
 
             ipToId.Remove(ip);
             clients.Remove(id);
-
-            HandShake hs = new(CheckSum.RandomSeed, clients.Select(keyValuePair => keyValuePair.Key).ToList(), true);
-            SendData(new NetHandShake(hs, true).Serialize());
+            
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true);
         }
 
         private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
-            AddClient(ip);
+            HandShake hs = new NetHandShake(data).Deserialized();
+            
+            AddClient(ip, hs.clients.Last().Value);
         }
 
         private void HandleConsole(byte[] data, IPEndPoint ip)

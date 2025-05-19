@@ -11,7 +11,7 @@ namespace Multiplayer.Network
     {
         public IPAddress IpAddress { get; private set; }
 
-        private readonly List<int> clientIds = new();
+        private readonly Dictionary<int, Color> colorsByClients = new();
         public int PlayerId { private get; set; }
         public bool IsConnectedToServer { get;  private set; }
 
@@ -19,7 +19,7 @@ namespace Multiplayer.Network
         private int MmPort { get; set; }
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
-
+        public Color Color { get; set; } = new();
 
         public override void Init(int port, IPAddress ip = null)
         {
@@ -36,7 +36,9 @@ namespace Multiplayer.Network
 
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
 
-            SendTo(new NetHandShake(new HandShake(0, new List<int>(), false), false).Serialize());
+            Dictionary<int, Color> newColor = new() { { Id, Color } };
+
+            SendTo(new NetHandShake(new HandShake(0, newColor, false), false).Serialize());
 
             base.Init(port, ip);
         }
@@ -58,11 +60,12 @@ namespace Multiplayer.Network
             CheckSum.RandomSeed = hs.randomSeed;
             CheckSum.CreateOperationsArrays(hs.randomSeed);
 
-            clientIds.AddRange(hs.clients);
+            foreach (KeyValuePair<int, Color> client in hs.clients)
+                colorsByClients.TryAdd(client.Key, client.Value);
 
             if (Id > 0) return;
 
-            Id = clientIds.Last();
+            Id = colorsByClients.Last().Key;
 
             if (hs.fromServer)
             {
@@ -122,7 +125,7 @@ namespace Multiplayer.Network
 
         private void Disconnect()
         {
-            clientIds.Clear();
+            colorsByClients.Clear();
 
             connection?.Close();
 
