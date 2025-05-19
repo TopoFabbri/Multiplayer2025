@@ -194,6 +194,9 @@ namespace Objects
 
         public void Hit(int damage)
         {
+            if (crouching)
+                damage /= 2;
+            
             health -= damage;
         }
     }
