@@ -19,7 +19,7 @@ namespace UI
                 inputMessage.onEndEdit.AddListener(OnEndEdit);
 
             MessageHandler.TryAddHandler(MessageType.Console, OnReceiveConsoleHandler);
-            
+
             GameStateController.StateChanged += OnStateChanged;
 
             InputListener.Chat += OnChatHandler;
@@ -27,13 +27,20 @@ namespace UI
 
         private void OnStateChanged(GameState newState)
         {
-            gameObject.SetActive(newState == GameState.InGame);
+            if (newState == GameState.InGame)
+            {
+                gameObject.SetActive(true);
+                return;
+            }
+            
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
         }
 
         private void OnDestroy()
         {
             MessageHandler.TryRemoveHandler(MessageType.Console, OnReceiveConsoleHandler);
-            
+
             GameStateController.StateChanged -= OnStateChanged;
 
             InputListener.Chat -= OnChatHandler;
@@ -41,6 +48,9 @@ namespace UI
 
         private void OnChatHandler()
         {
+            if (GameStateController.State != GameState.InGame)
+                return;
+
             gameObject.SetActive(!gameObject.activeSelf);
 
             Cursor.lockState = gameObject.activeSelf ? CursorLockMode.None : CursorLockMode.Confined;

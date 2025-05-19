@@ -21,6 +21,7 @@ namespace Multiplayer.Network
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
         public Color Color { get; set; } = new();
+        public float AfkTime => 15f;
 
         private int level;
         

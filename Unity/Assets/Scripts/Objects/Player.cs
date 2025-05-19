@@ -3,7 +3,9 @@ using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
+using Multiplayer.Utils;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Color = UnityEngine.Color;
 
 namespace Objects
@@ -23,6 +25,8 @@ namespace Objects
         [SerializeField] private DamageCaster damageCaster;
         [SerializeField] private MeshRenderer meshRenderer;
 
+        private float lastInputTimeStamp;
+
         public static event Action<int> Die; 
         
         private Vector3 moveInput;
@@ -33,6 +37,8 @@ namespace Objects
         private static Camera _cam;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
+        private bool IsPossessed { get; set; }
+        
         private bool IsGrounded => Physics.Raycast(rb.transform.position, Vector3.down, 1.2f);
 
         private void Awake()
@@ -49,6 +55,8 @@ namespace Objects
 
         protected override void Update()
         {
+            CheckAfk();
+            
             if (canMove)
             {
                 if (!crouching)
@@ -58,6 +66,12 @@ namespace Objects
             }
 
             base.Update();
+        }
+
+        private void CheckAfk()
+        {
+            if (Timer.Time - lastInputTimeStamp > ((ClientNetManager)NetworkManager.Instance).AfkTime && IsPossessed)
+                ((ClientNetManager)NetworkManager.Instance).RequestDisconnect();
         }
 
         private void Rotate()
@@ -103,6 +117,8 @@ namespace Objects
         {
             if (!_cam) return;
 
+            IsPossessed = true;
+            
             _cam.transform.parent = camPos;
 
             _cam.transform.localPosition = Vector3.zero;
@@ -120,6 +136,8 @@ namespace Objects
         {
             if (!_cam) return;
 
+            IsPossessed = false;
+            
             _cam.transform.parent = null;
 
             _cam.transform.position = Vector3.zero;
@@ -135,6 +153,9 @@ namespace Objects
 
         private void OnMoveHandler(Vector2 input)
         {
+            if (input != Vector2.zero)
+                lastInputTimeStamp = Timer.Time;
+            
             moveInput.x = input.x;
             moveInput.z = input.y;
             moveInput.y = 0f;
@@ -142,6 +163,9 @@ namespace Objects
 
         private void OnLookHandler(Vector2 input)
         {
+            if (input != Vector2.zero)
+                lastInputTimeStamp = Timer.Time;
+            
             rotationInput = input;
         }
 
@@ -158,17 +182,22 @@ namespace Objects
 
         private void OnCrouchHandler()
         {
+            lastInputTimeStamp = Timer.Time;
             NetworkManager.Instance.SendData(new NetCrouch(Data.Id).Serialize());
         }
 
         private void OnJumpHandler()
         {
+            lastInputTimeStamp = Timer.Time;
+            
             if (IsGrounded && canMove)
                 NetworkManager.Instance.SendData(new NetJump(Data.Id).Serialize());
         }
 
         private void OnShootHandler()
         {
+            lastInputTimeStamp = Timer.Time;
+            
             if (!canMove) return;
             
             SpawnableObjectData spawnableData = new()
@@ -193,6 +222,8 @@ namespace Objects
             if (data.OwnerId != NetworkManager.Instance.Id) return;
             
             Possess();
+            
+            lastInputTimeStamp = Timer.Time;
         }
 
         public void Hit(int damage)

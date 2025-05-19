@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using Multiplayer.Network.interfaces;
+using Multiplayer.Utils;
 
 namespace Multiplayer.Network
 {
@@ -71,9 +72,8 @@ namespace Multiplayer.Network
             }
             catch(SocketException e)
             {
-                // This happens when a client disconnects, as we fail to send to that port.
-                // TODO
-                Console.WriteLine("[UdpConnection] " + e.Message);
+                // Log the error with more details
+                Log.Write($"[UdpConnection] Socket Error {e.SocketErrorCode}: {e.Message}");
             }
 
             connection.BeginReceive(OnReceive, null);
