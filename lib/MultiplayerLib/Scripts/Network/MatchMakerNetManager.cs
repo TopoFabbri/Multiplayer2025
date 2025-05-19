@@ -50,6 +50,7 @@ namespace Multiplayer.Network
 
             CheckSum.RandomSeed = (uint)Timer.Time;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
+            Crypt.GenerateOperations(CheckSum.RandomSeed);;
         }
 
         public override void Update()
@@ -216,6 +217,9 @@ namespace Multiplayer.Network
         {
             base.SendTo(data, ip);
 
+            if (Crypt.IsCrypted(data))
+                data = Crypt.Encrypt(data);
+            
             if (ip == null)
                 connection.Send(data);
             else
@@ -224,7 +228,8 @@ namespace Multiplayer.Network
 
         public override void SendData(byte[] data)
         {
-            connection?.Send(data);
+            foreach (KeyValuePair<int, Client> client in clients)
+                SendTo(data, client.Value.ipEndPoint);
         }
     }
 }

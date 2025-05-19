@@ -48,6 +48,7 @@ namespace Multiplayer.Network
 
             CheckSum.RandomSeed = (uint)Timer.Time;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
+            Crypt.GenerateOperations(CheckSum.RandomSeed);
         }
 
         public override void Update()
@@ -208,6 +209,9 @@ namespace Multiplayer.Network
         {
             base.SendTo(data, ip);
 
+            if (Crypt.IsCrypted(data))
+                data = Crypt.Encrypt(data);
+            
             connection?.Send(data, ip);
         }
 

@@ -10,6 +10,7 @@ namespace Multiplayer.Network.Messages
         
         public NetConsole(string data) : base(data)
         {
+            Metadata.Crypted = true;
             Metadata.Type = MessageType.Console;
             Metadata.Flags = Flags.Checksum | Flags.Important | Flags.Sortable;
             Metadata.MsgId = _messageIds++;

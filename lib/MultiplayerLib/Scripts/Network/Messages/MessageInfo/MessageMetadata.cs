@@ -15,6 +15,7 @@ namespace Multiplayer.Network.Messages.MessageInfo
         
     public class MessageMetadata
     {
+        public bool Crypted { get; set; }
         public MessageType Type { get; set; }
         public Flags Flags { get; set; }
         public int MsgId { get; set; }
@@ -24,6 +25,7 @@ namespace Multiplayer.Network.Messages.MessageInfo
         {
             List<byte> outData = new();
             
+            outData.AddRange(BitConverter.GetBytes(Crypted));
             outData.AddRange(BitConverter.GetBytes((int)Type));
             outData.AddRange(BitConverter.GetBytes((int)Flags));
             outData.AddRange(BitConverter.GetBytes(MsgId));
@@ -36,6 +38,9 @@ namespace Multiplayer.Network.Messages.MessageInfo
         {
             MessageMetadata outData = new();
             int counter = 0;
+            
+            outData.Crypted = BitConverter.ToBoolean(message, counter);
+            counter += sizeof(bool);
             
             outData.Type = (MessageType) BitConverter.ToInt32(message, counter);
 
@@ -55,7 +60,8 @@ namespace Multiplayer.Network.Messages.MessageInfo
         {
             get
             {
-                int size = sizeof(MessageType);
+                int size = sizeof(bool);
+                size += sizeof(MessageType);
                 size += sizeof(Flags);
                 size += sizeof(int);
                 size += sizeof(int);

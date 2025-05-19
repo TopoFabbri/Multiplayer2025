@@ -59,6 +59,7 @@ namespace Multiplayer.Network
 
             CheckSum.RandomSeed = hs.randomSeed;
             CheckSum.CreateOperationsArrays(hs.randomSeed);
+            Crypt.GenerateOperations(hs.randomSeed);
 
             foreach (KeyValuePair<int, Color> client in hs.clients)
                 colorsByClients.TryAdd(client.Key, client.Value);
@@ -115,6 +116,10 @@ namespace Multiplayer.Network
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
+            
+            if (Crypt.IsCrypted(data))
+                data = Crypt.Encrypt(data);
+            
             connection.Send(data);
         }
 

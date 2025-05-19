@@ -19,12 +19,12 @@ namespace Multiplayer.Network.Messages.MessageInfo
 
         private static readonly Dictionary<Operations, Func<uint, byte, uint>> Operators = new();
 
-        public static uint Operate(uint checksum, Operations operation, byte data)
+        public static uint Operate(uint operated, Operations operation, byte data)
         {
             if (!_initiated)
                 Initiate();
 
-            return Operators[operation].Invoke(checksum, data);
+            return Operators[operation].Invoke(operated, data);
         }
 
         private static void Initiate()
@@ -38,29 +38,29 @@ namespace Multiplayer.Network.Messages.MessageInfo
             _initiated = true;
         }
         
-        private static uint LeftShift(uint checksum, byte operand)
+        private static uint LeftShift(uint operated, byte operand)
         {
-            return checksum << operand;
+            return operated << operand;
         }
 
-        private static uint RightShift(uint checksum, byte operand)
+        private static uint RightShift(uint operated, byte operand)
         {
-            return checksum >> operand;
+            return operated >> operand;
         }
 
-        private static uint Or(uint checksum, byte operand)
+        private static uint Or(uint operated, byte operand)
         {
-            return checksum | operand;
+            return operated | operand;
         }
 
-        private static uint And(uint checksum, byte operand)
+        private static uint And(uint operated, byte operand)
         {
-            return checksum & operand;
+            return operated & operand;
         }
 
-        private static uint Xor(uint checksum, byte operand)
+        private static uint Xor(uint operated, byte operand)
         {
-            return checksum ^ operand;
+            return operated ^ operand;
         }
     }
 }

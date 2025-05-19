@@ -56,6 +56,9 @@ namespace Multiplayer.Network
         
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)
         {
+            if (Crypt.IsCrypted(data))
+                data = Crypt.Decrypt(data);
+            
             OnReceiveDataAction?.Invoke(data, ip);
 
             MessageHandler.Receive(data, ip);
