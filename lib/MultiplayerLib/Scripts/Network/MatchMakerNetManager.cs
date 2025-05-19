@@ -14,13 +14,15 @@ namespace Multiplayer.Network
     {
         private readonly Dictionary<int, Client> clients = new();
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
-        private readonly List<int> redirectedClients = new();
-        private readonly List<int> readyClients = new();
         private readonly List<int> openServers = new();
+
+        private List<int> readyClients = new();
 
         private string serverPath;
         private readonly List<IPEndPoint> disconnectedClients = new();
         private readonly Dictionary<int, Color> colorsByClientId = new();
+
+        private const int PlayerQty = 4;
 
         protected override void Start()
         {
@@ -48,35 +50,39 @@ namespace Multiplayer.Network
             Log.Write("Started MatchMaker at port: " + port);
             Log.NewLine(2);
 
-            CheckSum.RandomSeed = (uint)Timer.Time;
+            CheckSum.RandomSeed = (uint)Timer.DateTime.Millisecond;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
-            Crypt.GenerateOperations(CheckSum.RandomSeed);;
+            Crypt.GenerateOperations(CheckSum.RandomSeed);
+            ;
         }
 
         public override void Update()
         {
             base.Update();
 
-            if (readyClients.Count < 2) return;
+            if (readyClients.Count < PlayerQty) return;
+
+            readyClients = SortedClientsByLevel(readyClients);
 
             List<Client> clientsToConnect = new();
-
-            foreach (int clientId in readyClients)
-            {
-                if (redirectedClients.Contains(clientId)) continue;
-                
-                redirectedClients.Add(clientId);
-                clientsToConnect.Add(clients[clientId]);
-            }
             
-            if (clientsToConnect.Count < 2) return;
+            for (int i = 0; i + 1 < readyClients.Count; i += 2)
+            {
+                clientsToConnect.Add(clients[readyClients[i]]);
+                clientsToConnect.Add(clients[readyClients[i + 1]]);
 
-            OpenServer(clientsToConnect);
+                if (clientsToConnect.Count < 2) return;
+
+                OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]]});
+            }
+
+            foreach (Client client in clientsToConnect)
+                readyClients.Remove(client.id);
 
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-            
+
                 if (timeSinceLastPing > TimeOut)
                     disconnectedClients.Add(client.Value.ipEndPoint);
             }
@@ -89,21 +95,22 @@ namespace Multiplayer.Network
 
         private void HandleHandShake(byte[] data, IPEndPoint ip)
         {
-            AddClient(ip);
+            HandShake hs = new NetHandShake(data).Deserialized();
+            AddClient(ip, hs.level);
         }
 
-        private void AddClient(IPEndPoint ip)
+        private void AddClient(IPEndPoint ip, int level)
         {
             int clientId = 1;
 
             while (clients.ContainsKey(clientId))
                 clientId++;
 
-            clients.Add(clientId, new Client(ip, clientId, Timer.Time));
+            clients.Add(clientId, new Client(ip, clientId, Timer.Time, level));
             ipToId.Add(ip, clientId);
             colorsByClientId.Add(clientId, new Color());
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, false);
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, false, 0);
             SendTo(new NetHandShake(hs, true).Serialize(), ip);
 
             Log.Write("Client " + clientId + " connected!");
@@ -138,7 +145,7 @@ namespace Multiplayer.Network
         private void HandleReady(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
-            
+
             readyClients.Add(id);
         }
 
@@ -147,7 +154,6 @@ namespace Multiplayer.Network
             if (!ipToId.TryGetValue(ip, out int clientId)) return;
 
             readyClients.Remove(clientId);
-            redirectedClients.Remove(clientId);
             colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
             ipToId.Remove(ip);
@@ -222,7 +228,7 @@ namespace Multiplayer.Network
 
             if (Crypt.IsCrypted(data))
                 data = Crypt.Encrypt(data);
-            
+
             if (ip == null)
                 connection.Send(data);
             else
@@ -233,6 +239,13 @@ namespace Multiplayer.Network
         {
             foreach (KeyValuePair<int, Client> client in clients)
                 SendTo(data, client.Value.ipEndPoint);
+        }
+
+        private List<int> SortedClientsByLevel(List<int> clientsToSort)
+        {
+            List<int> sortedList = new(clientsToSort);
+            sortedList.Sort((a, b) => clients[a].level.CompareTo(clients[b].level));
+            return sortedList;
         }
     }
 }

@@ -56,12 +56,14 @@ namespace Multiplayer.Network.Messages
         public readonly Dictionary<int, Color> clients;
         public readonly uint randomSeed;
         public readonly bool fromServer;
+        public readonly int level;
 
-        public HandShake(uint randomSeed, Dictionary<int, Color> clients, bool fromServer)
+        public HandShake(uint randomSeed, Dictionary<int, Color> clients, bool fromServer, int level)
         {
             this.fromServer = fromServer;
             this.randomSeed = randomSeed;
             this.clients = clients;
+            this.level = level;
         }
     }
 
@@ -89,6 +91,9 @@ namespace Multiplayer.Network.Messages
             uint randomSeed = BitConverter.ToUInt32(message, counter);
             counter += sizeof(uint);
 
+            int level = BitConverter.ToInt32(message, counter);
+            counter += sizeof(int);
+            
             Dictionary<int, Color> clients = new();
 
             for (int i = counter; i < message.Length; i += 4 + Color.Size)
@@ -99,7 +104,7 @@ namespace Multiplayer.Network.Messages
                 clients.Add(BitConverter.ToInt32(curInt, 0), color);
             }
 
-            return new HandShake(randomSeed, clients, fromServer);
+            return new HandShake(randomSeed, clients, fromServer, level);
         }
 
         public override byte[] Serialize()
@@ -109,6 +114,7 @@ namespace Multiplayer.Network.Messages
 
             outData.AddRange(BitConverter.GetBytes(data.fromServer));
             outData.AddRange(BitConverter.GetBytes(data.randomSeed));
+            outData.AddRange(BitConverter.GetBytes(data.level));
 
             foreach (KeyValuePair<int, Color> client in data.clients)
             {

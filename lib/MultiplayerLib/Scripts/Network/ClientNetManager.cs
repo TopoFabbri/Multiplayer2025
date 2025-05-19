@@ -22,8 +22,18 @@ namespace Multiplayer.Network
         private IPEndPoint MmIp { get; set; }
         public Color Color { get; set; } = new();
 
-        public event Action Disconnected;
+        private int level;
         
+        public event Action Disconnected;
+
+        protected override void Start()
+        {
+            base.Start();
+
+            Random random = new(Timer.DateTime.Millisecond);
+            level = random.Next(0, 10);
+        }
+
         public override void Init(int port, IPAddress ip = null)
         {
             Port = port;
@@ -42,7 +52,7 @@ namespace Multiplayer.Network
 
             Dictionary<int, Color> newColor = new() { { Id, Color } };
 
-            SendTo(new NetHandShake(new HandShake(0, newColor, false), false).Serialize());
+            SendTo(new NetHandShake(new HandShake(0, newColor, false, level), false).Serialize());
 
             base.Init(port, ip);
         }

@@ -48,7 +48,7 @@ namespace Multiplayer.Network
             Log.Write("Server running at port " + port);
             Log.NewLine(2);
 
-            CheckSum.RandomSeed = (uint)Timer.Time;
+            CheckSum.RandomSeed = (uint)Timer.DateTime.Millisecond;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
             Crypt.GenerateOperations(CheckSum.RandomSeed);
             
@@ -100,10 +100,10 @@ namespace Multiplayer.Network
 
             ipToId[ip] = clientId;
 
-            clients.Add(clientId, new Client(ip, clientId, Timer.Time));
+            clients.Add(clientId, new Client(ip, clientId, Timer.Time, 0));
             colorsByClientId.Add(clientId, color);
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true);
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true, 0);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 

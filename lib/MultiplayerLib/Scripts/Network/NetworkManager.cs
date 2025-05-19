@@ -16,12 +16,14 @@ namespace Multiplayer.Network
         public int id;
         public readonly IPEndPoint ipEndPoint;
         public float lastPingTime;
+        public int level;
 
-        public Client(IPEndPoint ipEndPoint, int id, float timeStamp)
+        public Client(IPEndPoint ipEndPoint, int id, float timeStamp, int level)
         {
             this.timeStamp = timeStamp;
             this.id = id;
             this.ipEndPoint = ipEndPoint;
+            this.level = level;
             lastPingTime = Timer.Time;
         }
     }
