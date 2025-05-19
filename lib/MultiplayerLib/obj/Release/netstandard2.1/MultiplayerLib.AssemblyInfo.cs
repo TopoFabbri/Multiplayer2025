@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiplayerLib")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+d7d35c5b879d7f2147beae44ff7324ff4208e21f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+3a1b0cafa3a00d9bd22534757b1f4cdbad335381")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiplayerLib")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiplayerLib")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]

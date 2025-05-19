@@ -21,6 +21,7 @@ namespace Multiplayer.Network
         private string serverPath;
         private readonly List<IPEndPoint> disconnectedClients = new();
         private readonly Dictionary<int, Color> colorsByClientId = new();
+        private readonly List<string> usedNames = new();
 
         private const int PlayerQty = 2;
 
@@ -31,9 +32,9 @@ namespace Multiplayer.Network
             serverPath = Directory.GetCurrentDirectory() + "/Server.exe";
         }
 
-        public override void Init(int port, IPAddress ip = null)
+        public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
-            base.Init(port, ip);
+            base.Init(port, ip, name);
 
             Port = port;
             connection = new UdpConnection(port, this);
@@ -53,7 +54,6 @@ namespace Multiplayer.Network
             CheckSum.RandomSeed = (uint)Timer.DateTime.Millisecond;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
             Crypt.GenerateOperations(CheckSum.RandomSeed);
-            ;
         }
 
         public override void Update()
@@ -65,7 +65,7 @@ namespace Multiplayer.Network
             readyClients = SortedClientsByLevel(readyClients);
 
             List<Client> clientsToConnect = new();
-            
+
             for (int i = 0; i + 1 < readyClients.Count; i += 2)
             {
                 clientsToConnect.Add(clients[readyClients[i]]);
@@ -73,7 +73,7 @@ namespace Multiplayer.Network
 
                 if (clientsToConnect.Count < 2) return;
 
-                OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]]});
+                OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]] });
             }
 
             foreach (Client client in clientsToConnect)
@@ -96,27 +96,42 @@ namespace Multiplayer.Network
         private void HandleHandShake(byte[] data, IPEndPoint ip)
         {
             HandShake hs = new NetHandShake(data).Deserialized();
-            AddClient(ip, hs.level);
+            AddClient(ip, hs.level, hs.name);
         }
 
-        private void AddClient(IPEndPoint ip, int level)
+        private void AddClient(IPEndPoint ip, int level, string name)
         {
             int clientId = 1;
 
             while (clients.ContainsKey(clientId))
                 clientId++;
 
-            clients.Add(clientId, new Client(ip, clientId, Timer.Time, level));
+            clients.Add(clientId, new Client(ip, clientId, Timer.Time, level, name));
             ipToId.Add(ip, clientId);
             colorsByClientId.Add(clientId, new Color());
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, false, 0);
+            Dictionary<int, string> names = new();
+
+            foreach (KeyValuePair<int, Client> tmpClient in clients)
+                names.Add(tmpClient.Key, tmpClient.Value.name);
+
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
             SendTo(new NetHandShake(hs, true).Serialize(), ip);
 
             Log.Write("Client " + clientId + " connected!");
             Log.NewLine();
 
             LogConnectedClients();
+
+            if (usedNames.Contains(name))
+            {
+                Thread.Sleep(1000);
+                SendTo(new NetDisconnect(0).Serialize(), ip);
+            }
+            else
+            {
+                usedNames.Add(name);
+            }
         }
 
         private void LogConnectedClients()
@@ -153,6 +168,7 @@ namespace Multiplayer.Network
         {
             if (!ipToId.TryGetValue(ip, out int clientId)) return;
 
+            usedNames.Remove(Name);
             readyClients.Remove(clientId);
             colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
@@ -178,7 +194,7 @@ namespace Multiplayer.Network
 
             clients[id] = client;
             Dictionary<int, float> pingsByClientId = new();
-            
+
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 pingsByClientId.Add(tmpClient.Key, Timer.Time - tmpClient.Value.lastPingTime);
 

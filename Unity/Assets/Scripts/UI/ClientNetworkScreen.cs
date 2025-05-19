@@ -10,10 +10,11 @@ namespace UI
     {
         [SerializeField] private Button connectBtn;
         [SerializeField] private InputField addressInputField;
+        [SerializeField] private InputField nameIf;
 
         [SerializeField] private string defaultAddress = "127.0.0.1";
 
-        public static event Action Connect;
+        public static event Action<string> Connect;
         
         protected override void Awake()
         {
@@ -34,9 +35,9 @@ namespace UI
             IPAddress ipAddress = IPAddress.Parse(addressInputField.text);
             int port = Convert.ToInt32(portInputField.text);
 
-            NetworkManager.Instance.Init(port, ipAddress);
+            NetworkManager.Instance.Init(port, ipAddress, nameIf.text);
             
-            Connect?.Invoke();
+            Connect?.Invoke(nameIf.text);
         }
     }
 }
