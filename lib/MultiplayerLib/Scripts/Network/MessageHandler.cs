@@ -13,6 +13,8 @@ namespace Multiplayer.Network
         private static readonly Dictionary<MessageType, ImportantMessageHandler> ImportantMessageHandlersByMessageType = new();
         private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> OnAcknowledgedByMessageType = new();
         
+        private static CriticMessagesHandler _criticMessagesHandler = new();
+        
         public static Action<MessageMetadata, IPEndPoint> onShouldAcknowledge;
 
         private const float Timeout = .5f;
@@ -62,6 +64,8 @@ namespace Multiplayer.Network
                 ImportantMessageHandlersByMessageType.Add(metadata.Type, new ImportantMessageHandler());
             
             ImportantMessageHandlersByMessageType[metadata.Type].AddPendingMessage(Timer.Time, data, ip);
+            
+            _criticMessagesHandler.HandleCriticMessages(data);
         }
         
         public static MessageMetadata GetMetadata(byte[] data)
