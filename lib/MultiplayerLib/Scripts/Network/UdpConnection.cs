@@ -81,12 +81,12 @@ namespace Multiplayer.Network
 
         public void Send(byte[] data)
         {
-            connection.Send(data, data.Length);
+            connection?.Send(data, data.Length);
         }
 
         public void Send(byte[] data, IPEndPoint ipEndpoint)
         {
-            connection.Send(data, data.Length, ipEndpoint);
+            connection?.Send(data, data.Length, ipEndpoint);
         }
     }
 }

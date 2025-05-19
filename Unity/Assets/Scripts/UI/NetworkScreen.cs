@@ -9,7 +9,7 @@ namespace UI
         [SerializeField] protected InputField portInputField;
         [SerializeField] protected string defaultPort = "65432";
 
-        private void Awake()
+        protected virtual void Awake()
         {
             GameStateController.StateChanged += OnStateChanged;
         }

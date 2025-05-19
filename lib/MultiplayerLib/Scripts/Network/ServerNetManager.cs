@@ -197,9 +197,6 @@ namespace Multiplayer.Network
             MessageMetadata metadata = MessageMetadata.Deserialize(data);
             int destroyedId = new NetDespawn(data).Deserialized();
             
-            Log.Write("Despawned object: " + destroyedId + " from client " + metadata.SenderId + "'s request");
-            Log.NewLine();
-            
             if (objectManager.GetSpawnableData(destroyedId).OwnerId != metadata.SenderId)
                 return;
             

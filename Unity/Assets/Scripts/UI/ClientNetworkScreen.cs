@@ -15,8 +15,10 @@ namespace UI
 
         public static event Action Connect;
         
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+            
             if (connectBtn)
                 connectBtn.onClick.AddListener(OnConnectBtnClick);
         }

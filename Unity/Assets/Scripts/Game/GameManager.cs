@@ -1,4 +1,3 @@
-using System;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -9,6 +8,8 @@ using UnityEditor;
 using UnityEngine;
 using Utils;
 using Color = UnityEngine.Color;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Game
 {
@@ -44,6 +45,7 @@ namespace Game
             InputListener.Disconnect += DisconnectHandler;
             ClientNetworkScreen.Connect += ConnectHandler;
             ColorPicker.ColorPicked += OnColorPicked;
+            Player.Die += OnDie;
         }
 
         private void OnDisable()
@@ -53,6 +55,7 @@ namespace Game
             InputListener.Disconnect -= DisconnectHandler;
             ClientNetworkScreen.Connect -= ConnectHandler;
             ColorPicker.ColorPicked -= OnColorPicked;
+            Player.Die -= OnDie;
         }
 
         private void DisconnectHandler()
@@ -88,13 +91,18 @@ namespace Game
             networkManager.SendData(new NetReady(0).Serialize());
         }
 
+        private void OnDie(int objId)
+        {
+            networkManager.RequestDisconnect();
+        }
+
         private static void OnConnectionEstablished()
         {
             GameStateController.State = GameState.InGame;
             
             SpawnableObjectData spawnableData = new()
             {
-                OwnerId = NetworkManager.Instance.Id, PrefabId = 0, Pos = Multiplayer.CustomMath.Vector3.Zero, Rot = System.Numerics.Vector2.Zero
+                OwnerId = NetworkManager.Instance.Id, PrefabId = 0, Pos = Vector3.Zero, Rot = Vector2.Zero
             };
 
             ObjectManager.Instance.RequestSpawn(spawnableData);

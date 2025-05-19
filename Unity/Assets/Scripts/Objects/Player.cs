@@ -1,4 +1,5 @@
-﻿using Game;
+﻿using System;
+using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -21,7 +22,9 @@ namespace Objects
         [SerializeField] private int health = 100;
         [SerializeField] private DamageCaster damageCaster;
         [SerializeField] private MeshRenderer meshRenderer;
-                
+
+        public static event Action<int> Die; 
+        
         private Vector3 moveInput;
         private Vector2 rotationInput;
         private bool canMove;
@@ -198,6 +201,9 @@ namespace Objects
                 damage /= 2;
             
             health -= damage;
+            
+            if (health <= 0)
+                Die?.Invoke(Data.Id);
         }
     }
 }
