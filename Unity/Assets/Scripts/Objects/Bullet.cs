@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Interfaces;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
@@ -11,13 +10,15 @@ namespace Objects
     {
         [SerializeField] private float speed = 10f;
         [SerializeField] private int damage = 10;
-        [SerializeField] private float lifeTime;
+        [SerializeField] private float lifeTime = 5;
 
         private bool OwnedByClient => Data.OwnerId == NetworkManager.Instance.Id;
 
         private void Start()
         {
-            // StartCoroutine(DestroyAfterSeconds(lifeTime));
+            if (!OwnedByClient) return;
+            
+            StartCoroutine(DestroyAfterSeconds(lifeTime));
         }
 
         protected override void ApplyRotation()
@@ -27,7 +28,7 @@ namespace Objects
 
         protected override void ApplyPosition()
         {
-            transform.position = new UnityEngine.Vector3(Data.Pos.x, Data.Pos.y, Data.Pos.z);
+            transform.position = new Vector3(Data.Pos.x, Data.Pos.y, Data.Pos.z);
         }
 
         protected override void Update()
@@ -41,14 +42,17 @@ namespace Objects
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!OwnedByClient) return;
+            
             if (!other.TryGetComponent(out IDamageable damageable)) return;
             
-            damageable.TakeDamage(damage);
+            damageable.RequestHit(Data.Id, damage);
+            NetworkManager.Instance.SendData(new NetDespawn(Data.Id).Serialize());
         }
 
         private void RequestMove()
         {
-            UnityEngine.Vector3 newPos = transform.position + transform.forward * (speed * Time.deltaTime);
+            Vector3 newPos = transform.position + transform.forward * (speed * Time.deltaTime);
 
             NetworkManager.Instance.SendData(new NetPosition(new Position(newPos.x, newPos.y, newPos.z, Data.Id)).Serialize());
         }
@@ -56,7 +60,8 @@ namespace Objects
         private IEnumerator DestroyAfterSeconds(float seconds)
         {
             yield return new WaitForSeconds(seconds);
-            Destroy(gameObject);
+            
+            NetworkManager.Instance.SendData(new NetDespawn(Data.Id).Serialize());
         }
     }
 }

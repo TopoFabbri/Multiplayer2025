@@ -12,7 +12,7 @@ namespace Objects
     public class ObjectManager : MonoBehaviourSingleton<ObjectManager>, INetworkFactory
     {
         [SerializeField] private List<SpawnableObject> prefabList = new();
-        
+
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
         private readonly Dictionary<int, int> lastPosMessageByObjId = new();
         private readonly Dictionary<int, int> lastRotMessageByObjId = new();
@@ -26,6 +26,8 @@ namespace Objects
             MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
+            MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
+            MessageHandler.TryAddHandler(MessageType.Hit, HandleHit);
         }
 
         private void OnDisable()
@@ -35,6 +37,8 @@ namespace Objects
             MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryRemoveHandler(MessageType.Jump, HandleJump);
+            MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
+            MessageHandler.TryRemoveHandler(MessageType.Hit, HandleHit);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -55,7 +59,7 @@ namespace Objects
             parentsByPrefabName.Add(prefabName, newParent);
             return newParent;
         }
-        
+
         private void HandlePosition(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = MessageMetadata.Deserialize(data);
@@ -66,7 +70,8 @@ namespace Objects
             if (metadata.MsgId < lastPosMessageByObjId[position.objId])
                 return;
 
-            spawnedObjects[position.objId].MoveTo(position.position.x, position.position.y, position.position.z);
+            if (spawnedObjects.TryGetValue(position.objId, out SpawnableObject obj))
+                obj.MoveTo(position.position.x, position.position.y, position.position.z);
 
             lastPosMessageByObjId[position.objId] = metadata.MsgId;
         }
@@ -75,35 +80,55 @@ namespace Objects
         {
             MessageMetadata metadata = MessageMetadata.Deserialize(data);
             Rotation rotation = new NetRotation(data).Deserialized();
-            
+
             lastRotMessageByObjId.TryAdd(rotation.objId, 0);
-            
+
             if (metadata.MsgId < lastRotMessageByObjId[rotation.objId])
                 return;
-            
-            spawnedObjects[rotation.objId].RotateTo(rotation.rotation);
-            
+
+            if (spawnedObjects.TryGetValue(rotation.objId, out SpawnableObject obj))
+                obj.RotateTo(rotation.rotation);
+
             lastRotMessageByObjId[rotation.objId] = metadata.MsgId;
         }
-        
+
         private void HandleCrouch(byte[] data, IPEndPoint ip)
         {
             int objId = new NetCrouch(data).Deserialized();
-            
+
             if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
 
             ((Player)spawnedObject).Crouch();
         }
-        
+
         private void HandleJump(byte[] data, IPEndPoint ip)
         {
             int objId = new NetJump(data).Deserialized();
-            
+
             if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
 
             ((Player)spawnedObject).Jump();
         }
-        
+
+        private void HandleDespawn(byte[] data, IPEndPoint ip)
+        {
+            int objId = new NetDespawn(data).Deserialized();
+
+            if (spawnedObjects.ContainsKey(objId))
+            {
+                spawnedObjects[objId].Destroy();
+                spawnedObjects.Remove(objId);
+            }
+        }
+
+        private void HandleHit(byte[] data, IPEndPoint ip)
+        {
+            Hit hit = new NetHit(data).Deserialized();
+
+            if (spawnedObjects.TryGetValue(hit.hitObjId, out SpawnableObject player))
+                ((Player)player).Hit(hit.damage);
+        }
+
         public void SpawnObject(SpawnableObjectData data)
         {
             if (spawnedObjects.ContainsKey(data.Id))
@@ -138,7 +163,8 @@ namespace Objects
 
         public void DestroyObject(int id)
         {
-            spawnedObjects[id].Destroy();
+            if (spawnedObjects.TryGetValue(id, out SpawnableObject obj))
+                obj.Destroy();
         }
     }
 }

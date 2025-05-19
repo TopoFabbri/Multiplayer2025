@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
 using Vector3 = Multiplayer.CustomMath.Vector3;
 
@@ -20,6 +19,11 @@ namespace Multiplayer.Network.Objects
                 
                 return id;
             }
+        }
+        
+        public SpawnableObjectData GetSpawnableData(int id)
+        {
+            return !spawnedById.TryGetValue(id, out Spawnable obj) ? null : obj.Data;
         }
 
         public List<SpawnableObjectData> SpawnablesData
@@ -55,17 +59,24 @@ namespace Multiplayer.Network.Objects
 
         public void MoveObjectTo(int id, float x, float y, float z)
         {
-            spawnedById[id].MoveTo(x, y, z);
+            if (!spawnedById.TryGetValue(id, out Spawnable obj)) return;
+            
+            obj.MoveTo(x, y, z);
         }
 
         public void RotateObjectTo(int id, Vector2 vector2)
         {
-            spawnedById[id].RotateTo(vector2);
+            if (!spawnedById.TryGetValue(id, out Spawnable obj)) return;
+                obj.RotateTo(vector2);
         }
         
         public void DestroyObject(int id)
         {
-            spawnedById[id].Destroy();
+            if (!spawnedById.TryGetValue(id, out Spawnable obj)) return;
+            
+            obj.Destroy();
+            
+            spawnedById.Remove(id);
         }
     }
 }

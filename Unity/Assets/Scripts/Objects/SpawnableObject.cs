@@ -16,6 +16,9 @@ namespace Objects
             
             MoveTo(Data.Pos.x, Data.Pos.y, Data.Pos.z);
             RotateTo(Data.Rot);
+            
+            ApplyPosition();
+            ApplyRotation();
         }
 
         public void MoveTo(float x, float y, float z)

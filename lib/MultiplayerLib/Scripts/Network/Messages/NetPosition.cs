@@ -27,7 +27,7 @@ namespace Multiplayer.Network.Messages
     public class NetPosition : Message<Position>
     {
         private static int _posIds;
-        
+
         public NetPosition(Position position) : base(position)
         {
             metadata.Type = MessageType.Position;
@@ -42,7 +42,7 @@ namespace Multiplayer.Network.Messages
         protected override Position Deserialize(byte[] message)
         {
             Position outPosition;
-            
+
             outPosition.position.x = BitConverter.ToSingle(message, MessageMetadata.Size);
             outPosition.position.y = BitConverter.ToSingle(message, MessageMetadata.Size + sizeof(float));
             outPosition.position.z = BitConverter.ToSingle(message, MessageMetadata.Size + sizeof(float) * 2);

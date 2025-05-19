@@ -1,5 +1,4 @@
 ﻿using Game;
-using Interfaces;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -7,7 +6,7 @@ using UnityEngine;
 
 namespace Objects
 {
-    public class Player : SpawnableObject, IDamageable
+    public class Player : SpawnableObject
     {
         [SerializeField] private float speed = 10f;
         [SerializeField] private float cameraSensitivity = 2f;
@@ -19,6 +18,7 @@ namespace Objects
         [SerializeField] private string crouchParameterName = "Crouching";
         [SerializeField] private int bulletPrefabIndex = 1;
         [SerializeField] private int health = 100;
+        [SerializeField] private DamageCaster damageCaster;
         
         private Vector3 moveInput;
         private Vector2 rotationInput;
@@ -45,7 +45,7 @@ namespace Objects
 
                 Rotate();
             }
-            
+
             base.Update();
         }
 
@@ -165,7 +165,7 @@ namespace Objects
                 Pos = new Multiplayer.CustomMath.Vector3(gunPoint.position.x, gunPoint.position.y, gunPoint.position.z),
                 Rot = new System.Numerics.Vector2(gunPoint.rotation.eulerAngles.y, gunPoint.rotation.eulerAngles.x)
             };
-            
+
             ObjectManager.Instance.RequestSpawn(spawnableData);
         }
 
@@ -175,11 +175,14 @@ namespace Objects
         {
             base.Spawn(data);
 
-            if (data.OwnerId == NetworkManager.Instance.Id)
-                Possess();
+            damageCaster.Id = data.Id;
+            
+            if (data.OwnerId != NetworkManager.Instance.Id) return;
+            
+            Possess();
         }
 
-        public void TakeDamage(int damage)
+        public void Hit(int damage)
         {
             health -= damage;
         }

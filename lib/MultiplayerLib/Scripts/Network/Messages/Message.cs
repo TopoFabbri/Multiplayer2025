@@ -17,7 +17,9 @@ namespace Multiplayer.Network.Messages
         ServerInfo,
         Rotation,
         Crouch,
-        Jump
+        Jump,
+        Hit,
+        Despawn
     }
     
     public abstract class Message<T>

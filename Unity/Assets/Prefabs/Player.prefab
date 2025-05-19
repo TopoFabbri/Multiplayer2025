@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8031380230818887315}
+  - component: {fileID: 4999892399428427636}
   - component: {fileID: 709497170683820344}
   - component: {fileID: 3313820937429310679}
   - component: {fileID: 2031953397612532062}
@@ -34,6 +35,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 649629786735191219}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4999892399428427636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271062265614365144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fad8788e19f24993aa823ec68b1537b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!33 &709497170683820344
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -137,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 1939201060602477135}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.26, y: 0.049999952, z: 0.505}
+  m_LocalPosition: {x: -1.26, y: 0.049999952, z: 0.655}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -252,6 +265,7 @@ MonoBehaviour:
   crouchParameterName: Crouching
   bulletPrefabIndex: 1
   health: 100
+  damageCaster: {fileID: 4999892399428427636}
 --- !u!95 &3937773284147728412
 Animator:
   serializedVersion: 7

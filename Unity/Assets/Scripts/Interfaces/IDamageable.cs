@@ -2,6 +2,6 @@ namespace Interfaces
 {
     public interface IDamageable
     {
-        void TakeDamage(int damage);
+        void RequestHit(int bulletId, int damage);
     }
 }
