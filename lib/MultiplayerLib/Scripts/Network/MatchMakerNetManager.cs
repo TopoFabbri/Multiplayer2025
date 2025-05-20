@@ -22,7 +22,7 @@ namespace Multiplayer.Network
         private readonly List<IPEndPoint> disconnectedClients = new();
         private readonly Dictionary<int, Color> colorsByClientId = new();
 
-        private const int PlayerQty = 2;
+        private const int PlayerQty = 4;
 
         protected override void Start()
         {
