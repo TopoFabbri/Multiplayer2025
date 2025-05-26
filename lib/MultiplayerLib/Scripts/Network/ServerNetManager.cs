@@ -21,7 +21,7 @@ namespace Multiplayer.Network
 
         public bool Active { get; private set; } = true;
         
-        public override void Init(int port, IPAddress ip = null)
+        public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
@@ -39,7 +39,7 @@ namespace Multiplayer.Network
 
             Id = 0;
 
-            base.Init(port, ip);
+            base.Init(port, ip, name);
             onConnectionEstablished?.Invoke();
 
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Ping, OnAcknowledgePingHandler);
@@ -86,7 +86,7 @@ namespace Multiplayer.Network
             SendTo(data, clients[id].ipEndPoint);
         }
 
-        private void AddClient(IPEndPoint ip, Color color)
+        private void AddClient(IPEndPoint ip, Color color, string name)
         {
             if (ipToId.ContainsKey(ip)) return;
 
@@ -100,10 +100,16 @@ namespace Multiplayer.Network
 
             ipToId[ip] = clientId;
 
-            clients.Add(clientId, new Client(ip, clientId, Timer.Time, 0));
+            clients.Add(clientId, new Client(ip, clientId, Timer.Time, 0, name));
             colorsByClientId.Add(clientId, color);
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, true, 0);
+            
+            Dictionary<int, string> names = new();
+            
+            foreach (KeyValuePair<int, Client> tmpClient in clients)
+                names.Add(tmpClient.Key, tmpClient.Value.name);
+            
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, true, 0, name);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
@@ -128,7 +134,7 @@ namespace Multiplayer.Network
         {
             HandShake hs = new NetHandShake(data).Deserialized();
             
-            AddClient(ip, hs.clients.Last().Value);
+            AddClient(ip, hs.clientColorsById.Last().Value, hs.name);
         }
 
         private void HandleConsole(byte[] data, IPEndPoint ip)

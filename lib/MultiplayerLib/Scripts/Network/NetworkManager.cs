@@ -17,13 +17,15 @@ namespace Multiplayer.Network
         public readonly IPEndPoint ipEndPoint;
         public float lastPingTime;
         public int level;
+        public string name;
 
-        public Client(IPEndPoint ipEndPoint, int id, float timeStamp, int level)
+        public Client(IPEndPoint ipEndPoint, int id, float timeStamp, int level, string name)
         {
             this.timeStamp = timeStamp;
             this.id = id;
             this.ipEndPoint = ipEndPoint;
             this.level = level;
+            this.name = name;
             lastPingTime = Timer.Time;
         }
     }
@@ -39,8 +41,9 @@ namespace Multiplayer.Network
         public Action onConnectionEstablished;
         public Action<byte[], IPEndPoint> OnReceiveDataAction;
         protected const float TimeOut = 5f;
-
+        public string Name { get; private set; }
         protected UdpConnection connection;
+        
         protected override void Start()
         {
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
@@ -78,8 +81,9 @@ namespace Multiplayer.Network
             MessageHandler.OnSendData(data, ip);
         }
 
-        public virtual void Init(int port, IPAddress ip = null)
+        public virtual void Init(int port, IPAddress ip = null, string name = "Player")
         {
+            Name = name;
             IsInitiated = true;
         }
 

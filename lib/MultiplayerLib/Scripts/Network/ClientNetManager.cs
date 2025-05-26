@@ -13,19 +13,26 @@ namespace Multiplayer.Network
         public IPAddress IpAddress { get; private set; }
 
         private readonly Dictionary<int, Color> colorsByClients = new();
+        private readonly Dictionary<int, string> namesById = new();
         public Dictionary<int, float> PingsByClientId { get; private set; } = new();
         public int PlayerId { private get; set; }
         public bool IsConnectedToServer { get; private set; }
-
+        
         private float LastPingTime { get; set; }
         private int MmPort { get; set; }
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
         public Color Color { get; set; } = new();
         public float AfkTime => 15f;
+        public string name;
 
         private int level;
 
+        public string GetName(int id)
+        {
+            return namesById.TryGetValue(id, out string nameTmp) ? nameTmp : "Client " + id;
+        }
+        
         public event Action Disconnected;
 
         protected override void Start()
@@ -36,7 +43,7 @@ namespace Multiplayer.Network
             level = random.Next(0, 10);
         }
 
-        public override void Init(int port, IPAddress ip = null)
+        public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
             Port = port;
             IpAddress = ip;
@@ -54,11 +61,13 @@ namespace Multiplayer.Network
 
             Dictionary<int, Color> newColor = new() { { Id, Color } };
 
-            SendTo(new NetHandShake(new HandShake(0, newColor, false, level), false).Serialize());
+            Dictionary<int, string> names = new();
+            
+            SendTo(new NetHandShake(new HandShake(0, newColor, new Dictionary<int, string>(), false, level, name), false).Serialize());
 
             LastPingTime = Timer.Time;
 
-            base.Init(port, ip);
+            base.Init(port, ip, name);
         }
 
         public override void Update()
@@ -70,7 +79,7 @@ namespace Multiplayer.Network
             if (Timer.Time - LastPingTime > TimeOut)
                 Disconnect();
         }
-
+        
         private void HandleHandshake(byte[] data, IPEndPoint ip)
         {
             HandShake hs = new NetHandShake(data).Deserialized();
@@ -79,8 +88,11 @@ namespace Multiplayer.Network
             CheckSum.CreateOperationsArrays(hs.randomSeed);
             Crypt.GenerateOperations(hs.randomSeed);
 
-            foreach (KeyValuePair<int, Color> client in hs.clients)
+            foreach (KeyValuePair<int, Color> client in hs.clientColorsById)
                 colorsByClients.TryAdd(client.Key, client.Value);
+
+            foreach (KeyValuePair<int, string> nameAndId in hs.clientNames)
+                namesById.TryAdd(nameAndId.Key, nameAndId.Value);
 
             LastPingTime = Timer.Time;
 

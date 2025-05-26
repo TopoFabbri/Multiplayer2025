@@ -77,7 +77,7 @@ namespace Game
             GameStateController.State = GameStateController.State == GameState.InGame ? GameState.ColorPick : GameState.Connecting;
         }
 
-        private static void ConnectHandler()
+        private static void ConnectHandler(string name)
         {
             GameStateController.State = GameState.ColorPick;
         }
