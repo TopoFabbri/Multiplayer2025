@@ -59,6 +59,8 @@ namespace Multiplayer.Network.Messages.MessageInfo
         public static void GenerateOperations(uint seed)
         {
             Random random = new((int)seed);
+
+            Operations.Clear();
             
             for (int i = 0; i < OperationsCount; i++)
             {
