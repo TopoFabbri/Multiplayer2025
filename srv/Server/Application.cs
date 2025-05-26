@@ -16,9 +16,10 @@ public class Application
 
     public void Run(int port)
     {
+        Console.Title = "Server at port " + port;
+        
         try
         {
-
             networkManager.Init(port);
         
             while (networkManager.Active)

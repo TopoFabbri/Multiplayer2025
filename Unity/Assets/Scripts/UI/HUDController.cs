@@ -53,7 +53,7 @@ namespace UI
             pingText.text = "";
             
             foreach (KeyValuePair<int, float> pingById in ((ClientNetManager)NetworkManager.Instance).PingsByClientId)
-                pingText.text += ((ClientNetManager)NetworkManager.Instance).GetName(pingById.Key) + pingById.Key + ": " + (int)(pingById.Value * 1000) + "ms\n";
+                pingText.text += ((ClientNetManager)NetworkManager.Instance).GetName(pingById.Key) + ": " + (int)(pingById.Value * 1000) + "ms\n";
         }
     }
 }

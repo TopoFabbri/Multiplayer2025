@@ -60,24 +60,25 @@ namespace Multiplayer.Network
         {
             base.Update();
 
-            if (readyClients.Count < PlayerQty) return;
-
-            readyClients = SortedClientsByLevel(readyClients);
-
-            List<Client> clientsToConnect = new();
-
-            for (int i = 0; i + 1 < readyClients.Count; i += 2)
+            if (readyClients.Count >= PlayerQty)
             {
-                clientsToConnect.Add(clients[readyClients[i]]);
-                clientsToConnect.Add(clients[readyClients[i + 1]]);
+                readyClients = SortedClientsByLevel(readyClients);
 
-                if (clientsToConnect.Count < 2) return;
+                List<Client> clientsToConnect = new();
 
-                OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]] });
+                for (int i = 0; i + 1 < readyClients.Count; i += 2)
+                {
+                    clientsToConnect.Add(clients[readyClients[i]]);
+                    clientsToConnect.Add(clients[readyClients[i + 1]]);
+
+                    if (clientsToConnect.Count < 2) return;
+
+                    OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]] });
+                }
+
+                foreach (Client client in clientsToConnect)
+                    readyClients.Remove(client.id);
             }
-
-            foreach (Client client in clientsToConnect)
-                readyClients.Remove(client.id);
 
             foreach (KeyValuePair<int, Client> client in clients)
             {
@@ -116,9 +117,9 @@ namespace Multiplayer.Network
                 names.Add(tmpClient.Key, tmpClient.Value.name);
 
             HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
-            SendTo(new NetHandShake(hs, true).Serialize(), ip);
+            SendData(new NetHandShake(hs, true).Serialize());
 
-            Log.Write("Client " + clientId + " connected!");
+            Log.Write("Client " + name + " connected!");
             Log.NewLine();
 
             LogConnectedClients();
@@ -146,7 +147,7 @@ namespace Multiplayer.Network
                 Log.Write("Connected clients: ");
 
                 foreach (KeyValuePair<int, Client> client in clients)
-                    Log.Write("Client " + client.Value.id + "    ");
+                    Log.Write("Client " + client.Value.name + "    ");
             }
 
             Log.NewLine(2);
@@ -168,14 +169,24 @@ namespace Multiplayer.Network
         {
             if (!ipToId.TryGetValue(ip, out int clientId)) return;
 
-            usedNames.Remove(Name);
+            Log.Write("Client " + clients[clientId].name + " disconnected!");
+            Log.NewLine();
+            
+            usedNames.Remove(clients[clientId].name);
             readyClients.Remove(clientId);
             colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
             ipToId.Remove(ip);
-            Log.Write("Client " + clientId + " disconnected!");
-            Log.NewLine();
+            
             LogConnectedClients();
+            
+            Dictionary<int, string> names = new();
+            
+            foreach (KeyValuePair<int, Client> tmpClient in clients)
+                names.Add(tmpClient.Key, tmpClient.Value.name);
+            
+            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
+            SendData(new NetHandShake(hs, true).Serialize());
         }
 
         private void HandleAcknowledgedHs(byte[] data, IPEndPoint ip)
@@ -186,7 +197,6 @@ namespace Multiplayer.Network
         private void HandleAcknowledgedPing(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
-            float ping = Timer.Time - clients[id].lastPingTime;
 
             Client client = clients[id];
 
@@ -213,9 +223,7 @@ namespace Multiplayer.Network
             openServers.Add(port);
 
             StartServer(port);
-
-            Thread.Sleep(1000);
-
+            
             NetServerInfo svInfo = new(new ServerInfo(port));
 
             foreach (Client client in clientsToConnect)
@@ -237,9 +245,11 @@ namespace Multiplayer.Network
                 UseShellExecute = true,
                 CreateNoWindow = false,
                 WindowStyle = ProcessWindowStyle.Normal
+                
             };
 
             Process.Start(processStartInfo);
+            Thread.Sleep(1000);
         }
 
         public override void SendTo(byte[] data, IPEndPoint ip = null)

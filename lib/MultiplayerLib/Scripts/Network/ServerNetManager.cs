@@ -95,7 +95,7 @@ namespace Multiplayer.Network
             while (clients.ContainsKey(clientId))
                 clientId++;
 
-            Log.Write("Adding client: " + clientId);
+            Log.Write("Adding client: " + name);
             Log.NewLine();
 
             ipToId[ip] = clientId;

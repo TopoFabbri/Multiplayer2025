@@ -125,7 +125,7 @@ namespace Multiplayer.Network.Messages
 
             Dictionary<int, string> names = new();
 
-            for (int i = 0; i < clientCount; i++)
+            for (int i = 0; i < nameCount; i++)
             {
                 int clientId = BitConverter.ToInt32(message, counter);
                 counter += sizeof(int);
@@ -133,10 +133,8 @@ namespace Multiplayer.Network.Messages
                 int clientNameLength = BitConverter.ToInt32(message, counter);
                 counter += sizeof(int);
 
-                string tmp = "";
-
                 string clientName = System.Text.Encoding.UTF8.GetString(message, counter, clientNameLength);
-                counter += nameLength;
+                counter += clientNameLength;
 
                 names.Add(clientId, clientName);
             }

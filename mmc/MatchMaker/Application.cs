@@ -6,7 +6,7 @@ namespace MatchMaker;
 public class Application
 {
     private readonly NetworkManager networkManager = new MatchMakerNetManager();
-    private bool running = false;
+    private bool running;
     private const int Port = 65432;
 
     public Application()
@@ -16,6 +16,8 @@ public class Application
     
     public void Run()
     {
+        Console.Title = "MatchMaker";
+        
         running = true;
         
         networkManager.Init(Port);

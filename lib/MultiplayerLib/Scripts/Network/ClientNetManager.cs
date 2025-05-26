@@ -24,7 +24,6 @@ namespace Multiplayer.Network
         private IPEndPoint MmIp { get; set; }
         public Color Color { get; set; } = new();
         public float AfkTime => 15f;
-        public string name;
 
         private int level;
 
@@ -138,21 +137,7 @@ namespace Multiplayer.Network
 
         private void HandleAcknowledgedDisconnect(byte[] data, IPEndPoint ip)
         {
-            Disconnected?.Invoke();
             Disconnect();
-
-            if (IsConnectedToServer)
-            {
-                IsConnectedToServer = false;
-
-                Init(MmPort, MmIp.Address);
-            }
-            else if (ConnectToServer)
-            {
-                Init(Port, IpAddress);
-                IsConnectedToServer = true;
-                ConnectToServer = false;
-            }
         }
 
         public override void SendData(byte[] data)
@@ -177,8 +162,11 @@ namespace Multiplayer.Network
 
         private void Disconnect()
         {
+            Disconnected?.Invoke();
+            
             colorsByClients.Clear();
             PingsByClientId.Clear();
+            namesById.Clear();
 
             connection?.Close();
 
@@ -187,6 +175,19 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.ServerInfo, HandleServerInfo);
 
             MessageHandler.TryRemoveOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
+            
+            if (IsConnectedToServer)
+            {
+                IsConnectedToServer = false;
+
+                Init(MmPort, MmIp.Address, Name);
+            }
+            else if (ConnectToServer)
+            {
+                Init(Port, IpAddress, Name);
+                IsConnectedToServer = true;
+                ConnectToServer = false;
+            }
         }
 
         protected override void OnShouldAcknowledge(MessageMetadata metadata, IPEndPoint ip)
@@ -195,12 +196,6 @@ namespace Multiplayer.Network
                 return;
 
             base.OnShouldAcknowledge(metadata, ip);
-        }
-
-        protected override void OnDestroy()
-        {
-            RequestDisconnect();
-            Disconnect();
         }
     }
 }
