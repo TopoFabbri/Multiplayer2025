@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Multiplayer.Network.Messages.MessageInfo;
 
@@ -25,6 +26,7 @@ namespace Multiplayer.Network.Messages
             List<byte> outData = new();
 
             outData.AddRange(metadata.Serialize());
+            outData.AddRange(BitConverter.GetBytes(data.Length));
             outData.AddRange(Encoding.UTF8.GetBytes(data));
             outData.AddRange(GetCheckSum(outData));
 
@@ -33,7 +35,7 @@ namespace Multiplayer.Network.Messages
 
         protected override string Deserialize(byte[] message)
         {
-            int dataSize = message.Length - MessageMetadata.Size - CheckSum.Size;
+            int dataSize = BitConverter.ToInt32(message, MessageMetadata.Size);
 
             return Encoding.UTF8.GetString(message, MessageMetadata.Size, dataSize);
         }
