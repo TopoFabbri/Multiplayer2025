@@ -17,3 +17,22 @@ D:\UnityProjects\Multiplayer2025\srv\Server\obj\Release\net9.0\refint\Server.dll
 D:\UnityProjects\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.pdb
 D:\UnityProjects\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.genruntimeconfig.cache
 D:\UnityProjects\Multiplayer2025\srv\Server\obj\Release\net9.0\ref\Server.dll
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\Server.exe
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\Server.deps.json
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\Server.runtimeconfig.json
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\Server.dll
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\Server.pdb
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\MultiplayerLib.dll
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\bin\Release\net9.0\MultiplayerLib.pdb
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.csproj.AssemblyReference.cache
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.AssemblyInfoInputs.cache
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.AssemblyInfo.cs
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.csproj.CoreCompileInputs.cache
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.sourcelink.json
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.csproj.Up2Date
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.dll
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\refint\Server.dll
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.pdb
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\Server.genruntimeconfig.cache
+C:\Users\Aula 2\Downloads\Multiplayer2025\srv\Server\obj\Release\net9.0\ref\Server.dll

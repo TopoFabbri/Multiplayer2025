@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using Multiplayer.Utils;
 
 namespace Multiplayer.Network.Messages.MessageInfo
 {

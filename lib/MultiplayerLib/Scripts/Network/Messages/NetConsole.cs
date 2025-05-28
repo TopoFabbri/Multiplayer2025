@@ -26,8 +26,8 @@ namespace Multiplayer.Network.Messages
             List<byte> outData = new();
 
             outData.AddRange(metadata.Serialize());
-            outData.AddRange(BitConverter.GetBytes(data.Length));
-            outData.AddRange(Encoding.UTF8.GetBytes(data));
+            outData.AddRange(BitConverter.GetBytes(data.Length * 2));
+            outData.AddRange(Encoding.Unicode.GetBytes(data));
             outData.AddRange(GetCheckSum(outData));
 
             return outData.ToArray();
@@ -35,9 +35,12 @@ namespace Multiplayer.Network.Messages
 
         protected override string Deserialize(byte[] message)
         {
-            int dataSize = BitConverter.ToInt32(message, MessageMetadata.Size);
+            int counter = MessageMetadata.Size;
+            
+            int dataSize = BitConverter.ToInt32(message, counter);
+            counter += sizeof(int);
 
-            return Encoding.UTF8.GetString(message, MessageMetadata.Size, dataSize);
+            return Encoding.Unicode.GetString(message, counter, dataSize);
         }
     }
 }

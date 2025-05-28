@@ -55,7 +55,7 @@ namespace Objects
 
         protected override void Update()
         {
-            // CheckAfk();
+            CheckAfk();
             
             if (canMove)
             {
