@@ -25,13 +25,10 @@ namespace Multiplayer.Network
         {
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
-            MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
-            MessageHandler.TryAddHandler(MessageType.Hit, HandleHit);
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
 
             Port = port;
@@ -141,24 +138,6 @@ namespace Multiplayer.Network
         {
             SendData(data);
         }
-
-        private void HandlePosition(byte[] data, IPEndPoint ip)
-        {
-            Position pos = new NetPosition(data).Deserialized();
-            
-            objectManager.MoveObjectTo(pos.objId, pos.position.x, pos.position.y, pos.position.z);
-            
-            SendData(new NetPosition(pos).Serialize());
-        }
-
-        private void HandleRotation(byte[] data, IPEndPoint ip)
-        {
-            Rotation rot = new NetRotation(data).Deserialized();
-            
-            objectManager.RotateObjectTo(rot.objId, rot.rotation);
-            
-            SendData(new NetRotation(rot).Serialize());
-        }
         
         private void HandleCrouch(byte[] data, IPEndPoint ip)
         {
@@ -187,17 +166,6 @@ namespace Multiplayer.Network
         {
             RemoveClient(ip);
         }
-
-        private void HandleHit(byte[] data, IPEndPoint ip)
-        {
-            Hit hit = new NetHit(data).Deserialized();
-            
-            NetDespawn despawn = new(hit.bulletObjId);
-            
-            SendData(despawn.Serialize());
-            SendData(data);
-        }
-
         private void HandleDespawn(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = MessageMetadata.Deserialize(data);
@@ -259,13 +227,10 @@ namespace Multiplayer.Network
 
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
             MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
-            MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
             MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
             MessageHandler.TryRemoveHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
-            MessageHandler.TryRemoveHandler(MessageType.Hit, HandleHit);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
             
             connection.Close();

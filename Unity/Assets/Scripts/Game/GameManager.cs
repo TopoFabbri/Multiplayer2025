@@ -45,7 +45,6 @@ namespace Game
             InputListener.Disconnect += DisconnectHandler;
             ClientNetworkScreen.Connect += ConnectHandler;
             ColorPicker.ColorPicked += OnColorPicked;
-            Player.Die += OnDie;
         }
 
         private void OnDisable()
@@ -55,7 +54,6 @@ namespace Game
             InputListener.Disconnect -= DisconnectHandler;
             ClientNetworkScreen.Connect -= ConnectHandler;
             ColorPicker.ColorPicked -= OnColorPicked;
-            Player.Die -= OnDie;
         }
 
         private void DisconnectHandler()
@@ -102,7 +100,7 @@ namespace Game
             
             SpawnableObjectData spawnableData = new()
             {
-                OwnerId = NetworkManager.Instance.Id, PrefabId = 0, Pos = Vector3.Zero, Rot = Vector2.Zero
+                OwnerId = NetworkManager.Instance.Id, PrefabId = 0
             };
 
             ObjectManager.Instance.RequestSpawn(spawnableData);

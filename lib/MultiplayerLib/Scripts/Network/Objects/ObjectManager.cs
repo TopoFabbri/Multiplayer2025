@@ -42,32 +42,11 @@ namespace Multiplayer.Network.Objects
         public void SpawnObject(SpawnableObjectData data)
         {
             if (spawnedById.ContainsKey(data.Id)) return;
-
-            if (data.PrefabId == 0)
-            {
-                Vector3 pos = data.Pos;
-            
-                pos.x += data.Id * 2;
-                data.Pos = pos;
-            }
             
             Spawnable spawnable = new();
             spawnable.Spawn(data);
             
             spawnedById.Add(data.Id, spawnable);
-        }
-
-        public void MoveObjectTo(int id, float x, float y, float z)
-        {
-            if (!spawnedById.TryGetValue(id, out Spawnable obj)) return;
-            
-            obj.MoveTo(x, y, z);
-        }
-
-        public void RotateObjectTo(int id, Vector2 vector2)
-        {
-            if (!spawnedById.TryGetValue(id, out Spawnable obj)) return;
-                obj.RotateTo(vector2);
         }
         
         public void DestroyObject(int id)

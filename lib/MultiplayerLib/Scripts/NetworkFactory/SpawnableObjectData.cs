@@ -12,9 +12,6 @@ namespace Multiplayer.NetworkFactory
         public int OwnerId { get; set; }
         
         public int PrefabId { get; set; }
-        
-        public Vector3 Pos { get; set; }
-        public Vector2 Rot { get; set; }
 
         public byte[] Serialized => Serialize(this);
         
@@ -29,13 +26,6 @@ namespace Multiplayer.NetworkFactory
             outData.AddRange(BitConverter.GetBytes(data.OwnerId));
             
             outData.AddRange(BitConverter.GetBytes(data.PrefabId));
-            
-            outData.AddRange(BitConverter.GetBytes(data.Pos.x));
-            outData.AddRange(BitConverter.GetBytes(data.Pos.y));
-            outData.AddRange(BitConverter.GetBytes(data.Pos.z));
-            
-            outData.AddRange(BitConverter.GetBytes(data.Rot.X));
-            outData.AddRange(BitConverter.GetBytes(data.Rot.Y));
                 
             return outData.ToArray();
         }
@@ -52,17 +42,6 @@ namespace Multiplayer.NetworkFactory
             
             objData.PrefabId = BitConverter.ToInt32(data, startIndex);
             startIndex += sizeof(int);
-            
-            objData.Pos = new Vector3(
-                BitConverter.ToSingle(data, startIndex), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float)), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float) * 2));
-            startIndex += sizeof(float) * 3;
-            
-            objData.Rot = new Vector2(
-                BitConverter.ToSingle(data, startIndex), 
-                BitConverter.ToSingle(data, startIndex + sizeof(float)));
-            startIndex += sizeof(float) * 2;
             
             return objData;
         }

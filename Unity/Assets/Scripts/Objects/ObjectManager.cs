@@ -3,7 +3,6 @@ using System.Net;
 using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
-using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.NetworkFactory;
 using UnityEngine;
 using Utils;
@@ -15,20 +14,13 @@ namespace Objects
         [SerializeField] private List<SpawnableObject> prefabList = new();
 
         private readonly Dictionary<int, SpawnableObject> spawnedObjects = new();
-        private readonly Dictionary<int, int> lastPosMessageByObjId = new();
-        private readonly Dictionary<int, int> lastRotMessageByObjId = new();
 
         private readonly Dictionary<string, GameObject> parentsByPrefabName = new();
 
         private void OnEnable()
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
-            MessageHandler.TryAddHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryAddHandler(MessageType.Rotation, HandleRotation);
-            MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
-            MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
-            MessageHandler.TryAddHandler(MessageType.Hit, HandleHit);
 
             GameStateController.StateChanged += OnStateChanged;
         }
@@ -42,12 +34,7 @@ namespace Objects
         private void OnDisable()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
-            MessageHandler.TryRemoveHandler(MessageType.Position, HandlePosition);
-            MessageHandler.TryRemoveHandler(MessageType.Rotation, HandleRotation);
-            MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
-            MessageHandler.TryRemoveHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
-            MessageHandler.TryRemoveHandler(MessageType.Hit, HandleHit);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -69,56 +56,6 @@ namespace Objects
             return newParent;
         }
 
-        private void HandlePosition(byte[] data, IPEndPoint ip)
-        {
-            MessageMetadata metadata = MessageMetadata.Deserialize(data);
-            Position position = new NetPosition(data).Deserialized();
-
-            lastPosMessageByObjId.TryAdd(position.objId, 0);
-
-            if (metadata.MsgId < lastPosMessageByObjId[position.objId])
-                return;
-
-            if (spawnedObjects.TryGetValue(position.objId, out SpawnableObject obj))
-                obj.MoveTo(position.position.x, position.position.y, position.position.z);
-
-            lastPosMessageByObjId[position.objId] = metadata.MsgId;
-        }
-
-        private void HandleRotation(byte[] data, IPEndPoint ip)
-        {
-            MessageMetadata metadata = MessageMetadata.Deserialize(data);
-            Rotation rotation = new NetRotation(data).Deserialized();
-
-            lastRotMessageByObjId.TryAdd(rotation.objId, 0);
-
-            if (metadata.MsgId < lastRotMessageByObjId[rotation.objId])
-                return;
-
-            if (spawnedObjects.TryGetValue(rotation.objId, out SpawnableObject obj))
-                obj.RotateTo(rotation.rotation);
-
-            lastRotMessageByObjId[rotation.objId] = metadata.MsgId;
-        }
-
-        private void HandleCrouch(byte[] data, IPEndPoint ip)
-        {
-            int objId = new NetCrouch(data).Deserialized();
-
-            if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
-
-            ((Player)spawnedObject).Crouch();
-        }
-
-        private void HandleJump(byte[] data, IPEndPoint ip)
-        {
-            int objId = new NetJump(data).Deserialized();
-
-            if (!spawnedObjects.TryGetValue(objId, out SpawnableObject spawnedObject)) return;
-
-            ((Player)spawnedObject).Jump();
-        }
-
         private void HandleDespawn(byte[] data, IPEndPoint ip)
         {
             int objId = new NetDespawn(data).Deserialized();
@@ -128,14 +65,6 @@ namespace Objects
                 spawnedObjects[objId].Destroy();
                 spawnedObjects.Remove(objId);
             }
-        }
-
-        private void HandleHit(byte[] data, IPEndPoint ip)
-        {
-            Hit hit = new NetHit(data).Deserialized();
-
-            if (spawnedObjects.TryGetValue(hit.hitObjId, out SpawnableObject player))
-                ((Player)player).Hit(hit.damage);
         }
 
         public void SpawnObject(SpawnableObjectData data)
