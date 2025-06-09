@@ -23,7 +23,7 @@ namespace Multiplayer.Network
         private readonly Dictionary<int, Color> colorsByClientId = new();
         private readonly List<string> usedNames = new();
 
-        private const int PlayerQty = 4;
+        private const int PlayerQty = 2;
 
         protected override void Start()
         {

@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <Folder Include="Scripts\CustomMath\" />
+      <Folder Include="Scripts\NetworkFactory\" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">

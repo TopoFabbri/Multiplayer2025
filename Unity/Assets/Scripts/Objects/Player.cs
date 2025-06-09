@@ -1,6 +1,9 @@
-﻿namespace Objects
+﻿using Multiplayer.Network.Objects;
+using UnityEngine;
+
+namespace Objects
 {
-    public class Player : SpawnableObject
+    public class PlayerM : ObjectM
     {
     }
 }

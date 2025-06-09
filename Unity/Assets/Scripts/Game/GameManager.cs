@@ -8,8 +8,6 @@ using UnityEditor;
 using UnityEngine;
 using Utils;
 using Color = UnityEngine.Color;
-using Vector2 = System.Numerics.Vector2;
-using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Game
 {
@@ -21,8 +19,10 @@ namespace Game
 
         private ClientNetManager networkManager;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+            
             Timer.Start();
             networkManager = new ClientNetManager();
         }
@@ -87,11 +87,6 @@ namespace Game
             GameStateController.State = GameState.MatchMaking;
 
             networkManager.SendData(new NetReady(0).Serialize());
-        }
-
-        private void OnDie(int objId)
-        {
-            networkManager.RequestDisconnect();
         }
 
         private static void OnConnectionEstablished()

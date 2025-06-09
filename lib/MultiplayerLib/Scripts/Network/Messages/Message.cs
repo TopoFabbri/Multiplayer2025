@@ -9,18 +9,26 @@ namespace Multiplayer.Network.Messages
     {
         HandShake = -1,
         Console,
-        Position,
         SpawnRequest,
         Ping,
         Disconnect,
         Acknowledge,
         ServerInfo,
-        Rotation,
         Crouch,
         Jump,
-        Hit,
         Despawn,
-        Ready
+        Ready,
+        Int,
+        Byte,
+        Bool,
+        Float,
+        Double,
+        Long,
+        Short,
+        Char,
+        String,
+        UShort,
+        UInt
     }
     
     public abstract class Message<T>
@@ -36,6 +44,16 @@ namespace Multiplayer.Network.Messages
             this.data = data;
             metadata = new MessageMetadata();
             Metadata.SenderId = NetworkManager.Instance.Id;
+        }
+        
+        protected Message(T data, Flags flags)
+        {
+            this.data = data;
+            metadata = new MessageMetadata
+            {
+                Flags = flags,
+                SenderId = NetworkManager.Instance.Id
+            };
         }
 
         protected Message(byte[] data)

@@ -10,7 +10,7 @@ namespace Utils
         {
             get 
             {
-                if (_instance == null)
+                if (!_instance)
                     _instance = FindFirstObjectByType<MonoBehaviourSingleton<T>>();
 
                 return (T)_instance;
@@ -19,12 +19,11 @@ namespace Utils
 
         protected virtual void Initialize()
         {
-
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
-            if (_instance != null)
+            if (_instance)
                 Destroy(gameObject);
 
             _instance = this;
