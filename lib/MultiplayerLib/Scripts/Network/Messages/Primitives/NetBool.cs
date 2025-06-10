@@ -4,9 +4,9 @@ using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages.Primitives
 {
-    public class NetBool : Message<bool>
+    public class NetBool : NetPrimitive<bool>
     {
-        public NetBool(bool data, Flags flags) : base(data, flags)
+        public NetBool(bool data, Flags flags, List<int> path) : base(data, flags, path)
         {
             metadata.Type = MessageType.Bool;
         }
@@ -20,17 +20,24 @@ namespace Multiplayer.Network.Messages.Primitives
             List<byte> outData = new();
             
             outData.AddRange(metadata.Serialize());
-            outData.Add(Convert.ToByte(data));
+            outData.AddRange(SerializedPath());
+            outData.Add(Convert.ToByte(data.data));
             outData.AddRange(GetCheckSum(outData));
             
             return outData.ToArray();
         }
 
-        protected override bool Deserialize(byte[] message)
+        protected override Primitive<bool> Deserialize(byte[] message)
         {
             int counter = MessageMetadata.Size;
             
-            return Convert.ToBoolean(message[counter]);
+            Primitive<bool> outData = new()
+            {
+                path = DeserializePath(message, ref counter),
+                data = Convert.ToBoolean(message[counter])
+            };
+
+            return outData;
         }
     }
 }

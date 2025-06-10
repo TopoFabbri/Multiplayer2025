@@ -30,8 +30,8 @@ namespace Multiplayer.Network.Messages
         UShort,
         UInt
     }
-    
-    public abstract class Message<T>
+
+    public abstract class Message<T> : ISerializable
     {
         protected readonly MessageMetadata metadata;
         protected readonly T data;
