@@ -1,6 +1,7 @@
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
+using Multiplayer.Reflection;
 using Multiplayer.Utils;
 using Objects;
 using UI;
@@ -16,6 +17,8 @@ namespace Game
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         [SerializeField] private ColorPicker colorPicker;
+        
+        [Sync] private GameModel gameModel;
 
         private ClientNetManager networkManager;
 
@@ -36,6 +39,8 @@ namespace Game
         {
             if (networkManager.IsInitiated)
                 networkManager?.Update();
+
+            gameModel?.Update();
         }
 
         private void OnEnable()
@@ -89,16 +94,18 @@ namespace Game
             networkManager.SendData(new NetReady(0).Serialize());
         }
 
-        private static void OnConnectionEstablished()
+        private void OnConnectionEstablished()
         {
             GameStateController.State = GameState.InGame;
+            
+            gameModel = new GameModel();
             
             SpawnableObjectData spawnableData = new()
             {
                 OwnerId = NetworkManager.Instance.Id, PrefabId = 0
             };
 
-            ObjectManager.Instance.RequestSpawn(spawnableData);
+            gameModel.SpawnObject(spawnableData);
         }
     }
 }

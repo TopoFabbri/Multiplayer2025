@@ -1,16 +1,8 @@
 ﻿using System;
+using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Reflection
 {
-    [Flags]
-    public enum Flags
-    {
-        None = 0,
-        Sortable = 1,
-        Important = 2,
-        Critical = 4,
-        Checksum = 8
-    }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method)]
     public class SyncAttribute : Attribute
