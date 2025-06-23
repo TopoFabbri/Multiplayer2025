@@ -4,25 +4,20 @@ namespace Multiplayer.Network.Objects
 {
     public class ObjectM
     {
-        [Sync] private float posX;
-        [Sync] private float posY;
-        [Sync] private float posZ;
+        [Sync] private float posX = 0f;
+        [Sync] private float posY = 0f;
+        [Sync] private float posZ = 0f;
 
         [Sync] private int ownerId;
-        
-        public ObjectM()
-        {
-            posX = 0f;
-            posY = 0f;
-            posZ = 0f;
-        }
+        [Sync] private int objectId;
 
         ~ObjectM()
         {
         }
         
-        public virtual void Initialize(int ownerId)
+        public virtual void Initialize(int ownerId, int objectId)
         {
+            this.objectId = objectId;
             this.ownerId = ownerId;
         }
         

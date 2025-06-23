@@ -1,5 +1,4 @@
 ﻿using Multiplayer.Network.Objects;
-using UnityEngine;
 
 namespace Objects
 {

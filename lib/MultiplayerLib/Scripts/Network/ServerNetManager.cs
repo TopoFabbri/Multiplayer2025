@@ -166,6 +166,7 @@ namespace Multiplayer.Network
         {
             RemoveClient(ip);
         }
+        
         private void HandleDespawn(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = MessageMetadata.Deserialize(data);

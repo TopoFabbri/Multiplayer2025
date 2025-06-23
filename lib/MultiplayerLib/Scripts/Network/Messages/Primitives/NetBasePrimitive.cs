@@ -4,31 +4,31 @@ using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages.Primitives
 {
-    public class Primitive<T>
+    public class PrimitiveNetData
     {
         public List<int> path;
-        public T data;
+        public object data;
         
-        public Primitive(T data, List<int> path)
+        public PrimitiveNetData(object data, List<int> path)
         {
             this.data = data;
             this.path = path;
         }
         
-        public Primitive()
+        public PrimitiveNetData()
         {
             path = new List<int>();
-            data = default;
+            data = null;
         }
     }
     
-    public abstract class NetPrimitive<T> : Message<Primitive<T>>
+    public abstract class NetBasePrimitive : Message<PrimitiveNetData>
     {
-        protected NetPrimitive(T data, Flags flags, List<int> path) : base(new Primitive<T>(data, path), flags)
+        protected NetBasePrimitive(object data, Flags flags, List<int> path) : base(new PrimitiveNetData(data, path), flags)
         {
         }
 
-        protected NetPrimitive(byte[] data) : base(data)
+        protected NetBasePrimitive(byte[] data) : base(data)
         {
         }
         
@@ -44,7 +44,7 @@ namespace Multiplayer.Network.Messages.Primitives
             return outData.ToArray();
         }
 
-        protected List<int> DeserializePath(byte[] message, ref int counter)
+        protected static List<int> DeserializePath(byte[] message, ref int counter)
         {
             int pathCount = BitConverter.ToInt32(message, counter);
             counter += sizeof(int);

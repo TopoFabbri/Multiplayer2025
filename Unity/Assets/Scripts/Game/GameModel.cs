@@ -1,22 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
 using Objects;
 
 namespace Game
 {
-    public class GameModel
+    public class GameModel : Model
     {
         [Sync] private ModelObjectManager objectManager;
 
-        public void Update()
+        public GameModel(ModelObjectManager objectManager)
         {
-            Synchronizer.Synchronize(this, new List<int>());
+            this.objectManager = objectManager;
         }
-
+        
         public void SpawnObject(SpawnableObjectData data)
         {
             objectManager.SpawnObject(data);
+        }
+
+        public void RequestSpawn(SpawnableObjectData spawnableData)
+        {
+            objectManager.RequestSpawn(spawnableData);
         }
     }
 }

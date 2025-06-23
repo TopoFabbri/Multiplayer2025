@@ -4,7 +4,7 @@ using Multiplayer.Network.Messages.MessageInfo;
 
 namespace Multiplayer.Network.Messages.Primitives
 {
-    public class NetInt : NetPrimitive<int>
+    public class NetInt : NetBasePrimitive
     {
         public NetInt(int data, Flags flags, List<int> path) : base(data, flags, path)
         {
@@ -21,17 +21,17 @@ namespace Multiplayer.Network.Messages.Primitives
             
             outData.AddRange(metadata.Serialize());
             outData.AddRange(SerializedPath());
-            outData.AddRange(BitConverter.GetBytes(data.data));
+            outData.AddRange(BitConverter.GetBytes((int)data.data));
             outData.AddRange(GetCheckSum(outData));
             
             return outData.ToArray();
         }
 
-        protected override Primitive<int> Deserialize(byte[] message)
+        protected override PrimitiveNetData Deserialize(byte[] message)
         {
             int counter = MessageMetadata.Size;
             
-            Primitive<int> outData = new()
+            PrimitiveNetData outData = new()
             {
                 path = DeserializePath(message, ref counter),
                 data = BitConverter.ToInt32(message, counter)

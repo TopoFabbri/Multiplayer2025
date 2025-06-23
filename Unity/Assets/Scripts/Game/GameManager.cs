@@ -17,6 +17,7 @@ namespace Game
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         [SerializeField] private ColorPicker colorPicker;
+        [SerializeField] private ModelObjectManager modelObjectManager;
         
         [Sync] private GameModel gameModel;
 
@@ -98,14 +99,14 @@ namespace Game
         {
             GameStateController.State = GameState.InGame;
             
-            gameModel = new GameModel();
+            gameModel = new GameModel(modelObjectManager);
             
             SpawnableObjectData spawnableData = new()
             {
                 OwnerId = NetworkManager.Instance.Id, PrefabId = 0
             };
 
-            gameModel.SpawnObject(spawnableData);
+            gameModel.RequestSpawn(spawnableData);
         }
     }
 }
