@@ -8,6 +8,7 @@ namespace Multiplayer.Network.Objects
 {
     public class Model
     {
+        private List<int> nodesPath = new();
         public Model()
         {
             MessageHandler.TryAddHandler(MessageType.Bool, AddIncomingData);
@@ -42,7 +43,8 @@ namespace Multiplayer.Network.Objects
         
         public void Update()
         {
-            Synchronizer.Synchronize(this, new List<int>());
+            nodesPath.Clear();
+            Synchronizer.Synchronize(this, nodesPath);
 
             while (Synchronizer.HasDirty())
                 NetworkManager.Instance.SendData(Synchronizer.DequeueDirty());

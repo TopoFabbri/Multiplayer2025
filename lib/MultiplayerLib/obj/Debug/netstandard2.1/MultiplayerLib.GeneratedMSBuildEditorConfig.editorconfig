@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = Multiplayer
-build_property.ProjectDir = D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\
+build_property.ProjectDir = C:\Users\Aula 2\Downloads\Multiplayer2025\lib\MultiplayerLib\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false
