@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj": {}
+    "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj": {
+    "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj": {
       "version": "0.1.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
+        "projectUniqueName": "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
         "projectName": "MultiplayerLib",
-        "projectPath": "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
-        "packagesPath": "C:\\Users\\Aula 2\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\obj\\",
+        "projectPath": "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
+        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
+        "outputPath": "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Aula 2\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "netstandard2.1": {
@@ -65,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\RuntimeIdentifierGraph.json"
         }
       }
     }

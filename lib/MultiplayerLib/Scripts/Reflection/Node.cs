@@ -5,19 +5,12 @@ namespace Multiplayer.Reflection
 {
     public class Node: IEquatable<Node>
     {
-        public List<int> Path { get; }
-        public int SubIndex { get; }
+        private List<int> Path { get; } = new();
         
         public Node(List<int> path)
         {
-            Path = path;
-            SubIndex = 0;
-        }
-        
-        public Node(List<int> path, int subIndex)
-        {
-            Path = path;
-            SubIndex = subIndex;
+            foreach (int i in path)
+                Path.Add(i);
         }
 
         public bool Equals(Node other)
@@ -25,7 +18,7 @@ namespace Multiplayer.Reflection
             if (other == null) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            if (Path.Count != other.Path.Count || SubIndex != other.SubIndex)
+            if (Path.Count != other.Path.Count)
                 return false;
 
             for (int i = 0; i < Path.Count; i++)
@@ -45,8 +38,6 @@ namespace Multiplayer.Reflection
         public override int GetHashCode()
         {
             HashCode hash = new();
-            
-            hash.Add(SubIndex);
             
             foreach (int i in Path)
                 hash.Add(i);

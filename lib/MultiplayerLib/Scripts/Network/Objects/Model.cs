@@ -8,7 +8,8 @@ namespace Multiplayer.Network.Objects
 {
     public class Model
     {
-        private List<int> nodesPath = new();
+        private readonly List<int> nodesPath = new();
+        
         public Model()
         {
             MessageHandler.TryAddHandler(MessageType.Bool, AddIncomingData);

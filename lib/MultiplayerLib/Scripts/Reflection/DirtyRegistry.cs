@@ -15,5 +15,10 @@ namespace Multiplayer.Reflection
             HashValues[node] = hash;
             return true;
         }
+        
+        public static void SetHash(Node node, int hash)
+        {
+            HashValues[node] = hash;
+        }
     }
 }

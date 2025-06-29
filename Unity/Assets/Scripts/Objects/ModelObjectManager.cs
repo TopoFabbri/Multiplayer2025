@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
@@ -12,15 +13,24 @@ namespace Objects
     {
         [SerializeField] private List<ObjectV> prefabs = new();
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
+        private readonly Dictionary<int, ObjectV> objectViews = new();
 
-        public ModelObjectManager()
+        private void Start()
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
+            GameStateController.StateChanged += OnStateChanged;
         }
 
-        ~ModelObjectManager()
+        private void OnDestroy()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
+            GameStateController.StateChanged -= OnStateChanged;
+        }
+
+        private void OnStateChanged(GameState state)
+        {
+            if (state != GameState.InGame)
+                OnDisconnect();
         }
         
         private void OnHandleSpawnRequest(byte[] data, System.Net.IPEndPoint ip)
@@ -51,6 +61,7 @@ namespace Objects
             ObjectV viewInstance = Instantiate(prefabs[data.PrefabId]);
             
             viewInstance.Initialize(modelInstance);
+            objectViews.Add(data.Id, viewInstance);
         }
         
         public void RequestSpawn(SpawnableObjectData spawnableData)
@@ -64,6 +75,15 @@ namespace Objects
             SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { spawnableData });
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
+        }
+
+        public void OnDisconnect()
+        {
+            foreach (KeyValuePair<int, ObjectV> objectV in objectViews)
+                Destroy(objectV.Value.gameObject);
+            
+            objectViews.Clear();
+            objects.Clear();
         }
     }
 }

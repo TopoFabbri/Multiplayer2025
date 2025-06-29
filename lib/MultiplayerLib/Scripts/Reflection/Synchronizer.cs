@@ -5,22 +5,54 @@ using Multiplayer.Network.Messages.Primitives;
 
 namespace Multiplayer.Reflection
 {
+    /* * * * * * * * * * * * * * * * * * * * * * Graph * * * * * * * * * * * * * * * * * * * * *
+     * ┌───┐                                                                                   *
+     * │ 0 │                            Model                        0              │   0      *
+     * └╥──┘┌─────┐                                                  ├── 0          │   00     *
+     *  ╠═══╡ 0-0 │                     Primitive                    ├── 1          │   01     *
+     *  ║   ├─────┤                                                  │   ├── 0      │   010    *
+     *  ╠═══╡ 0-1 │                     Collection                   │   └── 1      │   011    *
+     *  ║   └╥────┘┌───────┐                                         │              │          *
+     *  ║    ╠═════╡ 0-1-0 │            First collection item        ├── 2          │   02     *
+     *  ║    ║     ├───────┤                                         │   ├── 0      │   020    *
+     *  ║    ╚═════╡ 0-1-1 │            Second collection item       │   │   ├── 0  │   0200   *
+     *  ║   ┌─────┐└───────┘                                         │   │   └── 1  │   0201   *
+     *  ╠═══╡ 0-2 │                     Dictionary                   │   │          │          *
+     *  ║   └╥────┘┌───────┐                                         │   └── 1      │   021    *
+     *  ║    ╠═════╡ 0-2-0 │            First dictionary item        │       ├── 0  │   0210   *
+     *  ║    ║     └╥──────┘┌─────────┐                              │       └── 1  │   0211   *
+     *  ║    ║      ╠═══════╡ 0-2-0-0 │ First dictionary key         │              │          *
+     *  ║    ║      ║       ├─────────┤                              └─── 3         │   03     *
+     *  ║    ║      ╚═══════╡ 0-2-0-1 │ First dictionary value            └── 0     │   030    *
+     *  ║    ║     ┌───────┐└─────────┘                                                        *
+     *  ║    ╚═════╡ 0-2-1 │            Second dictionary item                                 *
+     *  ║          └╥──────┘┌─────────┐                                                        *
+     *  ║           ╠═══════╡ 0-2-1-0 │ Second dictionary key                                  *
+     *  ║           ║       ├─────────┤                                                        *
+     *  ║           ╚═══════╡ 0-2-1-1 │ Second dictionary value                                *
+     *  ║    ┌─────┐        └─────────┘                                                        *
+     *  ╚════╡ 0-3 │                    Complex object                                         *
+     *       └╥────┘┌───────┐                                                                  *
+     *        ╚═════╡ 0-3-0 │           First complex primitive                                *
+     *              └───────┘                                                                  *
+     * * * * * * * * * * * * * * * * * * * * * Reference * * * * * * * * * * * * * * * * * * * */
+
     public static class Synchronizer
     {
         private static readonly Queue<byte[]> DirtyQueue = new();
-        private static readonly Dictionary<List<int>, object> IncomingData = new();
+        private static readonly Dictionary<Node, object> IncomingData = new();
 
         public static void Synchronize(object node, List<int> iterators)
         {
             iterators.Add(0);
 
-            foreach (FieldInfo fieldInfo in node.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance))
+            foreach (FieldInfo fieldInfo in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 SyncAttribute syncAttribute = fieldInfo.GetCustomAttribute<SyncAttribute>();
-                
+
                 if (syncAttribute == null)
                     continue;
-                
+
                 SynchronizeNode(node, iterators, fieldInfo, syncAttribute);
 
                 iterators[^1]++;
@@ -28,7 +60,7 @@ namespace Multiplayer.Reflection
 
             iterators.RemoveAt(iterators.Count - 1);
         }
-        
+
         public static byte[] DequeueDirty()
         {
             return DirtyQueue.Count == 0 ? null : DirtyQueue.Dequeue();
@@ -36,64 +68,134 @@ namespace Multiplayer.Reflection
 
         public static void AddIncomingData(List<int> key, object data)
         {
-            IncomingData.Add(key, data);
+            IncomingData.Add(new Node(key), data);
         }
-        
+
         public static bool HasDirty()
         {
             return DirtyQueue.Count > 0;
         }
-        
-        private static void SynchronizeNode(object node, List<int> iterators, FieldInfo fieldInfo, SyncAttribute syncAttribute, int subIndex = 0)
+
+        private static void SynchronizeNode(object node, List<int> iterators, FieldInfo fieldInfo, SyncAttribute syncAttribute)
         {
             if (fieldInfo.FieldType.IsPrimitive || fieldInfo.FieldType.IsEnum)
-                SyncPrimitive(node, fieldInfo, iterators, syncAttribute, subIndex);
+                SyncPrimitiveField(node, fieldInfo, iterators, syncAttribute);
             else if (typeof(IDictionary).IsAssignableFrom(fieldInfo.FieldType))
-                SyncDictionary(node, fieldInfo, iterators, syncAttribute);
+                SyncDictionaryField(node, fieldInfo, iterators, syncAttribute);
             else if (fieldInfo.FieldType != typeof(string) && (fieldInfo.FieldType.IsArray || typeof(ICollection).IsAssignableFrom(fieldInfo.FieldType)))
-                SyncCollection(node, fieldInfo, iterators);
+                SyncCollectionField(node, fieldInfo, iterators, syncAttribute);
             else
-                SyncComplex(node, fieldInfo, iterators);
+                SyncComplexField(node, fieldInfo, iterators);
         }
 
         #region Sync Handlers
 
-        private static void SyncPrimitive(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int subIndex)
+        private static void SyncPrimitiveField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
         {
-            if (IncomingData.ContainsKey(iterators))
+            Node curNode = new(iterators);
+
+            if (IncomingData.ContainsKey(curNode))
             {
-                fieldInfo.SetValue(node, IncomingData[iterators]);
-                IncomingData.Remove(iterators);
+                fieldInfo.SetValue(node, IncomingData[curNode]);
+                IncomingData.Remove(curNode);
+                DirtyRegistry.SetHash(new Node(iterators), fieldInfo.GetValue(node).GetHashCode());
             }
-            
-            if (DirtyRegistry.IsDirty(new Node(iterators, subIndex), fieldInfo.GetHashCode()))
+
+            if (DirtyRegistry.IsDirty(new Node(iterators), fieldInfo.GetValue(node).GetHashCode()))
             {
-                DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), fieldInfo.FieldType, syncAttribute.flags, iterators));
+                DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), syncAttribute.flags, iterators));
             }
         }
-        
-        private static void SyncCollection(object node, FieldInfo fieldInfo, List<int> iterators)
+
+        private static void SyncCollectionField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
         {
-            foreach (object item in (ICollection)fieldInfo.GetValue(node))
-                Synchronize(item, iterators);
-        }
-        
-        private static void SyncDictionary(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
-        {
-            int subIndex = 0;
-            
-            foreach (DictionaryEntry entry in (IDictionary)fieldInfo.GetValue(node))
+            if (!typeof(IList).IsAssignableFrom(fieldInfo.FieldType) && !fieldInfo.FieldType.IsArray)
+                return;
+
+            iterators.Add(0);
+
+            IList list = (IList)fieldInfo.GetValue(node);
+
+            for (int i = 0; i < list.Count; i++)
             {
-                iterators.Add(0);
-                SynchronizeNode(entry.Key, iterators, fieldInfo, syncAttribute, subIndex);
+                Node curNode = new(iterators);
+
+                if (list[i].GetType().IsPrimitive || list[i].GetType().IsEnum || list[i] is string)
+                {
+                    if (IncomingData.ContainsKey(curNode))
+                    {
+                        list[i] = IncomingData[curNode];
+                        IncomingData.Remove(curNode);
+                        DirtyRegistry.SetHash(curNode, list[i].GetHashCode());
+                    }
+
+                    if (DirtyRegistry.IsDirty(curNode, list[i].GetHashCode()))
+                    {
+                        DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(list[i], syncAttribute.flags, iterators));
+                    }
+                }
+                else
+                {
+                    Synchronize(list[i], iterators);
+                }
+
                 iterators[^1]++;
-                SynchronizeNode(entry.Value, iterators, fieldInfo, syncAttribute, subIndex);
-                
-                subIndex++;
             }
+
+            iterators.RemoveAt(iterators.Count - 1);
         }
-        
-        private static void SyncComplex(object node, FieldInfo fieldInfo, List<int> iterators)
+
+        private static void SyncDictionaryField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
+        {
+            IDictionary dictionary = (IDictionary)fieldInfo.GetValue(node);
+            
+            if (dictionary == null)
+                return;
+            
+            iterators.Add(0);
+            iterators.Add(0);
+
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                iterators[^2] = 0;
+                iterators[^1] = 0;
+                
+                if (!entry.Key.GetType().IsPrimitive && entry.Key is not string)
+                {
+                    Synchronize(entry.Key, iterators);
+                }
+
+                iterators[^1] = 1;
+                Node valueNode = new(iterators);
+                object value = entry.Value;
+
+                if (value.GetType().IsPrimitive || value.GetType().IsEnum || value is string)
+                {
+                    if (IncomingData.ContainsKey(valueNode))
+                    {
+                        dictionary[entry.Key] = IncomingData[valueNode];
+                        IncomingData.Remove(valueNode);
+                        DirtyRegistry.SetHash(valueNode, dictionary[entry.Key].GetHashCode());
+                    }
+
+                    if (DirtyRegistry.IsDirty(valueNode, dictionary[entry.Key].GetHashCode()))
+                    {
+                        DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(dictionary[entry.Key], syncAttribute.flags, iterators));
+                    }
+                }
+                else
+                {
+                    Synchronize(value, iterators);
+                }
+                
+                iterators[^2]++;
+            }
+
+            iterators.RemoveAt(iterators.Count - 1);
+            iterators.RemoveAt(iterators.Count - 1);
+        }
+
+        private static void SyncComplexField(object node, FieldInfo fieldInfo, List<int> iterators)
         {
             Synchronize(fieldInfo.GetValue(node), iterators);
         }

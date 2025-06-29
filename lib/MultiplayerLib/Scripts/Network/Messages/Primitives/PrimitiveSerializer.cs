@@ -40,8 +40,10 @@ namespace Multiplayer.Network.Messages.Primitives
                 { MessageType.UShort, data => new NetUShort(data).Deserialized() }
             };
 
-        public static byte[] Serialize(object data, Type type, Flags flags, List<int> path)
+        public static byte[] Serialize(object data, Flags flags, List<int> path)
         {
+            Type type = data.GetType();
+            
             if (!ConstructorsByType.TryGetValue(type, out Func<object, Flags, List<int>, ISerializable> constructor))
                 throw new NotSupportedException($"Type {type} is not supported for serialization.");
             

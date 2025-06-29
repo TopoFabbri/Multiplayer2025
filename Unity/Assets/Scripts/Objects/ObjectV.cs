@@ -11,5 +11,10 @@ namespace Objects
         {
             this.model = model;
         }
+
+        private void Update()
+        {
+            model.SetPosition(transform.position.x, transform.position.y, transform.position.z);
+        }
     }
 }

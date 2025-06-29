@@ -61,7 +61,7 @@ namespace Multiplayer.Network
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-
+            
                 if (timeSinceLastPing > TimeOut)
                     disconnectedClients.Add(client.Value.ipEndPoint);
             }
@@ -198,8 +198,6 @@ namespace Multiplayer.Network
         private void OnAcknowledgePingHandler(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
-            
-            float ping = Timer.Time - clients[id].lastPingTime;
 
             Client client = clients[id];
 

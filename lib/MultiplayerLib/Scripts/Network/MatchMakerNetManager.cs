@@ -16,7 +16,7 @@ namespace Multiplayer.Network
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
         private readonly List<int> openServers = new();
 
-        private List<int> readyClients = new();
+        private readonly List<int> readyClients = new();
 
         private string serverPath;
         private readonly List<IPEndPoint> disconnectedClients = new();
@@ -24,6 +24,7 @@ namespace Multiplayer.Network
         private readonly List<string> usedNames = new();
 
         private const int PlayerQty = 2;
+        private const int PlayerQtyPerSv = 2;
 
         protected override void Start()
         {
@@ -62,22 +63,26 @@ namespace Multiplayer.Network
 
             if (readyClients.Count >= PlayerQty)
             {
-                readyClients = SortedClientsByLevel(readyClients);
+                List<int> sortedClientIds = SortedClientsByLevel(readyClients);
+                List<int> matchedClientIds = new();
 
-                List<Client> clientsToConnect = new();
-
-                for (int i = 0; i + 1 < readyClients.Count; i += 2)
+                for (int i = 0; i + PlayerQtyPerSv - 1 < sortedClientIds.Count; i += PlayerQtyPerSv)
                 {
-                    clientsToConnect.Add(clients[readyClients[i]]);
-                    clientsToConnect.Add(clients[readyClients[i + 1]]);
+                    List<Client> currentGroup = new();
 
-                    if (clientsToConnect.Count < 2) return;
+                    for (int j = 0; j < PlayerQtyPerSv; j++)
+                    {
+                        int clientId = sortedClientIds[i + j];
+                        currentGroup.Add(clients[clientId]);
+                    }
 
-                    OpenServer(new List<Client> { clients[readyClients[i]], clients[readyClients[i + 1]] });
+                    OpenServer(currentGroup);
+
+                    foreach (Client client in currentGroup)
+                        matchedClientIds.Add(client.id);
                 }
 
-                foreach (Client client in clientsToConnect)
-                    readyClients.Remove(client.id);
+                readyClients.RemoveAll(id => matchedClientIds.Contains(id));
             }
 
             foreach (KeyValuePair<int, Client> client in clients)
@@ -171,20 +176,20 @@ namespace Multiplayer.Network
 
             Log.Write("Client " + clients[clientId].name + " disconnected!");
             Log.NewLine();
-            
+
             usedNames.Remove(clients[clientId].name);
             readyClients.Remove(clientId);
             colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
             ipToId.Remove(ip);
-            
+
             LogConnectedClients();
-            
+
             Dictionary<int, string> names = new();
-            
+
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 names.Add(tmpClient.Key, tmpClient.Value.name);
-            
+
             HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
             SendData(new NetHandShake(hs, true).Serialize());
         }
@@ -223,7 +228,7 @@ namespace Multiplayer.Network
             openServers.Add(port);
 
             StartServer(port);
-            
+
             NetServerInfo svInfo = new(new ServerInfo(port));
 
             foreach (Client client in clientsToConnect)
@@ -245,7 +250,6 @@ namespace Multiplayer.Network
                 UseShellExecute = true,
                 CreateNoWindow = false,
                 WindowStyle = ProcessWindowStyle.Normal
-                
             };
 
             Process.Start(processStartInfo);
