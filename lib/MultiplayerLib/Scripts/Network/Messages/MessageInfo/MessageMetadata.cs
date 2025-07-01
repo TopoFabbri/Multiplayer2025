@@ -10,7 +10,8 @@ namespace Multiplayer.Network.Messages.MessageInfo
         Sortable = 1,
         Important = 2,
         Critical = 4,
-        Checksum = 8
+        Checksum = 8,
+        Primitive = 16
     }
         
     public class MessageMetadata

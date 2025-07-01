@@ -29,7 +29,20 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
+            
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
+            MessageHandler.TryAddHandler(MessageType.Bool, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Byte, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Char, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Double, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Float, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Int, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Long, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.Short, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.String, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.UInt, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.ULong, HandlePrimitive);
+            MessageHandler.TryAddHandler(MessageType.UShort, HandlePrimitive);
 
             Port = port;
             connection = new UdpConnection(port, this);
@@ -179,12 +192,26 @@ namespace Multiplayer.Network
             
             SendData(new NetDespawn(destroyedId).Serialize());
         }
+
+        private void HandlePrimitive(byte[] data, IPEndPoint ip)
+        {
+            SendWithException(data, ip);
+        }
         
         public override void SendData(byte[] data)
         {
             Broadcast(data);
         }
 
+        private void SendWithException(byte[] data, IPEndPoint ip)
+        {
+            foreach (KeyValuePair<int, Client> keyValuePair in clients)
+            {
+                if (clients[keyValuePair.Key].ipEndPoint != ip)
+                    SendTo(data, clients[keyValuePair.Key].ipEndPoint);
+            }
+        }
+        
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
@@ -231,6 +258,20 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
+            
+            MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
+            MessageHandler.TryRemoveHandler(MessageType.Bool, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Byte, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Char, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Double, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Float, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Int, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Long, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.Short, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.String, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.UInt, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.ULong, HandlePrimitive);
+            MessageHandler.TryRemoveHandler(MessageType.UShort, HandlePrimitive);
             
             connection.Close();
         }

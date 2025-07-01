@@ -1,3 +1,4 @@
+using System;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.NetworkFactory;
@@ -40,8 +41,12 @@ namespace Game
         {
             if (networkManager.IsInitiated)
                 networkManager?.Update();
+        }
 
-            gameModel?.Update();
+        private void LateUpdate()
+        {
+            if (GameStateController.State == GameState.InGame)
+                gameModel?.Update(); 
         }
 
         private void OnEnable()

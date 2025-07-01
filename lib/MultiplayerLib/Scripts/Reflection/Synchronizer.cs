@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Multiplayer.Network;
 using Multiplayer.Network.Messages.Primitives;
 
 namespace Multiplayer.Reflection
@@ -31,9 +32,13 @@ namespace Multiplayer.Reflection
      *  ║           ║       ├─────────┤                                                        *
      *  ║           ╚═══════╡ 0-2-1-1 │ Second dictionary value                                *
      *  ║    ┌─────┐        └─────────┘                                                        *
-     *  ╚════╡ 0-3 │                    Complex object                                         *
+     *  ╠════╡ 0-3 │                    Complex object                                         *
+     *  ║    └╥────┘┌───────┐                                                                  *
+     *  ║     ╚═════╡ 0-3-0 │           First complex primitive                                *
+     *  ║    ┌─────┐└───────┘                                                                  *
+     *  ╚════╡ 0-4 │                    Complex object                                         *
      *       └╥────┘┌───────┐                                                                  *
-     *        ╚═════╡ 0-3-0 │           First complex primitive                                *
+     *        ╚═════╡ 0-4-0 │           First complex primitive                                *
      *              └───────┘                                                                  *
      * * * * * * * * * * * * * * * * * * * * * Reference * * * * * * * * * * * * * * * * * * * */
 
@@ -46,6 +51,8 @@ namespace Multiplayer.Reflection
         {
             iterators.Add(0);
 
+            int owner = node.GetType().IsAssignableFrom(typeof(INetObject)) ? ((INetObject)node).Owner : 0;
+
             foreach (FieldInfo fieldInfo in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 SyncAttribute syncAttribute = fieldInfo.GetCustomAttribute<SyncAttribute>();
@@ -53,7 +60,7 @@ namespace Multiplayer.Reflection
                 if (syncAttribute == null)
                     continue;
 
-                SynchronizeNode(node, iterators, fieldInfo, syncAttribute);
+                SynchronizeNode(node, iterators, fieldInfo, syncAttribute, owner);
 
                 iterators[^1]++;
             }
@@ -68,7 +75,9 @@ namespace Multiplayer.Reflection
 
         public static void AddIncomingData(List<int> key, object data)
         {
-            IncomingData.Add(new Node(key), data);
+            Node keyNode = new(key);
+
+            IncomingData[keyNode] = data;
         }
 
         public static bool HasDirty()
@@ -76,41 +85,50 @@ namespace Multiplayer.Reflection
             return DirtyQueue.Count > 0;
         }
 
-        private static void SynchronizeNode(object node, List<int> iterators, FieldInfo fieldInfo, SyncAttribute syncAttribute)
+        private static void SynchronizeNode(object node, List<int> iterators, FieldInfo fieldInfo, SyncAttribute syncAttribute, int owner)
         {
             if (fieldInfo.FieldType.IsPrimitive || fieldInfo.FieldType.IsEnum)
-                SyncPrimitiveField(node, fieldInfo, iterators, syncAttribute);
+                SyncPrimitiveField(node, fieldInfo, iterators, syncAttribute, owner);
             else if (typeof(IDictionary).IsAssignableFrom(fieldInfo.FieldType))
-                SyncDictionaryField(node, fieldInfo, iterators, syncAttribute);
+                SyncDictionaryField(node, fieldInfo, iterators, syncAttribute, owner);
             else if (fieldInfo.FieldType != typeof(string) && (fieldInfo.FieldType.IsArray || typeof(ICollection).IsAssignableFrom(fieldInfo.FieldType)))
-                SyncCollectionField(node, fieldInfo, iterators, syncAttribute);
+                SyncCollectionField(node, fieldInfo, iterators, syncAttribute, owner);
             else
                 SyncComplexField(node, fieldInfo, iterators);
         }
 
         #region Sync Handlers
 
-        private static void SyncPrimitiveField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
+        private static void SyncPrimitiveField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int owner)
         {
             Node curNode = new(iterators);
+            int instanceId = NetworkManager.Instance.Id;
 
             if (IncomingData.ContainsKey(curNode))
             {
-                fieldInfo.SetValue(node, IncomingData[curNode]);
+                if (owner == 0 || owner != instanceId)
+                {
+                    fieldInfo.SetValue(node, IncomingData[curNode]);
+                    DirtyRegistry.UpdateNode(curNode, fieldInfo.GetValue(node));
+                }
+
                 IncomingData.Remove(curNode);
-                DirtyRegistry.SetHash(new Node(iterators), fieldInfo.GetValue(node).GetHashCode());
             }
 
-            if (DirtyRegistry.IsDirty(new Node(iterators), fieldInfo.GetValue(node).GetHashCode()))
-            {
+            if (!DirtyRegistry.IsDirty(curNode, fieldInfo.GetValue(node))) return;
+
+            if (owner != 0 && owner != instanceId)
+                fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
+            else
                 DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), syncAttribute.flags, iterators));
-            }
         }
 
-        private static void SyncCollectionField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
+        private static void SyncCollectionField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int owner)
         {
             if (!typeof(IList).IsAssignableFrom(fieldInfo.FieldType) && !fieldInfo.FieldType.IsArray)
                 return;
+
+            int instanceId = NetworkManager.Instance.Id;
 
             iterators.Add(0);
 
@@ -124,15 +142,21 @@ namespace Multiplayer.Reflection
                 {
                     if (IncomingData.ContainsKey(curNode))
                     {
-                        list[i] = IncomingData[curNode];
+                        if (owner == 0 || owner != instanceId)
+                        {
+                            list[i] = IncomingData[curNode];
+                            DirtyRegistry.UpdateNode(curNode, list[i]);
+                        }
+
                         IncomingData.Remove(curNode);
-                        DirtyRegistry.SetHash(curNode, list[i].GetHashCode());
                     }
 
-                    if (DirtyRegistry.IsDirty(curNode, list[i].GetHashCode()))
-                    {
+                    if (!DirtyRegistry.IsDirty(curNode, list[i])) return;
+
+                    if (owner != 0 && owner != instanceId)
+                        fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
+                    else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(list[i], syncAttribute.flags, iterators));
-                    }
                 }
                 else
                 {
@@ -145,21 +169,23 @@ namespace Multiplayer.Reflection
             iterators.RemoveAt(iterators.Count - 1);
         }
 
-        private static void SyncDictionaryField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute)
+        private static void SyncDictionaryField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int owner)
         {
             IDictionary dictionary = (IDictionary)fieldInfo.GetValue(node);
-            
+
             if (dictionary == null)
                 return;
+
+            int instanceId = NetworkManager.Instance.Id;
             
             iterators.Add(0);
             iterators.Add(0);
-
+            
             foreach (DictionaryEntry entry in dictionary)
             {
                 iterators[^2] = 0;
                 iterators[^1] = 0;
-                
+
                 if (!entry.Key.GetType().IsPrimitive && entry.Key is not string)
                 {
                     Synchronize(entry.Key, iterators);
@@ -167,27 +193,32 @@ namespace Multiplayer.Reflection
 
                 iterators[^1] = 1;
                 Node valueNode = new(iterators);
-                object value = entry.Value;
 
-                if (value.GetType().IsPrimitive || value.GetType().IsEnum || value is string)
+                if (entry.Value.GetType().IsPrimitive || entry.Value.GetType().IsEnum || entry.Value is string)
                 {
                     if (IncomingData.ContainsKey(valueNode))
                     {
-                        dictionary[entry.Key] = IncomingData[valueNode];
+                        if (owner == 0 || owner != instanceId)
+                        {
+                            dictionary[entry.Key] = IncomingData[valueNode];
+                            DirtyRegistry.UpdateNode(valueNode, dictionary[entry.Key]);
+                        }
+
                         IncomingData.Remove(valueNode);
-                        DirtyRegistry.SetHash(valueNode, dictionary[entry.Key].GetHashCode());
                     }
 
-                    if (DirtyRegistry.IsDirty(valueNode, dictionary[entry.Key].GetHashCode()))
-                    {
+                    if (!DirtyRegistry.IsDirty(valueNode, dictionary[entry.Key])) return;
+
+                    if (owner != 0 && owner != instanceId)
+                        fieldInfo.SetValue(node, DirtyRegistry.PrevValues[valueNode]);
+                    else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(dictionary[entry.Key], syncAttribute.flags, iterators));
-                    }
                 }
                 else
                 {
-                    Synchronize(value, iterators);
+                    Synchronize(dictionary[entry.Key], iterators);
                 }
-                
+
                 iterators[^2]++;
             }
 

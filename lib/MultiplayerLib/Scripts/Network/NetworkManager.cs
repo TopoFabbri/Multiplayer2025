@@ -40,6 +40,7 @@ namespace Multiplayer.Network
 
         public Action onConnectionEstablished;
         public Action<byte[], IPEndPoint> OnReceiveDataAction;
+        public Action<byte[]> OnSendDataAction;
         protected const float TimeOut = 5f;
         public string Name { get; private set; }
         protected UdpConnection connection;
@@ -79,6 +80,7 @@ namespace Multiplayer.Network
         public virtual void SendTo(byte[] data, IPEndPoint ip = null)
         {
             MessageHandler.OnSendData(data, ip);
+            OnSendDataAction?.Invoke(data);
         }
 
         public virtual void Init(int port, IPAddress ip = null, string name = "Player")

@@ -14,7 +14,20 @@ namespace Objects
 
         private void Update()
         {
-            model.SetPosition(transform.position.x, transform.position.y, transform.position.z);
+            if (Input.GetKeyDown(KeyCode.A))
+                model.SetPosition(model.PosX - .5f, model.PosY, model.PosZ);
+            if (Input.GetKeyDown(KeyCode.D))
+                model.SetPosition(model.PosX + .5f, model.PosY, model.PosZ);
+            
+            if (Input.GetKeyDown(KeyCode.S))
+                model.SetPosition(model.PosX, model.PosY, model.PosZ - .5f);
+            if (Input.GetKeyDown(KeyCode.W))
+                model.SetPosition(model.PosX, model.PosY, model.PosZ + .5f);
+        }
+
+        private void LateUpdate()
+        {
+            transform.position = new Vector3(model.PosX, model.PosY, model.PosZ);
         }
     }
 }

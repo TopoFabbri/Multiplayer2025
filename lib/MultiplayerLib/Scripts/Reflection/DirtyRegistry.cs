@@ -4,21 +4,21 @@ namespace Multiplayer.Reflection
 {
     public static class DirtyRegistry
     {
-        private static readonly Dictionary<Node, int> HashValues = new();
+        public static Dictionary<Node, object> PrevValues { get; } = new(); 
 
-        public static bool IsDirty(Node node, int hash)
+        public static bool IsDirty(Node node, object obj)
         {
-            if (HashValues.TryAdd(node, hash)) return true;
+            if (PrevValues.TryAdd(node, obj)) return true;
 
-            if (HashValues[node] == hash) return false;
+            if (PrevValues[node].GetHashCode() == obj.GetHashCode()) return false;
         
-            HashValues[node] = hash;
+            PrevValues[node] = obj;
             return true;
         }
         
-        public static void SetHash(Node node, int hash)
+        public static void UpdateNode(Node node, object obj)
         {
-            HashValues[node] = hash;
+            PrevValues[node] = obj;
         }
     }
 }
