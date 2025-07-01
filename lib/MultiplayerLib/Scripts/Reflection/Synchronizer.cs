@@ -51,7 +51,7 @@ namespace Multiplayer.Reflection
         {
             iterators.Add(0);
 
-            int owner = node.GetType().IsAssignableFrom(typeof(INetObject)) ? ((INetObject)node).Owner : 0;
+            int owner = typeof(INetObject).IsAssignableFrom(node.GetType()) ? ((INetObject)node).Owner : 0;
 
             foreach (FieldInfo fieldInfo in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
@@ -106,12 +106,8 @@ namespace Multiplayer.Reflection
 
             if (IncomingData.ContainsKey(curNode))
             {
-                if (owner == 0 || owner != instanceId)
-                {
-                    fieldInfo.SetValue(node, IncomingData[curNode]);
-                    DirtyRegistry.UpdateNode(curNode, fieldInfo.GetValue(node));
-                }
-
+                fieldInfo.SetValue(node, IncomingData[curNode]);
+                DirtyRegistry.UpdateNode(curNode, fieldInfo.GetValue(node));
                 IncomingData.Remove(curNode);
             }
 
@@ -121,6 +117,8 @@ namespace Multiplayer.Reflection
                 fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
             else
                 DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), syncAttribute.flags, iterators));
+
+            DirtyRegistry.UpdateNode(curNode, fieldInfo.GetValue(node));
         }
 
         private static void SyncCollectionField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int owner)
@@ -142,12 +140,8 @@ namespace Multiplayer.Reflection
                 {
                     if (IncomingData.ContainsKey(curNode))
                     {
-                        if (owner == 0 || owner != instanceId)
-                        {
-                            list[i] = IncomingData[curNode];
-                            DirtyRegistry.UpdateNode(curNode, list[i]);
-                        }
-
+                        list[i] = IncomingData[curNode];
+                        DirtyRegistry.UpdateNode(curNode, list[i]);
                         IncomingData.Remove(curNode);
                     }
 
@@ -177,13 +171,12 @@ namespace Multiplayer.Reflection
                 return;
 
             int instanceId = NetworkManager.Instance.Id;
-            
+
             iterators.Add(0);
             iterators.Add(0);
-            
+
             foreach (DictionaryEntry entry in dictionary)
             {
-                iterators[^2] = 0;
                 iterators[^1] = 0;
 
                 if (!entry.Key.GetType().IsPrimitive && entry.Key is not string)
@@ -198,12 +191,8 @@ namespace Multiplayer.Reflection
                 {
                     if (IncomingData.ContainsKey(valueNode))
                     {
-                        if (owner == 0 || owner != instanceId)
-                        {
-                            dictionary[entry.Key] = IncomingData[valueNode];
-                            DirtyRegistry.UpdateNode(valueNode, dictionary[entry.Key]);
-                        }
-
+                        dictionary[entry.Key] = IncomingData[valueNode];
+                        DirtyRegistry.UpdateNode(valueNode, dictionary[entry.Key]);
                         IncomingData.Remove(valueNode);
                     }
 

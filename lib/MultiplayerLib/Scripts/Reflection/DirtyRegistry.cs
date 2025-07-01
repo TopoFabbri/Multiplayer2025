@@ -12,7 +12,6 @@ namespace Multiplayer.Reflection
 
             if (PrevValues[node].GetHashCode() == obj.GetHashCode()) return false;
         
-            PrevValues[node] = obj;
             return true;
         }
         

@@ -5,6 +5,8 @@ namespace Objects
 {
     public class ObjectV : MonoBehaviour
     {
+        [SerializeField] private int ownerId;
+        
         private ObjectM model;
         
         public void Initialize(ObjectM model)
@@ -28,6 +30,7 @@ namespace Objects
         private void LateUpdate()
         {
             transform.position = new Vector3(model.PosX, model.PosY, model.PosZ);
+            ownerId = model.Owner;
         }
     }
 }

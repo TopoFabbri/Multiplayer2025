@@ -106,9 +106,12 @@ namespace Game
             
             gameModel = new GameModel(modelObjectManager);
             
+            Debug.Log(NetworkManager.Instance.Id);
+            
             SpawnableObjectData spawnableData = new()
             {
-                OwnerId = NetworkManager.Instance.Id, PrefabId = 0
+                OwnerId = NetworkManager.Instance.Id,
+                PrefabId = 0
             };
 
             gameModel.RequestSpawn(spawnableData);
