@@ -12,56 +12,23 @@ namespace Objects
     public class ModelObjectManager : MonoBehaviour
     {
         [SerializeField] private List<ObjectV> prefabs = new();
-        [Sync] private readonly Dictionary<int, ObjectM> objects = new();
-        private readonly Dictionary<int, ObjectV> objectViews = new();
-
-        private void Start()
-        {
-            MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
-            GameStateController.StateChanged += OnStateChanged;
-        }
-
-        private void OnDestroy()
-        {
-            MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
-            GameStateController.StateChanged -= OnStateChanged;
-        }
-
-        private void OnStateChanged(GameState state)
-        {
-            if (state != GameState.InGame)
-                OnDisconnect();
-        }
         
-        private void OnHandleSpawnRequest(byte[] data, System.Net.IPEndPoint ip)
+        private readonly Dictionary<int, ObjectV> viewInstances = new();
+        
+        public ObjectM SpawnObject(SpawnableObjectData data)
         {
-            SpawnRequest message = new NetSpawnable(data).Deserialized();
-
-            foreach (SpawnableObjectData spawnableObject in message.spawnableObjects)
+            if (data.PrefabId < 0 || data.PrefabId >= prefabs.Count)
             {
-                if (spawnableObject.PrefabId < 0 || spawnableObject.PrefabId >= prefabs.Count)
-                {
-                    Debug.LogWarning(spawnableObject.PrefabId + " is not a valid object number.");
-                    continue;
-                }
-                
-                SpawnObject(spawnableObject);
+                Debug.LogWarning(data.PrefabId + " is not a valid object number.");
+                return null;
             }
-        }
-        
-        public void SpawnObject(SpawnableObjectData data)
-        {
-            if (objects.ContainsKey(data.Id))
-                return;
-            
-            ObjectM modelInstance = new();
-            modelInstance.Initialize(data.OwnerId, data.Id);
-            objects.Add(data.Id, modelInstance);
-            
+
             ObjectV viewInstance = Instantiate(prefabs[data.PrefabId]);
+            ObjectM modelInstance = viewInstance.Initialize(data);
             
-            viewInstance.Initialize(modelInstance);
-            objectViews.Add(data.Id, viewInstance);
+            viewInstances.Add(data.Id, viewInstance);
+
+            return modelInstance;
         }
         
         public void RequestSpawn(SpawnableObjectData spawnableData)
@@ -77,13 +44,12 @@ namespace Objects
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }
 
-        public void OnDisconnect()
+        public void ClearViewInstances()
         {
-            foreach (KeyValuePair<int, ObjectV> objectV in objectViews)
+            foreach (KeyValuePair<int, ObjectV> objectV in viewInstances)
                 Destroy(objectV.Value.gameObject);
             
-            objectViews.Clear();
-            objects.Clear();
+            viewInstances.Clear();
         }
     }
 }
