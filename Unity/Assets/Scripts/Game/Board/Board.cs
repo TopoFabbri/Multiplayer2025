@@ -25,6 +25,8 @@ namespace Game
 
         private CursorState cursorState = CursorState.Select;
         
+        public static string GameStateText { get; private set; }
+        
         public Board()
         {
             GameStateController.StateChanged += OnStateChanged;
@@ -46,11 +48,15 @@ namespace Game
             {
                 MouseBoardConverter.MousePos -= OnMousePos;
                 InputListener.Click -= OnClick;
+                
+                GameStateText = string.Empty;
             }
         }
 
         private void OnMousePos((int x, int y) pos)
         {
+            SetMouseGameState();
+            
             pos.x = Mathf.FloorToInt(pos.x);
             pos.y = Mathf.FloorToInt(pos.y);
             
@@ -58,6 +64,25 @@ namespace Game
                 hoveredTile = tiles[pos.x, pos.y];
             else
                 hoveredTile = null;
+        }
+
+        private void SetMouseGameState()
+        {
+            if (selectedTile != null)
+            {
+                GameStateText = "Object " + selectedTile.ContainingObject.ObjectId + " Selected";
+            }
+            else if (hoveredTile != null)
+            {
+                if (hoveredTile.ContainingObject != null)
+                    GameStateText = "Object " + hoveredTile.ContainingObject.ObjectId;
+                else
+                    GameStateText = "Tile " + hoveredTile.PosX + ", " + hoveredTile.PosY + " Hovered";
+            }
+            else
+            {
+                GameStateText = "Select Tile";
+            }
         }
 
         private void OnClick()
