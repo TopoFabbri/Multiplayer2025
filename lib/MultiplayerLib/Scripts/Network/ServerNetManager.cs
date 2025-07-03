@@ -127,7 +127,7 @@ namespace Multiplayer.Network
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
 
-            Log.Write("Removing client: " + id);
+            Log.Write("Removing client: " + clients[id].name);
             Log.NewLine();
 
             ipToId.Remove(ip);

@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
-using Game;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
-using Multiplayer.Reflection;
 using UnityEngine;
 
 namespace Objects
 {
-    public class ModelObjectManager : MonoBehaviour
+    public class ObjectSpawner : MonoBehaviour
     {
         [SerializeField] private List<ObjectV> prefabs = new();
         
@@ -24,6 +22,8 @@ namespace Objects
             }
 
             ObjectV viewInstance = Instantiate(prefabs[data.PrefabId]);
+            viewInstance.name = data.Id + "_" + prefabs[data.PrefabId].name;
+            
             ObjectM modelInstance = viewInstance.Initialize(data);
             
             viewInstances.Add(data.Id, viewInstance);
@@ -31,15 +31,17 @@ namespace Objects
             return modelInstance;
         }
         
-        public void RequestSpawn(SpawnableObjectData spawnableData)
+        public void RequestSpawn(List<SpawnableObjectData> spawnablesData)
         {
-            if (spawnableData.PrefabId < 0 || spawnableData.PrefabId >= prefabs.Count)
+            foreach (SpawnableObjectData spawnableData in spawnablesData)
             {
+                if (spawnableData.PrefabId >= 0 && spawnableData.PrefabId < prefabs.Count) continue;
+                
                 Debug.LogWarning(spawnableData.PrefabId + " is not a valid object number.");
                 return;
             }
 
-            SpawnRequest spawnRequest = new(new List<SpawnableObjectData> { spawnableData });
+            SpawnRequest spawnRequest = new(spawnablesData);
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }

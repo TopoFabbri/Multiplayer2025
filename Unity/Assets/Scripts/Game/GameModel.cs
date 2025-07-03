@@ -11,13 +11,16 @@ namespace Game
 {
     public class GameModel : Model
     {
-        private readonly ModelObjectManager objectSpawner;
+        private readonly ObjectSpawner objectSpawner;
+        private readonly Board board;
+        private const int PawnQty = 15;
         
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
 
-        public GameModel(ModelObjectManager objectSpawner)
+        public GameModel(ObjectSpawner objectSpawner)
         {
             this.objectSpawner = objectSpawner;
+            board = new Board();
 
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
             GameStateController.StateChanged += OnStateChanged;
@@ -27,11 +30,6 @@ namespace Game
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
             GameStateController.StateChanged -= OnStateChanged;
-        }
-
-        public void RequestSpawn(SpawnableObjectData spawnableData)
-        {
-            objectSpawner.RequestSpawn(spawnableData);
         }
         
         private void OnHandleSpawnRequest(byte[] data, IPEndPoint ip)
@@ -43,17 +41,36 @@ namespace Game
                 if (objects.ContainsKey(spawnableObject.Id))
                     continue;
                 
-                ObjectM model = objectSpawner.SpawnObject(spawnableObject);
+                ObjectM model =  objectSpawner.SpawnObject(spawnableObject);
 
-                if (model != null)
-                    objects.Add(model.ObjectId, model);
+                if (model == null) return;
+                
+                objects.Add(model.ObjectId, model);
+                
+                if (spawnableObject.OwnerId != NetworkManager.Instance.Id) continue;
+
+                board.PlaceObject(model as BoardPiece);
             }
         }
 
         private void OnStateChanged(GameState state)
         {
-            if (state != GameState.InGame)
+            if (state == GameState.InGame)
+                OnConnect();
+            else
                 OnDisconnect();
+        }
+
+        private void OnConnect()
+        {
+            board.CreateBoard(30, 30);
+
+            List<SpawnableObjectData> spawnablesData = new() { new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 0 } };
+
+            for (int i = 0; i < PawnQty; i++)
+                spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1 });
+            
+            objectSpawner.RequestSpawn(spawnablesData);
         }
 
         private void OnDisconnect()

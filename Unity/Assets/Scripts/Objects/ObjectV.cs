@@ -8,7 +8,7 @@ namespace Objects
     {
         public ObjectM Model { get; set; }
 
-        public ObjectM Initialize(SpawnableObjectData data)
+        public virtual ObjectM Initialize(SpawnableObjectData data)
         {
             Model = new ObjectM();
             
@@ -19,7 +19,7 @@ namespace Objects
 
         private void LateUpdate()
         {
-            transform.position = new Vector3(Model.PosX, Model.PosY, Model.PosZ);
+            transform.position = new Vector3(Model.PosX, Model.PosY, Model.PosZ) * 2f;
         }
     }
 }

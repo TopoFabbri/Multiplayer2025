@@ -18,7 +18,7 @@ namespace Game
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         [SerializeField] private ColorPicker colorPicker;
-        [SerializeField] private ModelObjectManager modelObjectManager;
+        [SerializeField] private ObjectSpawner objectSpawner;
         
         [Sync] private GameModel gameModel;
 
@@ -51,20 +51,18 @@ namespace Game
 
         private void OnEnable()
         {
-            networkManager.onConnectionEstablished += OnConnectionEstablished;
+            networkManager.onConnectionEstablished += OnConnectionEstablishedServer;
             networkManager.Disconnected += OnDisconnectedHandler;
             InputListener.Disconnect += DisconnectHandler;
-            ClientNetworkScreen.Connect += ConnectHandler;
-            ColorPicker.ColorPicked += OnColorPicked;
+            networkManager.onConnectionEstablishedMatchMaker += ConnectHandler;
         }
 
         private void OnDisable()
         {
-            networkManager.onConnectionEstablished -= OnConnectionEstablished;
+            networkManager.onConnectionEstablished -= OnConnectionEstablishedServer;
             networkManager.Disconnected -= OnDisconnectedHandler;
             InputListener.Disconnect -= DisconnectHandler;
-            ClientNetworkScreen.Connect -= ConnectHandler;
-            ColorPicker.ColorPicked -= OnColorPicked;
+            networkManager.onConnectionEstablishedMatchMaker -= ConnectHandler;
         }
 
         private void DisconnectHandler()
@@ -83,38 +81,23 @@ namespace Game
 
         private static void OnDisconnectedHandler()
         {
-            GameStateController.State = GameStateController.State == GameState.InGame ? GameState.ColorPick : GameState.Connecting;
+            GameStateController.State = GameStateController.State == GameState.InGame ? GameState.MatchMaking : GameState.Connecting;
         }
 
-        private static void ConnectHandler(string name)
+        private void ConnectHandler()
         {
-            GameStateController.State = GameState.ColorPick;
-        }
-
-        private void OnColorPicked(Color color)
-        {
-            networkManager.Color = new Multiplayer.Network.Messages.Color(color.r, color.g, color.b, color.a);
-            
             GameStateController.State = GameState.MatchMaking;
 
             networkManager.SendData(new NetReady(0).Serialize());
         }
 
-        private void OnConnectionEstablished()
+        private void OnConnectionEstablishedServer()
         {
+            gameModel = new GameModel(objectSpawner);
+            
             GameStateController.State = GameState.InGame;
             
-            gameModel = new GameModel(modelObjectManager);
-            
             Debug.Log(NetworkManager.Instance.Id);
-            
-            SpawnableObjectData spawnableData = new()
-            {
-                OwnerId = NetworkManager.Instance.Id,
-                PrefabId = 0
-            };
-
-            gameModel.RequestSpawn(spawnableData);
         }
     }
 }

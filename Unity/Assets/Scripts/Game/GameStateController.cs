@@ -5,7 +5,6 @@ namespace Game
     public enum GameState
     {
         Connecting,
-        ColorPick,
         MatchMaking,
         InGame
     }

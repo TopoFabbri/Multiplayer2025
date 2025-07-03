@@ -34,8 +34,6 @@ namespace UI
             }
 
             gameObject.SetActive(false);
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
 
         private void OnDestroy()
@@ -53,9 +51,6 @@ namespace UI
                 return;
 
             gameObject.SetActive(!gameObject.activeSelf);
-
-            Cursor.lockState = gameObject.activeSelf ? CursorLockMode.None : CursorLockMode.Confined;
-            Cursor.visible = gameObject.activeSelf;
         }
 
         private void OnReceiveConsoleHandler(byte[] data, IPEndPoint ip)

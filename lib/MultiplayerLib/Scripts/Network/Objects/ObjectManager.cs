@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
 using Multiplayer.NetworkFactory;
-using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Multiplayer.Network.Objects
 {

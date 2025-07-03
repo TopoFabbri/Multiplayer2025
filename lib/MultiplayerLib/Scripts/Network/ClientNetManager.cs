@@ -32,6 +32,7 @@ namespace Multiplayer.Network
             return namesById.TryGetValue(id, out string nameTmp) ? nameTmp : "Client " + id;
         }
         
+        public event Action onConnectionEstablishedMatchMaker;
         public event Action Disconnected;
 
         protected override void Start()
@@ -105,6 +106,7 @@ namespace Multiplayer.Network
             }
             else
             {
+                onConnectionEstablishedMatchMaker?.Invoke();
                 MmPort = Port;
                 MmIp = ip;
             }
