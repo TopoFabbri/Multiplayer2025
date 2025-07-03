@@ -1,5 +1,6 @@
 using Objects;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Game
 {
@@ -21,8 +22,6 @@ namespace Game
         
         private (int x, int y) p1Corner;
         private (int x, int y) p2Corner;
-        
-        private (int x, int y) mousePos;
 
         private CursorState cursorState = CursorState.Select;
         
@@ -40,40 +39,23 @@ namespace Game
         {
             if (newState == GameState.InGame)
             {
-                InputListener.MousePos += OnMousePos;
+                MouseBoardConverter.MousePos += OnMousePos;
                 InputListener.Click += OnClick;
             }
             else
             {
-                InputListener.MousePos -= OnMousePos;
+                MouseBoardConverter.MousePos -= OnMousePos;
                 InputListener.Click -= OnClick;
             }
         }
 
-        private void OnMousePos(Vector2 pos)
+        private void OnMousePos((int x, int y) pos)
         {
-            if (Camera.main == null)
-            {
-                hoveredTile = null;
-                return;
-            }
+            pos.x = Mathf.FloorToInt(pos.x);
+            pos.y = Mathf.FloorToInt(pos.y);
             
-            Ray ray = Camera.main.ScreenPointToRay(pos);
-
-            if (!Physics.Raycast(ray, out RaycastHit hit))
-            {
-                hoveredTile = null;
-                return;
-            }
-
-            int x = Mathf.FloorToInt(hit.point.x / 2);
-            int y = Mathf.FloorToInt(hit.point.z / 2);
-            
-            mousePos.x = x;
-            mousePos.y = y;
-
-            if (x >= 0 && x < tiles.GetLength(0) && y >= 0 && y < tiles.GetLength(1))
-                hoveredTile = tiles[x, y];
+            if (pos.x >= 0 && pos.x < tiles.GetLength(0) && pos.y >= 0 && pos.y < tiles.GetLength(1))
+                hoveredTile = tiles[pos.x, pos.y];
             else
                 hoveredTile = null;
         }
@@ -82,7 +64,6 @@ namespace Game
         {
             if (cursorState == CursorState.Select)
             {
-                Debug.Log("Clicked on tile: " + mousePos.x + ", " + mousePos.y);
                 if (hoveredTile?.ContainingObject == null)
                     return;
                 

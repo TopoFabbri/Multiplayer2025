@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Multiplayer.Network;
@@ -53,16 +54,25 @@ namespace Multiplayer.Reflection
 
             int owner = typeof(INetObject).IsAssignableFrom(node.GetType()) ? ((INetObject)node).Owner : 0;
 
-            foreach (FieldInfo fieldInfo in node.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+            Type nodeType = node.GetType();
+
+            while (nodeType != null)
             {
-                SyncAttribute syncAttribute = fieldInfo.GetCustomAttribute<SyncAttribute>();
+                FieldInfo[] fields = nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-                if (syncAttribute == null)
-                    continue;
+                foreach (FieldInfo fieldInfo in fields)
+                {
+                    SyncAttribute syncAttribute = fieldInfo.GetCustomAttribute<SyncAttribute>();
 
-                SynchronizeNode(node, iterators, fieldInfo, syncAttribute, owner);
+                    if (syncAttribute == null)
+                        continue;
 
-                iterators[^1]++;
+                    SynchronizeNode(node, iterators, fieldInfo, syncAttribute, owner);
+
+                    iterators[^1]++;
+                }
+
+                nodeType = nodeType.BaseType;
             }
 
             iterators.RemoveAt(iterators.Count - 1);

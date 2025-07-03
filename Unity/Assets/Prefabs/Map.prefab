@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4708762132432761837}
   - component: {fileID: 8915227600942706798}
   m_Layer: 0
-  m_Name: Spawn1
+  m_Name: 00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 599597205331074252}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.92387956, z: 0, w: 0.38268343}
-  m_LocalPosition: {x: 0.5, y: 0, z: 29.5}
+  m_LocalPosition: {x: -0.5, y: 0, z: 29.5}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 1634662730861100785}
   - component: {fileID: 514750601556270374}
   m_Layer: 0
-  m_Name: Spawn2
+  m_Name: 11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -113,7 +113,7 @@ Transform:
   m_GameObject: {fileID: 1084031266097359768}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 29.5, y: 0, z: 0.5}
+  m_LocalPosition: {x: 29.5, y: 0, z: -0.5}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -182,7 +182,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8757532953225114651}
   m_Layer: 0
-  m_Name: Row
+  m_Name: Rows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
