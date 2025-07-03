@@ -21,3 +21,4 @@ D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\M
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.sourcelink.json
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.dll
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.pdb
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.csproj.AssemblyReference.cache
