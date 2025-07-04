@@ -92,6 +92,9 @@ namespace Game
                 if (hoveredTile?.ContainingObject == null)
                     return;
                 
+                if (!hoveredTile.ContainingObject.CanMove)
+                    return;
+                
                 selectedTile = hoveredTile;
                 cursorState = CursorState.Move;
             }
