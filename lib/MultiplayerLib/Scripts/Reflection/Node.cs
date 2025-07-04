@@ -5,14 +5,14 @@ namespace Multiplayer.Reflection
 {
     public class Node: IEquatable<Node>
     {
-        private List<int> Path { get; } = new();
+        public List<int> Path { get; } = new();
         
         public Node(List<int> path)
         {
             foreach (int i in path)
                 Path.Add(i);
         }
-
+        
         public bool Equals(Node other)
         {
             if (other == null) return false;

@@ -29,6 +29,7 @@ namespace Multiplayer.Network
             MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
+            MessageHandler.TryAddHandler(MessageType.Action, HandleRpc);
             
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
             MessageHandler.TryAddHandler(MessageType.Bool, HandlePrimitive);
@@ -193,6 +194,11 @@ namespace Multiplayer.Network
             SendData(new NetDespawn(destroyedId).Serialize());
         }
 
+        private void HandleRpc(byte[] data, IPEndPoint ip)
+        {
+            SendWithException(data, ip);
+        }
+        
         private void HandlePrimitive(byte[] data, IPEndPoint ip)
         {
             SendWithException(data, ip);
@@ -258,6 +264,7 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
+            MessageHandler.TryRemoveHandler(MessageType.Action, HandleRpc);
             
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
             MessageHandler.TryRemoveHandler(MessageType.Bool, HandlePrimitive);

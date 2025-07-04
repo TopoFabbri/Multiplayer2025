@@ -8,7 +8,9 @@ namespace Game
     {
         public static event Action Chat;
         public static event Action Disconnect;
-        public static Action Click;
+        public static event Action Click;
+        public static event Action Space;
+        
         public static event Action<Vector2> MousePos;
 
         private void OnMousePosition(InputValue input)
@@ -29,6 +31,11 @@ namespace Game
         private void OnClick()
         {
             Click?.Invoke();
+        }
+
+        private static void OnSpace()
+        {
+            Space?.Invoke();
         }
     }
 }

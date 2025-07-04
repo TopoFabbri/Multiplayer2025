@@ -29,7 +29,8 @@ namespace Multiplayer.Network.Messages
         String,
         UShort,
         UInt,
-        ULong
+        ULong,
+        Action
     }
 
     public abstract class Message<T> : ISerializable

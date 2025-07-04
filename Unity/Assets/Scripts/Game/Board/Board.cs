@@ -70,7 +70,7 @@ namespace Game
         {
             if (selectedTile != null)
             {
-                GameStateText = "Object " + selectedTile.ContainingObject.ObjectId + " Selected";
+                GameStateText = "Move object " + selectedTile.ContainingObject.ObjectId + " to position " + hoveredTile.PosX + ", " + hoveredTile.PosY;
             }
             else if (hoveredTile != null)
             {
@@ -113,8 +113,8 @@ namespace Game
             int selectedY = selectedTile.PosY;
 
             if (Mathf.Abs(selectedX - x) > 1 || Mathf.Abs(selectedY - y) > 1) return false;
-            
-            hoveredTile.PlaceObject(selectedTile.ContainingObject);
+
+            if (hoveredTile.PlaceObject(selectedTile.ContainingObject)) return false;
             selectedTile.RemoveObject();
 
             return true;

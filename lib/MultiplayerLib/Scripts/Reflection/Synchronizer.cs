@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using HarmonyLib;
 using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.Primitives;
 
 namespace Multiplayer.Reflection
@@ -46,11 +48,17 @@ namespace Multiplayer.Reflection
     public static class Synchronizer
     {
         private static readonly Queue<byte[]> DirtyQueue = new();
+        private static readonly Queue<byte[]> InvokedRpcs = new();
         private static readonly Dictionary<Node, object> IncomingData = new();
+        private static readonly Dictionary<Node, ActionData> IncomingRcps = new();
 
         public static void Synchronize(object node, List<int> iterators)
         {
             iterators.Add(0);
+            List<int> methodIterators = new();
+
+            foreach (int iterator in iterators)
+                methodIterators.Add(iterator);
 
             int owner = typeof(INetObject).IsAssignableFrom(node.GetType()) ? ((INetObject)node).Owner : 0;
 
@@ -71,16 +79,69 @@ namespace Multiplayer.Reflection
 
                     iterators[^1]++;
                 }
+                
+                MethodInfo[] methods = nodeType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                
+                foreach (MethodInfo methodInfo in methods)
+                {
+                    RpcAttribute rpcAttribute = methodInfo.GetCustomAttribute<RpcAttribute>();
+
+                    Node methodNode = new(iterators);
+                    
+                    if (rpcAttribute == null || methodInfo.GetParameters().Length != 0 || methodInfo.ReturnType != typeof(void))
+                        continue;
+
+                    if (RpcRegistry.IsRpc(methodNode))
+                    {
+                        if (IncomingRcps.ContainsKey(methodNode) && IncomingRcps[methodNode].action == methodInfo.Name)
+                        {
+                            methodInfo.Invoke(node, new object[] {});
+                            IncomingRcps.Remove(methodNode);
+                        }
+                        
+                        continue;
+                    }
+                    
+                    if (owner != NetworkManager.Instance.Id) continue;
+                    
+                    MakeRpc(methodInfo, methodNode, rpcAttribute);
+                    
+                    methodIterators[^1]++;
+                }
 
                 nodeType = nodeType.BaseType;
             }
 
             iterators.RemoveAt(iterators.Count - 1);
+            methodIterators.RemoveAt(methodIterators.Count - 1);
+        }
+
+        private static void MakeRpc(MethodInfo methodInfo, Node methodNode, RpcAttribute rpcAttribute)
+        {
+            RpcRegistry.AddRpc(methodInfo, methodNode, rpcAttribute.flags);
+
+            Harmony harmony = new("RPC");
+            HarmonyMethod hookMethod = new(typeof(Synchronizer).GetMethod(nameof(MethodHook)));
+            harmony.Patch(methodInfo, null, hookMethod);
+        }
+
+        public static void MethodHook(MethodBase __originalMethod)
+        {
+            if (!RpcRegistry.TryGetRpc(__originalMethod, out RpcRegistry.RpcMethodInfo rpc)) return;
+            
+            NetAction netAction = new(new ActionData(rpc.node.Path, __originalMethod.Name), rpc.flags);
+            
+            InvokedRpcs.Enqueue(netAction.Serialize());
         }
 
         public static byte[] DequeueDirty()
         {
             return DirtyQueue.Count == 0 ? null : DirtyQueue.Dequeue();
+        }
+        
+        public static byte[] DequeueRpc()
+        {
+            return InvokedRpcs.Count == 0 ? null : InvokedRpcs.Dequeue();
         }
 
         public static void AddIncomingData(List<int> key, object data)
