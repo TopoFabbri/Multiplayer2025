@@ -6,49 +6,39 @@ namespace Multiplayer.Reflection
 {
     public static class RpcRegistry
     {
-        public struct RpcMethodInfo
-        {
-            public Node node;
-            public Flags flags;
-        }
-        
-        private static Dictionary<Node, bool> Rpcs { get; } = new();
-        private static readonly Dictionary<MethodBase, RpcMethodInfo> RpcMethods = new();
+        private static List<Node> Rpcs { get; } = new();
+
+        private static Dictionary<int, RpcMethods> RpcMethods { get; } = new();
 
         public static bool IsRpc(Node node)
         {
-            if (Rpcs.TryGetValue(node, out bool isRpc)) 
-                return isRpc;
+            if (Rpcs.Contains(node))
+                return true;
+
+            Rpcs.Add(node);
+            return false;
+        }
+
+        public static bool TryGetRpc(int owner, MethodBase method, out RpcMethods.RpcMethodInfo rpc)
+        {
+            if (RpcMethods.TryGetValue(owner, out RpcMethods rpcMethod))
+                return rpcMethod.TryGetValue(method, out rpc);
             
-            Rpcs.Add(node, isRpc);
-            return true;
+            rpc = default;
+            return false;
         }
 
-        public static bool TryGetRpc(MethodBase method, out RpcMethodInfo rpc)
+        public static void AddRpc(int owner, MethodBase method, Node node, Flags flags)
         {
-            return RpcMethods.TryGetValue(method, out rpc);
-        }
-        
-        public static void AddRpc(MethodBase method, Node node, Flags flags)
-        {
-            if (RpcMethods.ContainsKey(method))
-                return;
-
-            RpcMethods.Add(method, new RpcMethodInfo
-            {
-                node = node,
-                flags = flags
-            });
+            if (!RpcMethods.ContainsKey(owner))
+                RpcMethods.Add(owner, new RpcMethods());
             
-            Rpcs[node] = true;
+            RpcMethods[owner].AddRpc(method, node, flags);
         }
-        
-        public static void RemoveRpc(MethodBase method)
-        {
-            if (!RpcMethods.Remove(method, out RpcMethodInfo rpcMethodInfo))
-                return;
 
-            Rpcs[rpcMethodInfo.node] = false;
+        public static void RemoveRpc(int owner, MethodBase method)
+        {
+            RpcMethods.Remove(owner);
         }
     }
 }

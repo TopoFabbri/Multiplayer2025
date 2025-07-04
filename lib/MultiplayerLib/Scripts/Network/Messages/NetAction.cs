@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using Multiplayer.Network.Messages.MessageInfo;
+using Multiplayer.Reflection;
 
 namespace Multiplayer.Network.Messages
 {
 
     public struct ActionData
     {
-        public List<int> node;
+        public Node node;
         public string action;
         
-        public ActionData(List<int> node, string action)
+        public ActionData(Node node, string action)
         {
             this.node = node;
             this.action = action;
@@ -20,9 +21,9 @@ namespace Multiplayer.Network.Messages
         {
             List<byte> data = new();
             
-            data.AddRange(BitConverter.GetBytes(node.Count));
+            data.AddRange(BitConverter.GetBytes(node.Path.Count));
             
-            foreach (int n in node)
+            foreach (int n in node.Path)
                 data.AddRange(BitConverter.GetBytes(n));
             
             data.AddRange(BitConverter.GetBytes(action.Length));
@@ -36,10 +37,10 @@ namespace Multiplayer.Network.Messages
             int count = BitConverter.ToInt32(data, counter);
             counter += sizeof(int);
             
-            List<int> nodeList = new();
+            Node node = new(new List<int>());
             for (int i = 0; i < count; i++)
             {
-                nodeList.Add(BitConverter.ToInt32(data, counter));
+                node.Path.Add(BitConverter.ToInt32(data, counter));
                 counter += sizeof(int);
             }
             
@@ -48,7 +49,7 @@ namespace Multiplayer.Network.Messages
             
             string action = System.Text.Encoding.UTF8.GetString(data, counter, actionLength);
             
-            return new ActionData(nodeList, action);
+            return new ActionData(node, action);
         }
     }
     
@@ -66,7 +67,6 @@ namespace Multiplayer.Network.Messages
         {
             List<byte> serializedData = new();
             
-            serializedData.AddRange(BitConverter.GetBytes((int)MessageType.Action));
             serializedData.AddRange(metadata.Serialize());
             serializedData.AddRange(data.Serialize());
             serializedData.AddRange(GetCheckSum(serializedData));

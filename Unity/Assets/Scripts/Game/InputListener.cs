@@ -33,7 +33,7 @@ namespace Game
             Click?.Invoke();
         }
 
-        private static void OnSpace()
+        private void OnSpace()
         {
             Space?.Invoke();
         }

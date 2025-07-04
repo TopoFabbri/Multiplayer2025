@@ -93,7 +93,7 @@
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Keyboard&Mouse",
                     "action": "Space",
                     "isComposite": false,
                     "isPartOfComposite": false

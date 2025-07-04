@@ -12,6 +12,8 @@ namespace Multiplayer.Network.Objects
         
         public Model()
         {
+            MessageHandler.TryAddHandler(MessageType.Action, AddIncomingRpc);
+            
             MessageHandler.TryAddHandler(MessageType.Bool, AddIncomingData);
             MessageHandler.TryAddHandler(MessageType.Byte, AddIncomingData);
             MessageHandler.TryAddHandler(MessageType.Char, AddIncomingData);
@@ -28,6 +30,8 @@ namespace Multiplayer.Network.Objects
 
         ~Model()
         {
+            MessageHandler.TryRemoveHandler(MessageType.Action, AddIncomingRpc);
+            
             MessageHandler.TryRemoveHandler(MessageType.Bool, AddIncomingData);
             MessageHandler.TryRemoveHandler(MessageType.Byte, AddIncomingData);
             MessageHandler.TryRemoveHandler(MessageType.Char, AddIncomingData);
@@ -49,6 +53,9 @@ namespace Multiplayer.Network.Objects
 
             while (Synchronizer.HasDirty())
                 NetworkManager.Instance.SendData(Synchronizer.DequeueDirty());
+
+            while (Synchronizer.HasRpc())
+                NetworkManager.Instance.SendData(Synchronizer.DequeueRpc());
         }
 
         private static void AddIncomingData(byte[] data, IPEndPoint ip)
@@ -56,6 +63,13 @@ namespace Multiplayer.Network.Objects
             MessageType mesType = MessageHandler.GetMetadata(data).Type;
             PrimitiveNetData primitiveData = PrimitiveSerializer.Deserialize(mesType, data);
             Synchronizer.AddIncomingData(primitiveData.path, primitiveData.data);
+        }
+
+        private static void AddIncomingRpc(byte[] data, IPEndPoint ip)
+        {
+            ActionData actionData = new NetAction(data).Deserialized();
+            
+            Synchronizer.AddIncomingRpc(actionData);
         }
     }
 }

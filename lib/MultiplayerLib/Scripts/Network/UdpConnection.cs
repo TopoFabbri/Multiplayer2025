@@ -70,7 +70,7 @@ namespace Multiplayer.Network
                     dataReceivedQueue.Enqueue(dataReceived);
                 }
             }
-            catch(SocketException e)
+            catch(SocketException)
             {
                 
             }

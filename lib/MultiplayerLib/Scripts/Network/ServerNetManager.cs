@@ -213,7 +213,7 @@ namespace Multiplayer.Network
         {
             foreach (KeyValuePair<int, Client> keyValuePair in clients)
             {
-                if (clients[keyValuePair.Key].ipEndPoint != ip)
+                if (keyValuePair.Key != ipToId[ip])
                     SendTo(data, clients[keyValuePair.Key].ipEndPoint);
             }
         }

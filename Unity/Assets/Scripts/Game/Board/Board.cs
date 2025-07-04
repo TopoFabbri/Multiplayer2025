@@ -114,7 +114,7 @@ namespace Game
 
             if (Mathf.Abs(selectedX - x) > 1 || Mathf.Abs(selectedY - y) > 1) return false;
 
-            if (hoveredTile.PlaceObject(selectedTile.ContainingObject)) return false;
+            if (!hoveredTile.PlaceObject(selectedTile.ContainingObject)) return false;
             selectedTile.RemoveObject();
 
             return true;
