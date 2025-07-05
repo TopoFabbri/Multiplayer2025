@@ -14,8 +14,6 @@ namespace Multiplayer.Network.Messages
         Disconnect,
         Acknowledge,
         ServerInfo,
-        Crouch,
-        Jump,
         Despawn,
         Ready,
         Int,
@@ -30,7 +28,8 @@ namespace Multiplayer.Network.Messages
         UShort,
         UInt,
         ULong,
-        Action
+        Action,
+        PlayerInput,
     }
 
     public abstract class Message<T> : ISerializable
