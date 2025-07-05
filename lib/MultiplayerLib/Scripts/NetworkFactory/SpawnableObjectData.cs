@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 using Vector3 = Multiplayer.CustomMath.Vector3;
 
 namespace Multiplayer.NetworkFactory
@@ -25,7 +26,7 @@ namespace Multiplayer.NetworkFactory
             outData.AddRange(BitConverter.GetBytes(data.OwnerId));
             outData.AddRange(BitConverter.GetBytes(data.PrefabId));
             outData.AddRange(BitConverter.GetBytes(data.ModelType.Length * 2));
-            outData.AddRange(System.Text.Encoding.Unicode.GetBytes(data.ModelType));
+            outData.AddRange(Encoding.Unicode.GetBytes(data.ModelType));
                 
             return outData.ToArray();
         }
@@ -46,8 +47,8 @@ namespace Multiplayer.NetworkFactory
             int modelTypeLength = BitConverter.ToInt32(data, startIndex);
             startIndex += sizeof(int);
             
-            objData.ModelType = System.Text.Encoding.Unicode.GetString(data, startIndex, modelTypeLength);
-            startIndex += modelTypeLength * 2;
+            objData.ModelType = Encoding.Unicode.GetString(data, startIndex, modelTypeLength);
+            startIndex += modelTypeLength;
             
             return objData;
         }

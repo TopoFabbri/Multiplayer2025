@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.NetworkFactory;
@@ -31,6 +32,7 @@ namespace Multiplayer.Network.Messages
             List<byte> outData = new();
 
             outData.AddRange(metadata.Serialize());
+            outData.AddRange(BitConverter.GetBytes(data.spawnableObjects.Count));
             
             foreach (SpawnableObjectData spawnableObj in data.spawnableObjects)
                 outData.AddRange(spawnableObj.Serialized);
@@ -46,9 +48,12 @@ namespace Multiplayer.Network.Messages
 
             int startIndex = MessageMetadata.Size;
             
+            int count = BitConverter.ToInt32(message, startIndex);
+            startIndex += sizeof(int);
+            
             outData.spawnableObjects = new List<SpawnableObjectData>();
             
-            while (startIndex < message.Length - CheckSum.Size)
+            for (int i = 0; i < count; i++)
                 outData.spawnableObjects.Add(SpawnableObjectData.Deserialize(message, ref startIndex));
             
             return outData;

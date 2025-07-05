@@ -1,11 +1,21 @@
-﻿using Multiplayer.NetworkFactory;
-using Utils;
+﻿using Multiplayer.Network;
 
 namespace Game
 {
-    public class ServerManager : MonoBehaviourSingleton<ServerManager>
+    public class ServerManager : GameManager
     {
-        private INetworkFactory networkFactory;
+        protected override void Awake()
+        {
+            base.Awake();
+
+            networkManager = new AuthoritativeServer();
+        }
         
+        private void Start()
+        {
+            gameModel = new GameModel(objectSpawner);
+            
+            GameStateController.State = GameState.InGame;
+        }
     }
 }

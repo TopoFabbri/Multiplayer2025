@@ -65,10 +65,10 @@ namespace Game
         {
             board.CreateBoard(30, 30);
 
-            List<SpawnableObjectData> spawnablesData = new() { new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 0 } };
+            List<SpawnableObjectData> spawnablesData = new() { new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 0, ModelType = typeof(TowerM).FullName } };
 
             for (int i = 0; i < PawnQty; i++)
-                spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1 });
+                spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1, ModelType = typeof(PawnM).FullName});
             
             SpawnRequest spawnRequest = new(spawnablesData);
 
