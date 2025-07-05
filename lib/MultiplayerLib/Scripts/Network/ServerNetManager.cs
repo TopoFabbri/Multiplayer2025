@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
@@ -13,7 +12,6 @@ namespace Multiplayer.Network
         private readonly Dictionary<IPEndPoint, int> ipToId = new();
 
         private readonly List<IPEndPoint> disconnectedClients = new();
-        private readonly Dictionary<int, Color> colorsByClientId = new();
 
         public bool Active { get; private set; } = true;
 
@@ -67,7 +65,7 @@ namespace Multiplayer.Network
             SendTo(data, clients[id].ipEndPoint);
         }
 
-        private void AddClient(IPEndPoint ip, Color color, string name)
+        private void AddClient(IPEndPoint ip, string name)
         {
             if (ipToId.ContainsKey(ip)) return;
 
@@ -82,15 +80,13 @@ namespace Multiplayer.Network
             ipToId[ip] = clientId;
 
             clients.Add(clientId, new Client(ip, clientId, Timer.Time, 0, name));
-            colorsByClientId.Add(clientId, color);
-
 
             Dictionary<int, string> names = new();
 
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 names.Add(tmpClient.Key, tmpClient.Value.name);
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, true, 0, name);
+            HandShake hs = new(CheckSum.RandomSeed, names, true, 0, name);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
@@ -98,7 +94,7 @@ namespace Multiplayer.Network
         {
             HandShake hs = new NetHandShake(data).Deserialized();
 
-            AddClient(ip, hs.clientColorsById.Last().Value, hs.name);
+            AddClient(ip, hs.name);
         }
 
         protected void RemoveClient(IPEndPoint ip)
@@ -110,7 +106,6 @@ namespace Multiplayer.Network
 
             ipToId.Remove(ip);
             clients.Remove(id);
-            colorsByClientId.Remove(id);
 
             if (clients.Count <= 0)
                 Active = false;

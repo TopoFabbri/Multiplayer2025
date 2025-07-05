@@ -12,7 +12,6 @@ namespace Multiplayer.Network
     {
         public IPAddress IpAddress { get; private set; }
 
-        private readonly Dictionary<int, Color> colorsByClients = new();
         private readonly Dictionary<int, string> namesById = new();
         public Dictionary<int, float> PingsByClientId { get; private set; } = new();
         public int PlayerId { private get; set; }
@@ -22,15 +21,9 @@ namespace Multiplayer.Network
         private int MmPort { get; set; }
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
-        public Color Color { get; set; } = new();
         public float AfkTime => 15f;
 
         private int level;
-
-        public string GetName(int id)
-        {
-            return namesById.TryGetValue(id, out string nameTmp) ? nameTmp : "Client " + id;
-        }
         
         public event Action onConnectionEstablishedMatchMaker;
         public event Action Disconnected;
@@ -59,11 +52,9 @@ namespace Multiplayer.Network
 
             MessageHandler.TryAddOnAcknowledgeHandler(MessageType.Disconnect, HandleAcknowledgedDisconnect);
 
-            Dictionary<int, Color> newColor = new() { { Id, Color } };
-
             Dictionary<int, string> names = new();
             
-            SendTo(new NetHandShake(new HandShake(0, newColor, new Dictionary<int, string>(), false, level, name), false).Serialize());
+            SendTo(new NetHandShake(new HandShake(0, new Dictionary<int, string>(), false, level, name), false).Serialize());
 
             LastPingTime = Timer.Time;
 
@@ -88,9 +79,6 @@ namespace Multiplayer.Network
             CheckSum.CreateOperationsArrays(hs.randomSeed);
             Crypt.GenerateOperations(hs.randomSeed);
 
-            foreach (KeyValuePair<int, Color> client in hs.clientColorsById)
-                colorsByClients.TryAdd(client.Key, client.Value);
-
             foreach (KeyValuePair<int, string> nameAndId in hs.clientNames)
                 namesById.TryAdd(nameAndId.Key, nameAndId.Value);
 
@@ -98,7 +86,7 @@ namespace Multiplayer.Network
 
             if (Id > 0) return;
 
-            Id = colorsByClients.Last().Key;
+            Id = namesById.Last().Key;
 
             if (hs.fromServer)
             {
@@ -166,7 +154,6 @@ namespace Multiplayer.Network
         {
             Disconnected?.Invoke();
             
-            colorsByClients.Clear();
             PingsByClientId.Clear();
             namesById.Clear();
 
@@ -198,6 +185,11 @@ namespace Multiplayer.Network
                 return;
 
             base.OnShouldAcknowledge(metadata, ip);
+        }
+
+        public string GetName(int id)
+        {
+            return namesById.TryGetValue(id, out string nameTmp) ? nameTmp : "Client " + id;
         }
     }
 }

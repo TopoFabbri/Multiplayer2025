@@ -20,7 +20,6 @@ namespace Multiplayer.Network
 
         private string serverPath;
         private readonly List<IPEndPoint> disconnectedClients = new();
-        private readonly Dictionary<int, Color> colorsByClientId = new();
         private readonly List<string> usedNames = new();
 
         private const int PlayerQty = 2;
@@ -114,14 +113,13 @@ namespace Multiplayer.Network
 
             clients.Add(clientId, new Client(ip, clientId, Timer.Time, level, name));
             ipToId.Add(ip, clientId);
-            colorsByClientId.Add(clientId, new Color());
 
             Dictionary<int, string> names = new();
 
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 names.Add(tmpClient.Key, tmpClient.Value.name);
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
+            HandShake hs = new(CheckSum.RandomSeed, names, false, 0, Name);
             SendData(new NetHandShake(hs, true).Serialize());
 
             Log.Write("Client " + name + " connected!");
@@ -179,7 +177,6 @@ namespace Multiplayer.Network
 
             usedNames.Remove(clients[clientId].name);
             readyClients.Remove(clientId);
-            colorsByClientId.Remove(clientId);
             clients.Remove(clientId);
             ipToId.Remove(ip);
 
@@ -190,7 +187,7 @@ namespace Multiplayer.Network
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 names.Add(tmpClient.Key, tmpClient.Value.name);
 
-            HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, false, 0, Name);
+            HandShake hs = new(CheckSum.RandomSeed, names, false, 0, Name);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
