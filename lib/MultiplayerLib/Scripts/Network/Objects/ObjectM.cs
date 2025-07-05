@@ -10,6 +10,8 @@ namespace Multiplayer.Network.Objects
 
     [Sync] private int objectId;
 
+    private bool initialized;
+    
     public float PosX => posX;
     public float PosY => posY;
     public float PosZ => posZ;
@@ -24,6 +26,7 @@ namespace Multiplayer.Network.Objects
     {
         this.objectId = objectId;
         Owner = ownerId;
+        initialized = true;
     }
 
     public void SetPosition(float x, float y, float z)

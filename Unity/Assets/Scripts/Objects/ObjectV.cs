@@ -1,5 +1,6 @@
-﻿using Multiplayer.Network.Objects;
-using Multiplayer.NetworkFactory;
+﻿using System;
+using Interfaces;
+using Multiplayer.Network.Objects;
 using UnityEngine;
 
 namespace Objects
@@ -8,18 +9,16 @@ namespace Objects
     {
         public ObjectM Model { get; set; }
 
-        public virtual ObjectM Initialize(SpawnableObjectData data)
+        public virtual void Initialize(ObjectM model)
         {
-            Model = new ObjectM();
-            
-            Model.Initialize(data.OwnerId, data.Id);
-
-            return Model;
+            Model = model;
         }
 
         private void LateUpdate()
         {
             transform.position = new Vector3(Model.PosX, Model.PosY, Model.PosZ) * 2f;
         }
+        
+        public virtual Type ModelType => typeof(ObjectM);
     }
 }

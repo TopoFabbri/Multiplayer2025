@@ -16,8 +16,6 @@ namespace Objects
         public override void Initialize(int ownerId, int objectId)
         {
             base.Initialize(ownerId, objectId);
-
-            CanMove = false;
             
             InputListener.Space += ShoutId;
         }
@@ -26,5 +24,8 @@ namespace Objects
         {
             Debug.Log("ID: " + ObjectId + ", Owner: " + Owner);
         }
+
+        public override bool CanMove { get; protected set; } = false;
+        public override string Name { get; protected set; } = "Tower";
     }
 }

@@ -1,17 +1,9 @@
-using Multiplayer.Network.Objects;
-using Multiplayer.NetworkFactory;
+using System;
 
 namespace Objects
 {
     public class PawnV : ObjectV
     {
-        public override ObjectM Initialize(SpawnableObjectData data)
-        {
-            Model = new PawnM();
-            
-            Model.Initialize(data.OwnerId, data.Id);
-
-            return Model;
-        }
+        public override Type ModelType => typeof(PawnM);
     }
 }

@@ -1,12 +1,11 @@
 ﻿using Multiplayer.Network.Objects;
-using Multiplayer.NetworkFactory;
 
-namespace Objects
+namespace Interfaces
 {
     public interface IObjectView
     {
         ObjectM Model { get; set; }
 
-        public ObjectM Initialize(SpawnableObjectData data);
+        public void Initialize(ObjectM model);
     }
 }

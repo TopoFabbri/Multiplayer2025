@@ -2,8 +2,9 @@ using Multiplayer.Network.Objects;
 
 namespace Objects
 {
-    public class BoardPiece : ObjectM
+    public abstract class BoardPiece : ObjectM
     {
-        public bool CanMove { get; protected set; }
+        public abstract bool CanMove { get; protected set; }
+        public abstract string Name { get; protected set; }
     }
 }

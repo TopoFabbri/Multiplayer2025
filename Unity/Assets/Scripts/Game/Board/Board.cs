@@ -11,7 +11,7 @@ namespace Game
             Select,
             Move
         }
-        
+
         private Tile[,] tiles;
 
         private Tile hoveredTile;
@@ -19,14 +19,14 @@ namespace Game
 
         private int width;
         private int height;
-        
+
         private (int x, int y) p1Corner;
         private (int x, int y) p2Corner;
 
         private CursorState cursorState = CursorState.Select;
-        
+
         public static string GameStateText { get; private set; }
-        
+
         public Board()
         {
             GameStateController.StateChanged += OnStateChanged;
@@ -48,7 +48,7 @@ namespace Game
             {
                 MouseBoardConverter.MousePos -= OnMousePos;
                 InputListener.Click -= OnClick;
-                
+
                 GameStateText = string.Empty;
             }
         }
@@ -56,10 +56,10 @@ namespace Game
         private void OnMousePos((int x, int y) pos)
         {
             SetMouseGameState();
-            
+
             pos.x = Mathf.FloorToInt(pos.x);
             pos.y = Mathf.FloorToInt(pos.y);
-            
+
             if (pos.x >= 0 && pos.x < tiles.GetLength(0) && pos.y >= 0 && pos.y < tiles.GetLength(1))
                 hoveredTile = tiles[pos.x, pos.y];
             else
@@ -70,12 +70,13 @@ namespace Game
         {
             if (selectedTile != null)
             {
-                GameStateText = "Move object " + selectedTile.ContainingObject.ObjectId + " to position " + hoveredTile.PosX + ", " + hoveredTile.PosY;
+                GameStateText = "Move " + selectedTile.ContainingObject.Name + " " + selectedTile.ContainingObject.ObjectId + " to position " + hoveredTile.PosX + ", " +
+                                hoveredTile.PosY;
             }
             else if (hoveredTile != null)
             {
                 if (hoveredTile.ContainingObject != null)
-                    GameStateText = "Object " + hoveredTile.ContainingObject.ObjectId;
+                    GameStateText = hoveredTile.ContainingObject.Name + " " + hoveredTile.ContainingObject.ObjectId;
                 else
                     GameStateText = "Tile " + hoveredTile.PosX + ", " + hoveredTile.PosY + " Hovered";
             }
@@ -91,20 +92,22 @@ namespace Game
             {
                 if (hoveredTile?.ContainingObject == null)
                     return;
-                
+
                 if (!hoveredTile.ContainingObject.CanMove)
                     return;
-                
+
                 selectedTile = hoveredTile;
                 cursorState = CursorState.Move;
             }
             else
             {
                 if (!MovePiece(hoveredTile.PosX, hoveredTile.PosY)) return;
-                
+
                 selectedTile = null;
                 cursorState = CursorState.Select;
             }
+
+            SetMouseGameState();
         }
 
         private bool MovePiece(int x, int y)
@@ -115,26 +118,26 @@ namespace Game
             int selectedX = selectedTile.PosX;
             int selectedY = selectedTile.PosY;
 
-            if (Mathf.Abs(selectedX - x) > 1 || Mathf.Abs(selectedY - y) > 1) return false;
+            if (Mathf.Abs(selectedX - x) + Mathf.Abs(selectedY - y) > 1) return false;
 
             if (!hoveredTile.PlaceObject(selectedTile.ContainingObject)) return false;
             selectedTile.RemoveObject();
 
             return true;
         }
-        
+
         public void CreateBoard(int height, int width)
         {
             this.width = width;
             this.height = height;
-            
+
             tiles = new Tile[width, height];
 
             p1Corner.x = 0;
             p1Corner.y = height - 1;
             p2Corner.x = width - 1;
             p2Corner.y = 0;
-            
+
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
@@ -143,11 +146,11 @@ namespace Game
                 }
             }
         }
-        
+
         public void PlaceObject(BoardPiece boardPiece)
         {
             bool ownerIsP1 = boardPiece.Owner == 1;
-            
+
             if (boardPiece.GetType() == typeof(TowerM))
             {
                 if (ownerIsP1)
@@ -159,7 +162,7 @@ namespace Game
             {
                 int x;
                 int y;
-                
+
                 do
                 {
                     x = ownerIsP1 ? Random.Range(0, 5) : Random.Range(width - 6, width - 1);
