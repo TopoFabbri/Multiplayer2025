@@ -11,7 +11,7 @@ namespace Game
 {
     public class GameModel : Model
     {
-        private readonly ObjectSpawner objectSpawner;
+        private readonly INetworkFactory objectSpawner;
         private readonly Board board;
         private const int PawnQty = 15;
         
@@ -47,7 +47,7 @@ namespace Game
                 
                 objects.Add(model.ObjectId, model);
                 
-                if (spawnableObject.OwnerId != NetworkManager.Instance.Id) continue;
+                if (spawnableObject.OwnerId != NetworkManager.Instance.Id && NetworkManager.Instance.Id != 0) continue;
 
                 board.PlaceObject(model as BoardPiece);
             }
@@ -70,13 +70,17 @@ namespace Game
             for (int i = 0; i < PawnQty; i++)
                 spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1 });
             
-            objectSpawner.RequestSpawn(spawnablesData);
+            SpawnRequest spawnRequest = new(spawnablesData);
+
+            NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
         }
 
         private void OnDisconnect()
         {
+            foreach (int key in objects.Keys)
+                objectSpawner.DestroyObject(key);
+            
             objects.Clear();
-            objectSpawner.ClearViewInstances();
         }
     }
 }

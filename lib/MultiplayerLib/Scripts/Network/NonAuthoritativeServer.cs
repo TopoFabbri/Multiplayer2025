@@ -2,20 +2,16 @@
 using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
-using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 
 namespace Multiplayer.Network
 {
     public class NonAuthoritativeServer : ServerNetManager
     {
-        private readonly ObjectManager objectManager = new();
-
         public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
             base.Init(port, ip, name);
 
-            MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
@@ -39,7 +35,6 @@ namespace Multiplayer.Network
         {
             base.OnDestroy();
 
-            MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
             MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
             MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
@@ -57,11 +52,6 @@ namespace Multiplayer.Network
             MessageHandler.TryRemoveHandler(MessageType.UInt, HandlePrimitive);
             MessageHandler.TryRemoveHandler(MessageType.ULong, HandlePrimitive);
             MessageHandler.TryRemoveHandler(MessageType.UShort, HandlePrimitive);
-        }
-
-        private void HandleConsole(byte[] data, IPEndPoint ip)
-        {
-            SendData(data);
         }
 
         private void HandleSpawnRequest(byte[] data, IPEndPoint ip)

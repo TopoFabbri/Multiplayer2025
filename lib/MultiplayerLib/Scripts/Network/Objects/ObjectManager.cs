@@ -3,7 +3,7 @@ using Multiplayer.NetworkFactory;
 
 namespace Multiplayer.Network.Objects
 {
-    public class ObjectManager : INetworkFactory
+    public class ObjectManager
     {
         private readonly Dictionary<int, Spawnable> spawnedById = new();
         

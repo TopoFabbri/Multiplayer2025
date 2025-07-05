@@ -1,8 +1,10 @@
-﻿namespace Multiplayer.NetworkFactory
+﻿using Multiplayer.Network.Objects;
+
+namespace Multiplayer.NetworkFactory
 {
     public interface INetworkFactory
     {
-        public void SpawnObject(SpawnableObjectData data);
+        public ObjectM SpawnObject(SpawnableObjectData data);
         public void DestroyObject(int id);
     }
 }

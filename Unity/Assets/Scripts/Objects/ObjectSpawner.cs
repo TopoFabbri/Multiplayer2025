@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Objects
 {
-    public class ObjectSpawner : MonoBehaviour
+    public class ObjectSpawner : MonoBehaviour, INetworkFactory
     {
         [SerializeField] private List<ObjectV> prefabs = new();
 
@@ -28,7 +28,15 @@ namespace Objects
                 return null;
             }
 
-            ObjectM modelInstance = (ObjectM)Activator.CreateInstance(prefabs[data.PrefabId].ModelType);
+            Type modelType = Type.GetType(data.ModelType);
+            
+            if (modelType == null)
+            {
+                Debug.LogError($"Model type {data.ModelType} not found. Cannot spawn object.");
+                return null;
+            }
+            
+            ObjectM modelInstance = (ObjectM)Activator.CreateInstance(modelType);
             modelInstance.Initialize(data.OwnerId, data.Id);
 
             ObjectV viewInstance = Instantiate(prefabs[data.PrefabId]);
@@ -40,27 +48,36 @@ namespace Objects
             return modelInstance;
         }
 
-        public void RequestSpawn(List<SpawnableObjectData> spawnablesData)
+        public void DestroyObject(int id)
         {
-            foreach (SpawnableObjectData spawnableData in spawnablesData)
-            {
-                if (spawnableData.PrefabId >= 0 && spawnableData.PrefabId < prefabs.Count) continue;
-
-                Debug.LogWarning(spawnableData.PrefabId + " is not a valid object number.");
+            if (!viewInstances.TryGetValue(id, out ObjectV instance))
                 return;
+
+            Destroy(instance.gameObject);
+            viewInstances.Remove(id);
+        }
+    }
+    
+    public class ServerObjectSpawner : INetworkFactory
+    {
+        public ObjectM SpawnObject(SpawnableObjectData data)
+        {
+            Type modelType = Type.GetType(data.ModelType);
+            
+            if (modelType == null)
+            {
+                Debug.LogError($"Model type {data.ModelType} not found. Cannot spawn object.");
+                return null;
             }
+            
+            ObjectM modelInstance = (ObjectM)Activator.CreateInstance(modelType);
+            modelInstance.Initialize(data.OwnerId, data.Id);
 
-            SpawnRequest spawnRequest = new(spawnablesData);
-
-            NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
+            return modelInstance;
         }
 
-        public void ClearViewInstances()
+        public void DestroyObject(int id)
         {
-            foreach (KeyValuePair<int, ObjectV> objectV in viewInstances)
-                Destroy(objectV.Value.gameObject);
-
-            viewInstances.Clear();
         }
     }
 }

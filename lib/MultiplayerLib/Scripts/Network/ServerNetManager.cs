@@ -2,6 +2,7 @@
 using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
+using Multiplayer.Network.Objects;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
@@ -13,10 +14,13 @@ namespace Multiplayer.Network
 
         private readonly List<IPEndPoint> disconnectedClients = new();
 
+        protected readonly ObjectManager objectManager = new();
+
         public bool Active { get; private set; } = true;
 
         public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
+            MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
 
             Port = port;
@@ -145,7 +149,12 @@ namespace Multiplayer.Network
 
             connection?.Send(data, ip);
         }
-
+        
+        private void HandleConsole(byte[] data, IPEndPoint ip)
+        {
+            SendData(data);
+        }
+        
         private void OnAcknowledgePingHandler(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
@@ -175,6 +184,7 @@ namespace Multiplayer.Network
         {
             base.OnDestroy();
 
+            MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
 
             connection.Close();
