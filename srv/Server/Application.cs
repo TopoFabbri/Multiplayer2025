@@ -5,13 +5,13 @@ namespace Server;
 
 public class Application
 {
-    private readonly ServerNetManager networkManager;
+    private readonly NonAuthoritativeServer networkManager;
     
     public Application()
     {
         Multiplayer.Utils.Timer.Start();
 
-        networkManager = new ServerNetManager();
+        networkManager = new NonAuthoritativeServer();
     }
 
     public void Run(int port)

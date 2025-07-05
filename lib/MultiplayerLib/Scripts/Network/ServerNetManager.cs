@@ -3,8 +3,6 @@ using System.Linq;
 using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
-using Multiplayer.Network.Objects;
-using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
@@ -17,33 +15,11 @@ namespace Multiplayer.Network
         private readonly List<IPEndPoint> disconnectedClients = new();
         private readonly Dictionary<int, Color> colorsByClientId = new();
 
-        private readonly ObjectManager objectManager = new();
-
         public bool Active { get; private set; } = true;
-        
+
         public override void Init(int port, IPAddress ip = null, string name = "Player")
         {
             MessageHandler.TryAddHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryAddHandler(MessageType.Console, HandleConsole);
-            MessageHandler.TryAddHandler(MessageType.Crouch, HandleCrouch);
-            MessageHandler.TryAddHandler(MessageType.Jump, HandleJump);
-            MessageHandler.TryAddHandler(MessageType.SpawnRequest, HandleSpawnRequest);
-            MessageHandler.TryAddHandler(MessageType.Disconnect, HandleDisconnect);
-            MessageHandler.TryAddHandler(MessageType.Action, HandleRpc);
-            
-            MessageHandler.TryAddHandler(MessageType.Despawn, HandleDespawn);
-            MessageHandler.TryAddHandler(MessageType.Bool, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Byte, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Char, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Double, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Float, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Int, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Long, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.Short, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.String, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.UInt, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.ULong, HandlePrimitive);
-            MessageHandler.TryAddHandler(MessageType.UShort, HandlePrimitive);
 
             Port = port;
             connection = new UdpConnection(port, this);
@@ -62,7 +38,7 @@ namespace Multiplayer.Network
             CheckSum.RandomSeed = (uint)Timer.DateTime.Millisecond;
             CheckSum.CreateOperationsArrays(CheckSum.RandomSeed);
             Crypt.GenerateOperations(CheckSum.RandomSeed);
-            
+
             Active = true;
         }
 
@@ -75,21 +51,15 @@ namespace Multiplayer.Network
             foreach (KeyValuePair<int, Client> client in clients)
             {
                 float timeSinceLastPing = Timer.Time - client.Value.lastPingTime;
-            
+
                 if (timeSinceLastPing > TimeOut)
                     disconnectedClients.Add(client.Value.ipEndPoint);
             }
 
             foreach (IPEndPoint ipEndPoint in disconnectedClients)
                 RemoveClient(ipEndPoint);
-            
-            disconnectedClients.Clear();
-        }
 
-        private void Broadcast(byte[] data)
-        {
-            foreach (KeyValuePair<int, Client> keyValuePair in clients)
-                SendTo(data, clients[keyValuePair.Key].ipEndPoint);
+            disconnectedClients.Clear();
         }
 
         private void SendToClient(byte[] data, int id)
@@ -114,17 +84,24 @@ namespace Multiplayer.Network
             clients.Add(clientId, new Client(ip, clientId, Timer.Time, 0, name));
             colorsByClientId.Add(clientId, color);
 
-            
+
             Dictionary<int, string> names = new();
-            
+
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 names.Add(tmpClient.Key, tmpClient.Value.name);
-            
+
             HandShake hs = new(CheckSum.RandomSeed, colorsByClientId, names, true, 0, name);
             SendData(new NetHandShake(hs, true).Serialize());
         }
 
-        private void RemoveClient(IPEndPoint ip)
+        private void HandleHandshake(byte[] data, IPEndPoint ip)
+        {
+            HandShake hs = new NetHandShake(data).Deserialized();
+
+            AddClient(ip, hs.clientColorsById.Last().Value, hs.name);
+        }
+
+        protected void RemoveClient(IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
 
@@ -134,97 +111,43 @@ namespace Multiplayer.Network
             ipToId.Remove(ip);
             clients.Remove(id);
             colorsByClientId.Remove(id);
-            
+
             if (clients.Count <= 0)
                 Active = false;
-            
+
             SendData(new NetDisconnect(0).Serialize());
         }
 
-        private void HandleHandshake(byte[] data, IPEndPoint ip)
-        {
-            HandShake hs = new NetHandShake(data).Deserialized();
-            
-            AddClient(ip, hs.clientColorsById.Last().Value, hs.name);
-        }
-
-        private void HandleConsole(byte[] data, IPEndPoint ip)
-        {
-            SendData(data);
-        }
-        
-        private void HandleCrouch(byte[] data, IPEndPoint ip)
-        {
-            SendData(data);
-        }
-        
-        private void HandleJump(byte[] data, IPEndPoint ip)
-        {
-            SendData(data);
-        }
-        
-        private void HandleSpawnRequest(byte[] data, IPEndPoint ip)
-        {
-            SpawnRequest message = new NetSpawnable(data).Deserialized();
-            
-            foreach (SpawnableObjectData spawnableObj in message.spawnableObjects)
-            {
-                spawnableObj.Id = objectManager.FreeId;
-                objectManager.SpawnObject(spawnableObj);
-            }
-
-            SendData(new NetSpawnable(new SpawnRequest(objectManager.SpawnablesData)).Serialize());
-        }
-
-        private void HandleDisconnect(byte[] data, IPEndPoint ip)
-        {
-            RemoveClient(ip);
-        }
-        
-        private void HandleDespawn(byte[] data, IPEndPoint ip)
-        {
-            MessageMetadata metadata = MessageMetadata.Deserialize(data);
-            int destroyedId = new NetDespawn(data).Deserialized();
-            
-            if (objectManager.GetSpawnableData(destroyedId).OwnerId != metadata.SenderId)
-                return;
-            
-            objectManager.DestroyObject(destroyedId);
-            
-            SendData(new NetDespawn(destroyedId).Serialize());
-        }
-
-        private void HandleRpc(byte[] data, IPEndPoint ip)
-        {
-            SendWithException(data, ip);
-        }
-        
-        private void HandlePrimitive(byte[] data, IPEndPoint ip)
-        {
-            SendWithException(data, ip);
-        }
-        
         public override void SendData(byte[] data)
         {
-            Broadcast(data);
+            foreach (KeyValuePair<int, Client> keyValuePair in clients)
+                SendTo(data, clients[keyValuePair.Key].ipEndPoint);
         }
 
-        private void SendWithException(byte[] data, IPEndPoint ip)
+        protected void SendWithException(byte[] data, List<IPEndPoint> exceptions)
         {
+            List<int> exceptionIds = new();
+            
+            foreach (IPEndPoint ip in exceptions)
+            {
+                if (ipToId.TryGetValue(ip, out int id))
+                    exceptionIds.Add(id);
+            }
+            
             foreach (KeyValuePair<int, Client> keyValuePair in clients)
             {
-                if (keyValuePair.Key != ipToId[ip])
+                if (!exceptionIds.Contains(keyValuePair.Key))
                     SendTo(data, clients[keyValuePair.Key].ipEndPoint);
             }
         }
-        
+
         public override void SendTo(byte[] data, IPEndPoint ip = null)
         {
             base.SendTo(data, ip);
 
             if (Crypt.IsCrypted(data))
                 data = Crypt.Encrypt(data);
-            
+
             connection?.Send(data, ip);
         }
 
@@ -239,7 +162,7 @@ namespace Multiplayer.Network
             clients[id] = client;
 
             Dictionary<int, float> pingsByClientId = new();
-            
+
             foreach (KeyValuePair<int, Client> tmpClient in clients)
                 pingsByClientId.Add(tmpClient.Key, Timer.Time - tmpClient.Value.lastPingTime);
 
@@ -249,7 +172,7 @@ namespace Multiplayer.Network
         private void OnAcknowledgeHandshakeHandler(byte[] data, IPEndPoint ip)
         {
             if (!ipToId.TryGetValue(ip, out int id)) return;
-            
+
             SendToClient(new NetPing(new PingWrapper()).Serialize(), id);
         }
 
@@ -258,28 +181,7 @@ namespace Multiplayer.Network
             base.OnDestroy();
 
             MessageHandler.TryRemoveHandler(MessageType.HandShake, HandleHandshake);
-            MessageHandler.TryRemoveHandler(MessageType.Console, HandleConsole);
-            MessageHandler.TryRemoveHandler(MessageType.Crouch, HandleCrouch);
-            MessageHandler.TryRemoveHandler(MessageType.Jump, HandleJump);
-            MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, HandleSpawnRequest);
-            MessageHandler.TryRemoveHandler(MessageType.Disconnect, HandleDisconnect);
-            MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
-            MessageHandler.TryRemoveHandler(MessageType.Action, HandleRpc);
-            
-            MessageHandler.TryRemoveHandler(MessageType.Despawn, HandleDespawn);
-            MessageHandler.TryRemoveHandler(MessageType.Bool, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Byte, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Char, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Double, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Float, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Int, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Long, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.Short, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.String, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.UInt, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.ULong, HandlePrimitive);
-            MessageHandler.TryRemoveHandler(MessageType.UShort, HandlePrimitive);
-            
+
             connection.Close();
         }
     }
