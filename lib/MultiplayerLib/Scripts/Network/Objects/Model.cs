@@ -52,10 +52,10 @@ namespace Multiplayer.Network.Objects
             Synchronizer.Synchronize(this, nodesPath);
 
             while (Synchronizer.HasDirty())
-                NetworkManager.Instance.SendData(Synchronizer.DequeueDirty());
+                MessageSender.Send(Synchronizer.DequeueDirty());
 
             while (Synchronizer.HasRpc())
-                NetworkManager.Instance.SendData(Synchronizer.DequeueRpc());
+                MessageSender.Send(Synchronizer.DequeueRpc());
         }
 
         private static void AddIncomingData(byte[] data, IPEndPoint ip)

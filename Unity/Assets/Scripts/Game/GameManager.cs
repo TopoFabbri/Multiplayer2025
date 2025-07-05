@@ -1,7 +1,5 @@
-using System;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
-using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
 using Multiplayer.Utils;
 using Objects;
@@ -9,7 +7,6 @@ using UI;
 using UnityEditor;
 using UnityEngine;
 using Utils;
-using Color = UnityEngine.Color;
 
 namespace Game
 {
@@ -19,6 +16,9 @@ namespace Game
         [SerializeField] private ChatScreen chatScreen;
         [SerializeField] private ColorPicker colorPicker;
         [SerializeField] private ObjectSpawner objectSpawner;
+
+        [SerializeField] private bool authoritativeClient = true;
+        
         
         [Sync] private GameModel gameModel;
 
@@ -29,7 +29,7 @@ namespace Game
             base.Awake();
             
             Timer.Start();
-            networkManager = new ClientNetManager();
+            networkManager = new ClientNetManager(authoritativeClient);
         }
 
         private void Start()

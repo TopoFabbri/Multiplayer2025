@@ -26,7 +26,6 @@ namespace Multiplayer.Network.Messages.Primitives
     {
         protected NetBasePrimitive(object data, Flags flags, List<int> path) : base(new PrimitiveNetData(data, path), flags)
         {
-            metadata.Flags |= Flags.Primitive;
         }
 
         protected NetBasePrimitive(byte[] data) : base(data)

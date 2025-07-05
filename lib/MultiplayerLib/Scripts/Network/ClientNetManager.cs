@@ -14,13 +14,14 @@ namespace Multiplayer.Network
 
         private readonly Dictionary<int, string> namesById = new();
         public Dictionary<int, float> PingsByClientId { get; private set; } = new();
+        
         public int PlayerId { private get; set; }
         public bool IsConnectedToServer { get; private set; }
-        
         private float LastPingTime { get; set; }
         private int MmPort { get; set; }
         private bool ConnectToServer { get; set; }
         private IPEndPoint MmIp { get; set; }
+        public bool IsAuthoritative { get; private set; }
         public float AfkTime => 15f;
 
         private int level;
@@ -28,6 +29,11 @@ namespace Multiplayer.Network
         public event Action onConnectionEstablishedMatchMaker;
         public event Action Disconnected;
 
+        public ClientNetManager(bool isAuthoritative)
+        {
+            IsAuthoritative = isAuthoritative;
+        }
+        
         protected override void Start()
         {
             base.Start();

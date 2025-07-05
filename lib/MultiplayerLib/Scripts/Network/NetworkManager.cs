@@ -44,7 +44,7 @@ namespace Multiplayer.Network
         protected const float TimeOut = 5f;
         public string Name { get; private set; }
         protected UdpConnection connection;
-        
+
         protected override void Start()
         {
             ImportantMessageHandler.OnShouldResendMessages += ResendMessages;
@@ -59,12 +59,12 @@ namespace Multiplayer.Network
                 SendTo(pendingMessage.message, pendingMessage.ip);
             }
         }
-        
+
         public virtual void OnReceiveData(byte[] data, IPEndPoint ip)
         {
             if (Crypt.IsCrypted(data))
                 data = Crypt.Decrypt(data);
-            
+
             OnReceiveDataAction?.Invoke(data, ip);
 
             MessageHandler.Receive(data, ip);
@@ -76,7 +76,7 @@ namespace Multiplayer.Network
         }
 
         public abstract void SendData(byte[] data);
-        
+
         public virtual void SendTo(byte[] data, IPEndPoint ip = null)
         {
             MessageHandler.OnSendData(data, ip);
