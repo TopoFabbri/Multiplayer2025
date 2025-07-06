@@ -17,26 +17,22 @@ namespace Game
         
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
 
-        public GameModel(ObjectSpawner objectSpawner)
+        public GameModel(INetworkFactory objectSpawner)
         {
             this.objectSpawner = objectSpawner;
             board = new Board();
 
-            MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
             GameStateController.StateChanged += OnStateChanged;
         }
 
         ~GameModel()
         {
-            MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
             GameStateController.StateChanged -= OnStateChanged;
         }
         
-        private void OnHandleSpawnRequest(byte[] data, IPEndPoint ip)
+        public void SpawnObjects(List<SpawnableObjectData> spawnables)
         {
-            SpawnRequest message = new NetSpawnable(data).Deserialized();
-
-            foreach (SpawnableObjectData spawnableObject in message.spawnableObjects)
+            foreach (SpawnableObjectData spawnableObject in spawnables)
             {
                 if (objects.ContainsKey(spawnableObject.Id))
                     continue;

@@ -1,5 +1,7 @@
+using System.Net;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
+using Objects;
 using UI;
 using UnityEditor;
 using UnityEngine;
@@ -8,6 +10,7 @@ namespace Game
 {
     public class ClientManager : GameManager
     {
+        [SerializeField] protected ObjectSpawner objectSpawner;
         [SerializeField] private ClientNetworkScreen clientNetworkScreen;
         [SerializeField] private ChatScreen chatScreen;
         

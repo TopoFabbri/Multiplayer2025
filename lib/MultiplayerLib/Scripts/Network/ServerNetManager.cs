@@ -3,6 +3,7 @@ using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.MessageInfo;
 using Multiplayer.Network.Objects;
+using Multiplayer.NetworkFactory;
 using Multiplayer.Utils;
 
 namespace Multiplayer.Network
@@ -99,6 +100,19 @@ namespace Multiplayer.Network
             HandShake hs = new NetHandShake(data).Deserialized();
 
             AddClient(ip, hs.name);
+        }
+
+        public List<SpawnableObjectData> SpawnObjects(List<SpawnableObjectData> spawnables)
+        {
+            foreach (SpawnableObjectData spawnableObj in spawnables)
+            {
+                spawnableObj.Id = objectManager.FreeId;
+                objectManager.SpawnObject(spawnableObj);
+            }
+
+            SendData(new NetSpawnable(new SpawnRequest(objectManager.SpawnablesData)).Serialize());
+            
+            return objectManager.SpawnablesData;
         }
 
         protected void RemoveClient(IPEndPoint ip)

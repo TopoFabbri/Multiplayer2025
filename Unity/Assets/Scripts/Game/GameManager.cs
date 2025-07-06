@@ -1,16 +1,14 @@
+using System.Net;
 using Multiplayer.Network;
+using Multiplayer.Network.Messages;
 using Multiplayer.Reflection;
 using Multiplayer.Utils;
-using Objects;
-using UnityEngine;
 using Utils;
 
 namespace Game
 {
-    public class GameManager : MonoBehaviourSingleton<GameManager>
+    public abstract class GameManager : MonoBehaviourSingleton<GameManager>
     {
-        [SerializeField] protected ObjectSpawner objectSpawner;
-        
         [Sync] protected GameModel gameModel;
 
         protected NetworkManager networkManager;
@@ -20,6 +18,22 @@ namespace Game
             base.Awake();
             
             Timer.Start();
+        }
+
+        private void OnEnable()
+        {
+            MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
+        }
+
+        private void OnDisable()
+        {
+            MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
+        }
+
+        protected virtual void OnHandleSpawnRequest(byte[] data, IPEndPoint ip)
+        {
+            SpawnRequest message = new NetSpawnable(data).Deserialized();
+            gameModel.SpawnObjects(message.spawnableObjects);
         }
 
         private void Update()

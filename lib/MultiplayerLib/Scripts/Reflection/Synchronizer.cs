@@ -129,7 +129,7 @@ namespace Multiplayer.Reflection
         {
             if (__instance is not INetObject netObject) return;
 
-            if (netObject.Owner != NetworkManager.Instance.Id) return;
+            if (OwnedByThis(netObject.Owner) && !IsServer()) return;
 
             if (!RpcRegistry.TryGetRpc(netObject.Owner, __originalMethod, out RpcMethods.RpcMethodInfo rpc)) return;
 
@@ -188,7 +188,6 @@ namespace Multiplayer.Reflection
         private static void SyncPrimitiveField(object node, FieldInfo fieldInfo, List<int> iterators, SyncAttribute syncAttribute, int owner)
         {
             Node curNode = new(iterators);
-            int instanceId = NetworkManager.Instance.Id;
 
             if (IncomingData.ContainsKey(curNode))
             {
@@ -199,7 +198,7 @@ namespace Multiplayer.Reflection
 
             if (!DirtyRegistry.IsDirty(curNode, fieldInfo.GetValue(node))) return;
 
-            if (owner != 0 && owner != instanceId)
+            if (!OwnedByThis(owner) && !IsServer())
                 fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
             else
                 DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), syncAttribute.flags, iterators));
@@ -211,8 +210,6 @@ namespace Multiplayer.Reflection
         {
             if (!typeof(IList).IsAssignableFrom(fieldInfo.FieldType) && !fieldInfo.FieldType.IsArray)
                 return;
-
-            int instanceId = NetworkManager.Instance.Id;
 
             iterators.Add(0);
 
@@ -233,7 +230,7 @@ namespace Multiplayer.Reflection
 
                     if (!DirtyRegistry.IsDirty(curNode, list[i])) return;
 
-                    if (owner != 0 && owner != instanceId)
+                    if (!OwnedByThis(owner) && !IsServer())
                         fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
                     else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(list[i], syncAttribute.flags, iterators));
@@ -255,8 +252,6 @@ namespace Multiplayer.Reflection
 
             if (dictionary == null)
                 return;
-
-            int instanceId = NetworkManager.Instance.Id;
 
             iterators.Add(0);
             iterators.Add(0);
@@ -284,7 +279,7 @@ namespace Multiplayer.Reflection
 
                     if (!DirtyRegistry.IsDirty(valueNode, dictionary[entry.Key])) return;
 
-                    if (owner != 0 && owner != instanceId)
+                    if (!OwnedByThis(owner) && !IsServer())
                         fieldInfo.SetValue(node, DirtyRegistry.PrevValues[valueNode]);
                     else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(dictionary[entry.Key], syncAttribute.flags, iterators));
@@ -304,6 +299,20 @@ namespace Multiplayer.Reflection
         private static void SyncComplexField(object node, FieldInfo fieldInfo, List<int> iterators)
         {
             Synchronize(fieldInfo.GetValue(node), iterators);
+        }
+
+        #endregion
+
+        #region Utils
+
+        private static bool IsServer()
+        {
+            return NetworkManager.Instance is ServerNetManager;
+        }
+
+        private static bool OwnedByThis(int owner)
+        {
+            return NetworkManager.Instance.Id == owner || NetworkManager.Instance.Id == 0;
         }
 
         #endregion

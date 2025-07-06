@@ -20,10 +20,10 @@ namespace Multiplayer.Network
             if (_netManager == null)
                 return false;
 
-            if (!typeof(ClientNetManager).IsAssignableFrom(_netManager.GetType()))
+            if (_netManager is not ClientNetManager clientNetManager)
                 return true;
             
-            if (((ClientNetManager)_netManager).IsAuthoritative)
+            if (clientNetManager.IsAuthoritative)
                 return true;
 
             MessageMetadata metadata = MessageMetadata.Deserialize(data);

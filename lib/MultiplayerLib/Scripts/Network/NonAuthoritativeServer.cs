@@ -58,13 +58,7 @@ namespace Multiplayer.Network
         {
             SpawnRequest message = new NetSpawnable(data).Deserialized();
 
-            foreach (SpawnableObjectData spawnableObj in message.spawnableObjects)
-            {
-                spawnableObj.Id = objectManager.FreeId;
-                objectManager.SpawnObject(spawnableObj);
-            }
-
-            SendData(new NetSpawnable(new SpawnRequest(objectManager.SpawnablesData)).Serialize());
+            SpawnObjects(message.spawnableObjects);
         }
 
         private void HandleDisconnect(byte[] data, IPEndPoint ip)
