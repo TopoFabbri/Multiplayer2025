@@ -15,10 +15,31 @@ namespace Game
         private readonly INetworkFactory objectSpawner;
         private readonly Board board;
         private const int PawnQty = 15;
+        private const int MoveQty = 10;
 
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
         [Sync] private readonly Dictionary<int, Cursor> playerInputs = new();
 
+        private int turn = 1;
+        private int moves;
+
+        private int CurrentCursorKey
+        {
+            get
+            {
+                int cursorKey = -1;
+
+                foreach (KeyValuePair<int, Cursor> input in playerInputs)
+                {
+                    if (input.Value.Owner != turn) continue;
+                    cursorKey = input.Key;
+                    break;
+                }
+                
+                return cursorKey;
+            }
+        }
+        
         public GameModel(INetworkFactory objectSpawner)
         {
             this.objectSpawner = objectSpawner;
@@ -70,6 +91,11 @@ namespace Game
 
             foreach (ObjectM obj in objects.Values)
                 obj.Update();
+
+            int current = CurrentCursorKey;
+            
+            if (playerInputs.ContainsKey(current))
+                board.OnMousePos((playerInputs[current].CursorX, playerInputs[current].CursorY));
         }
 
         private void OnConnect()
@@ -97,7 +123,7 @@ namespace Game
 
             objects.Clear();
         }
-
+        
         public void UpdateInput(PlayerInput cursor)
         {
             if (!playerInputs.TryGetValue(cursor.ObjectId, out Cursor input)) return;

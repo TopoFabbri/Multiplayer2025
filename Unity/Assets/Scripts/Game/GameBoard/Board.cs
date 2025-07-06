@@ -40,21 +40,11 @@ namespace Game.GameBoard
 
         private void OnStateChanged(GameState newState)
         {
-            if (newState == GameState.InGame)
-            {
-                MouseBoardConverter.MousePos += OnMousePos;
-                InputListener.Click += OnClick;
-            }
-            else
-            {
-                MouseBoardConverter.MousePos -= OnMousePos;
-                InputListener.Click -= OnClick;
-
+            if (newState != GameState.InGame)
                 GameStateText = string.Empty;
-            }
         }
 
-        private void OnMousePos((int x, int y) pos)
+        public void OnMousePos((int x, int y) pos)
         {
             SetMouseGameState();
 
