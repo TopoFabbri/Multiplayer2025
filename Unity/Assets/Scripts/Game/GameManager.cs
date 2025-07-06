@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Net;
+using Multiplayer.AuthoritativeServer;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Reflection;
@@ -10,7 +12,8 @@ namespace Game
     public abstract class GameManager : MonoBehaviourSingleton<GameManager>
     {
         [Sync] protected GameModel gameModel;
-
+        
+        Dictionary<int, PlayerInput> playerInputs = new();
         protected NetworkManager networkManager;
 
         protected override void Awake()
@@ -36,7 +39,7 @@ namespace Game
             gameModel.SpawnObjects(message.spawnableObjects);
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             if (networkManager.IsInitiated)
                 networkManager?.Update();

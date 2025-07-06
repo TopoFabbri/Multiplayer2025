@@ -30,6 +30,13 @@ namespace Game
             gameModel = new GameModel(objectSpawner);
             
             GameStateController.State = GameState.InGame;
+            
+            MessageHandler.TryAddHandler(MessageType.PlayerInput, OnHandlePlayerInput);
+        }
+
+        private void OnHandlePlayerInput(byte[] data, IPEndPoint ip)
+        {
+            gameModel.UpdateInput(new NetPlayerInput(data).Deserialized());
         }
 
         protected override void OnHandleSpawnRequest(byte[] data, IPEndPoint ip)

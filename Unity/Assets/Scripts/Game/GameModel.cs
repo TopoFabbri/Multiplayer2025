@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Game.GameBoard;
+using Multiplayer.AuthoritativeServer;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
@@ -14,8 +15,9 @@ namespace Game
         private readonly INetworkFactory objectSpawner;
         private readonly Board board;
         private const int PawnQty = 15;
-        
+
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
+        [Sync] private readonly Dictionary<int, Cursor> playerInputs = new();
 
         public GameModel(INetworkFactory objectSpawner)
         {
@@ -29,21 +31,28 @@ namespace Game
         {
             GameStateController.StateChanged -= OnStateChanged;
         }
-        
+
         public void SpawnObjects(List<SpawnableObjectData> spawnables)
         {
             foreach (SpawnableObjectData spawnableObject in spawnables)
             {
-                if (objects.ContainsKey(spawnableObject.Id))
+                if (objects.ContainsKey(spawnableObject.Id) || playerInputs.ContainsKey(spawnableObject.Id))
                     continue;
-                
-                ObjectM model =  objectSpawner.SpawnObject(spawnableObject);
+
+                ObjectM model = objectSpawner.SpawnObject(spawnableObject);
 
                 if (model == null) continue;
-                
-                objects.Add(model.ObjectId, model);
 
-                board.PlaceObject(model as BoardPiece);
+                if (model is Cursor cursor)
+                {
+                    playerInputs.Add(cursor.ObjectId, cursor);
+                }
+                else
+                {
+                    objects.Add(model.ObjectId, model);
+
+                    board.PlaceObject(model as BoardPiece);
+                }
             }
         }
 
@@ -58,7 +67,7 @@ namespace Game
         public override void Update()
         {
             base.Update();
-            
+
             foreach (ObjectM obj in objects.Values)
                 obj.Update();
         }
@@ -67,11 +76,15 @@ namespace Game
         {
             board.CreateBoard(30, 30);
 
-            List<SpawnableObjectData> spawnablesData = new() { new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 0, ModelType = typeof(TowerM).FullName } };
-
-            for (int i = 0; i < PawnQty; i++)
-                spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1, ModelType = typeof(PawnM).FullName});
+            List<SpawnableObjectData> spawnablesData = new()
+            {
+                new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 2, ModelType = typeof(Cursor).FullName },
+                new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 0, ModelType = typeof(TowerM).FullName }
+            };
             
+            for (int i = 0; i < PawnQty; i++)
+                spawnablesData.Add(new SpawnableObjectData { OwnerId = NetworkManager.Instance.Id, PrefabId = 1, ModelType = typeof(PawnM).FullName });
+
             SpawnRequest spawnRequest = new(spawnablesData);
 
             NetworkManager.Instance.SendData(new NetSpawnable(spawnRequest).Serialize());
@@ -81,8 +94,22 @@ namespace Game
         {
             foreach (int key in objects.Keys)
                 objectSpawner.DestroyObject(key);
-            
+
             objects.Clear();
+        }
+
+        public void UpdateInput(PlayerInput cursor)
+        {
+            if (!playerInputs.TryGetValue(cursor.ObjectId, out Cursor input)) return;
+            
+            input.CursorX = cursor.CursorX;
+            input.CursorY = cursor.CursorY;
+            input.SetPosition(cursor.CursorX, 0, cursor.CursorY);
+            
+            input.Clicked = cursor.Clicked;
+            
+            if (input.Clicked)
+                input.OnClick();
         }
     }
 }

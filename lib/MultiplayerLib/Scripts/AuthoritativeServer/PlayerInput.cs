@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using Multiplayer.Network.Objects;
+using Multiplayer.Reflection;
 
 namespace Multiplayer.AuthoritativeServer
 {
-    public class PlayerInput
+    public class PlayerInput : ObjectM
     {
-        public int Id { get; set; }
-        public int CursorX { get; set; }
-        public int CursorY { get; set; }
-        public bool Clicked { get; set; }
+        [field: Sync] public int CursorX { get; set; }
+        [field: Sync] public int CursorY { get; set; }
+        [field: Sync] public bool Clicked { get; set; }
         
         public byte[] Serialize()
         {
             List<byte> data = new();
             
+            data.AddRange(BitConverter.GetBytes(ObjectId));
+            data.AddRange(BitConverter.GetBytes(Owner));
             data.AddRange(BitConverter.GetBytes(CursorX));
             data.AddRange(BitConverter.GetBytes(CursorY));
             data.AddRange(BitConverter.GetBytes(Clicked));
@@ -23,7 +26,12 @@ namespace Multiplayer.AuthoritativeServer
         
         public static PlayerInput Deserialize(byte[] data, ref int counter)
         {
-            PlayerInput input = new();
+            PlayerInput input = new() { objectId = BitConverter.ToInt32(data, counter) };
+
+            counter += sizeof(int);
+            
+            input.Owner = BitConverter.ToInt32(data, counter);
+            counter += sizeof(int);
             
             input.CursorX = BitConverter.ToInt32(data, counter);
             counter += sizeof(int);

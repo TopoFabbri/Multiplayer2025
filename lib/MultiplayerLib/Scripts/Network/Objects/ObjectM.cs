@@ -4,11 +4,11 @@ namespace Multiplayer.Network.Objects
 {
     public class ObjectM : INetObject
     {
-        [Sync] private float posX = 0f;
-        [Sync] private float posY = 0f;
-        [Sync] private float posZ = 0f;
+        [Sync] protected float posX = 0f;
+        [Sync] protected float posY = 0f;
+        [Sync] protected float posZ = 0f;
 
-        [Sync] private int objectId;
+        [Sync] protected int objectId;
 
         public float PosX => posX;
         public float PosY => posY;
