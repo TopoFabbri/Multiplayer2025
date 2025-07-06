@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using Game.GameBoard;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
-using Multiplayer.Utils;
 using Objects;
 
 namespace Game
@@ -42,8 +42,6 @@ namespace Game
                 if (model == null) continue;
                 
                 objects.Add(model.ObjectId, model);
-                
-                if (spawnableObject.OwnerId != NetworkManager.Instance.Id && NetworkManager.Instance.Id != 0) continue;
 
                 board.PlaceObject(model as BoardPiece);
             }
@@ -55,6 +53,14 @@ namespace Game
                 OnConnect();
             else
                 OnDisconnect();
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            
+            foreach (ObjectM obj in objects.Values)
+                obj.Update();
         }
 
         private void OnConnect()

@@ -14,6 +14,7 @@ C:\Users\Aula 2\Downloads\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstan
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Release\netstandard2.1\MultiplayerLib.deps.json
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Release\netstandard2.1\MultiplayerLib.dll
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\bin\Release\netstandard2.1\MultiplayerLib.pdb
+D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.csproj.AssemblyReference.cache
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.GeneratedMSBuildEditorConfig.editorconfig
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.AssemblyInfoInputs.cache
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.AssemblyInfo.cs
@@ -21,4 +22,3 @@ D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\M
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.sourcelink.json
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.dll
 D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.pdb
-D:\UnityProjects\Multiplayer2025\lib\MultiplayerLib\obj\Release\netstandard2.1\MultiplayerLib.csproj.AssemblyReference.cache

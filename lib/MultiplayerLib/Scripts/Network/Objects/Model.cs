@@ -46,7 +46,7 @@ namespace Multiplayer.Network.Objects
             MessageHandler.TryRemoveHandler(MessageType.UShort, AddIncomingData);
         }
         
-        public void Update()
+        public virtual void Update()
         {
             nodesPath.Clear();
             Synchronizer.Synchronize(this, nodesPath);

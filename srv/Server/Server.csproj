@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy &quot;$(ProjectDir)bin&quot; &quot;$(SolutionDir)..\mmc\MatchMaker\bin&quot; /E /F /R /Y" />
+      <Exec Command="xcopy &quot;$(ProjectDir)bin&quot; &quot;$(SolutionDir)..\mmc\MatchMaker\bin&quot; /e /i /y&#xA;xcopy &quot;$(TargetDir)&quot; &quot;$(SolutionDir)..\Release\MatchMaker-AuthClient&quot; /e /y /i" />
     </Target>
 
 </Project>
