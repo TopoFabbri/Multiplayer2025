@@ -20,20 +20,38 @@ namespace Objects
                 return;
             
             MouseBoardConverter.MousePos += OnMousePos;
-            InputListener.Click += OnClick;
+
+            if (NetworkManager.Instance is not ClientNetManager clientManager) return;
+
+            if (clientManager.IsAuthoritative)
+                InputListener.Click += OnClick;
+            else
+                InputListener.Click += SendClick;
         }
         
         ~Cursor()
         {
             MouseBoardConverter.MousePos -= OnMousePos;
-            InputListener.Click -= OnClick;
+            
+            if (NetworkManager.Instance is not ClientNetManager clientManager) return;
+
+            if (clientManager.IsAuthoritative)
+                InputListener.Click -= OnClick;
+            else
+                InputListener.Click -= SendClick;
         }
 
         [Rpc] public void OnClick()
         {
-            // Clicked = true;
-            // Click?.Invoke(ObjectId);
-            // Clicked = false;
+            Click?.Invoke(objectId);
+            Clicked = false;
+        }
+
+        private void SendClick()
+        {
+            Clicked = true;
+            NetworkManager.Instance.SendData(new NetPlayerInput(this).Serialize());
+            Clicked = false;
         }
 
         private void OnMousePos((int x, int y) pos)
@@ -43,14 +61,6 @@ namespace Objects
             
             SetPosition(CursorX, 0, CursorY);
             NetworkManager.Instance.SendData(new NetPlayerInput(this).Serialize());
-        }
-
-        public override void Update()
-        {
-            base.Update();
-            
-            if (Clicked)
-                OnClick();
         }
     }
 }

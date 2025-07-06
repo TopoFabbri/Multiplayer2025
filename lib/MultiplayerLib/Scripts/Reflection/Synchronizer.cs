@@ -125,6 +125,7 @@ namespace Multiplayer.Reflection
             harmony.Patch(methodInfo, null, postfix);
         }
 
+        // ReSharper disable InconsistentNaming
         public static void MethodHookPostfix(MethodBase __originalMethod, object __instance)
         {
             if (__instance is not INetObject netObject) return;

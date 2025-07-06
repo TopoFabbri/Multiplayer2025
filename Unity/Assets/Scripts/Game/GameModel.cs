@@ -7,6 +7,8 @@ using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
 using Objects;
+using UnityEngine;
+using Cursor = Objects.Cursor;
 
 namespace Game
 {
@@ -67,6 +69,8 @@ namespace Game
                 if (model is Cursor cursor)
                 {
                     playerInputs.Add(cursor.ObjectId, cursor);
+                    
+                    cursor.Click += OnCursorClick;
                 }
                 else
                 {
@@ -122,6 +126,13 @@ namespace Game
                 objectSpawner.DestroyObject(key);
 
             objects.Clear();
+        }
+
+        private void OnCursorClick(int id)
+        {
+            if (id != CurrentCursorKey) return;
+            
+            board.OnClick();
         }
         
         public void UpdateInput(PlayerInput cursor)

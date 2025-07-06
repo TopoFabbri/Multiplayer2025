@@ -7,12 +7,6 @@ namespace Game.GameBoard
 {
     public class Board
     {
-        public enum CursorState
-        {
-            Select,
-            Move
-        }
-
         private Tile selected;
         private Tile cursor;
 
@@ -23,8 +17,6 @@ namespace Game.GameBoard
 
         private Tile p1Corner;
         private Tile p2Corner;
-
-        private CursorState cursorState = CursorState.Select;
 
         public static string GameStateText { get; private set; }
 
@@ -62,15 +54,15 @@ namespace Game.GameBoard
 
         private void SetMouseGameState()
         {
-            if (selected != null)
+            BoardPiece selectedPiece = GetTile(selected);
+            BoardPiece hoveredPiece = GetTile(cursor);
+            
+            if (selectedPiece != null && cursor != null)
             {
-                BoardPiece selectedPiece = GetTile(selected);
                 GameStateText = "Move " + selectedPiece.Name + " " + selectedPiece.ObjectId + " to " + cursor.X + ", " + cursor.Y;
             }
             else if (cursor != null)
             {
-                BoardPiece hoveredPiece = GetTile(cursor);
-                
                 if (hoveredPiece != null)
                     GameStateText = hoveredPiece.Name + " " + hoveredPiece.ObjectId;
                 else
@@ -82,39 +74,43 @@ namespace Game.GameBoard
             }
         }
 
-        private void OnClick()
+        public void OnClick()
         {
-            if (cursorState == CursorState.Select)
-            {
-                if (cursor == null)
-                    return;
-
-                BoardPiece piece = GetTile(cursor);
-
-                if (piece == null)
-                    return;
-
-                if (!piece.CanMove)
-                    return;
-
-                if (piece.Owner != NetworkManager.Instance.Id && NetworkManager.Instance.Id != 0)
-                    return;
-
-                selected = cursor;
-                cursorState = CursorState.Move;
-            }
+            if (selected == null)
+                Select();
             else
-            {
-                if (GetTile(cursor) != null)
-                    return;
-
-                if (!GetTile(selected).MoveTo(cursor)) return;
-
-                selected = null;
-                cursorState = CursorState.Select;
-            }
+                Move();
 
             SetMouseGameState();
+        }
+
+        private void Select()
+        {
+            if (cursor == null)
+                return;
+
+            BoardPiece piece = GetTile(cursor);
+
+            if (piece == null)
+                return;
+
+            if (!piece.CanMove)
+                return;
+
+            if (piece.Owner != NetworkManager.Instance.Id && NetworkManager.Instance.Id != 0)
+                return;
+
+            selected = cursor;
+        }
+
+        private void Move()
+        {
+            if (GetTile(cursor) != null)
+                return;
+
+            if (!GetTile(selected).MoveTo(cursor)) return;
+
+            selected = null;
         }
 
         public void CreateBoard(int height, int width)
@@ -141,7 +137,7 @@ namespace Game.GameBoard
             {
                 int x;
                 int y;
-                
+
                 do
                 {
                     if (ownerIsP1)
@@ -156,7 +152,6 @@ namespace Game.GameBoard
                     }
 
                     boardPiece.PlaceAt(x, y);
-                    
                 } while (GetTile(new Tile(x, y)) != null);
             }
 
@@ -167,6 +162,9 @@ namespace Game.GameBoard
         {
             BoardPiece piece = null;
 
+            if (tile == null)
+                return null;
+            
             foreach (BoardPiece boardPiece in objects)
             {
                 if (boardPiece.x != tile.X || boardPiece.y != tile.Y) continue;
