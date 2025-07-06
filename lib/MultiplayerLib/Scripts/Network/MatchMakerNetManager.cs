@@ -250,7 +250,7 @@ namespace Multiplayer.Network
             };
 
             Process.Start(processStartInfo);
-            Thread.Sleep(1000);
+            Thread.Sleep(4000);
         }
 
         public override void SendTo(byte[] data, IPEndPoint ip = null)

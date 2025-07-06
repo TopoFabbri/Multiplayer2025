@@ -20,12 +20,12 @@ namespace Game
             Timer.Start();
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             MessageHandler.TryAddHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             MessageHandler.TryRemoveHandler(MessageType.SpawnRequest, OnHandleSpawnRequest);
         }

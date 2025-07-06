@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
+using Multiplayer.Utils;
 using Objects;
 
 namespace Game
@@ -39,7 +39,7 @@ namespace Game
                 
                 ObjectM model =  objectSpawner.SpawnObject(spawnableObject);
 
-                if (model == null) return;
+                if (model == null) continue;
                 
                 objects.Add(model.ObjectId, model);
                 

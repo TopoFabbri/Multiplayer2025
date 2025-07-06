@@ -28,16 +28,20 @@ namespace Game
             GameStateController.State = GameState.Connecting;
         }
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+            
             networkManager.onConnectionEstablished += OnConnectionEstablishedServer;
             ((ClientNetManager)networkManager).Disconnected += OnDisconnectedHandler;
             InputListener.Disconnect += DisconnectHandler;
             ((ClientNetManager)networkManager).onConnectionEstablishedMatchMaker += ConnectHandler;
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+            
             networkManager.onConnectionEstablished -= OnConnectionEstablishedServer;
             ((ClientNetManager)networkManager).Disconnected -= OnDisconnectedHandler;
             InputListener.Disconnect -= DisconnectHandler;

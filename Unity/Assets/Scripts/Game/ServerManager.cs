@@ -18,7 +18,7 @@ namespace Game
 
             networkManager = new AuthoritativeServer();
             
-            int port = int.Parse(Environment.GetCommandLineArgs()[0]);
+            int port = int.Parse(Environment.GetCommandLineArgs()[1]);
 
             ((AuthoritativeServer)networkManager).Init(port);
         }
