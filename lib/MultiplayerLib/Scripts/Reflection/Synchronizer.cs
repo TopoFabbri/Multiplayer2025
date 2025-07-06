@@ -129,8 +129,8 @@ namespace Multiplayer.Reflection
         {
             if (__instance is not INetObject netObject) return;
 
-            if (OwnedByThis(netObject.Owner) && !IsServer()) return;
-
+            if ((!OwnedByThis(netObject.Owner) || !IsAuthoritativeClient()) && !IsServer()) return;
+            
             if (!RpcRegistry.TryGetRpc(netObject.Owner, __originalMethod, out RpcMethods.RpcMethodInfo rpc)) return;
 
             NetAction netAction = new(new ActionData(rpc.node, __originalMethod.Name), rpc.flags);
@@ -198,7 +198,7 @@ namespace Multiplayer.Reflection
 
             if (!DirtyRegistry.IsDirty(curNode, fieldInfo.GetValue(node))) return;
 
-            if (!OwnedByThis(owner) && !IsServer())
+            if ((!OwnedByThis(owner) || !IsAuthoritativeClient()) && !IsServer())
                 fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
             else
                 DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(fieldInfo.GetValue(node), syncAttribute.flags, iterators));
@@ -230,7 +230,7 @@ namespace Multiplayer.Reflection
 
                     if (!DirtyRegistry.IsDirty(curNode, list[i])) return;
 
-                    if (!OwnedByThis(owner) && !IsServer())
+                    if ((!OwnedByThis(owner) || !IsAuthoritativeClient()) && !IsServer())
                         fieldInfo.SetValue(node, DirtyRegistry.PrevValues[curNode]);
                     else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(list[i], syncAttribute.flags, iterators));
@@ -279,7 +279,7 @@ namespace Multiplayer.Reflection
 
                     if (!DirtyRegistry.IsDirty(valueNode, dictionary[entry.Key])) return;
 
-                    if (!OwnedByThis(owner) && !IsServer())
+                    if ((!OwnedByThis(owner) || !IsAuthoritativeClient()) && !IsServer())
                         fieldInfo.SetValue(node, DirtyRegistry.PrevValues[valueNode]);
                     else
                         DirtyQueue.Enqueue(PrimitiveSerializer.Serialize(dictionary[entry.Key], syncAttribute.flags, iterators));
@@ -313,6 +313,14 @@ namespace Multiplayer.Reflection
         private static bool OwnedByThis(int owner)
         {
             return NetworkManager.Instance.Id == owner || NetworkManager.Instance.Id == 0;
+        }
+
+        private static bool IsAuthoritativeClient()
+        {
+            if (NetworkManager.Instance is ClientNetManager clientNetManager)
+                return clientNetManager.IsAuthoritative;
+            
+            return false;
         }
 
         #endregion
