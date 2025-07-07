@@ -35,7 +35,7 @@ namespace Objects
         {
             if (tile == null) return false;
             
-            if (Mathf.Abs(x - tile.X) + Mathf.Abs(y - tile.Y) > 1) return false;
+            // if (Mathf.Abs(x - tile.X) + Mathf.Abs(y - tile.Y) > 1) return false;
 
             x = tile.X;
             y = tile.Y;

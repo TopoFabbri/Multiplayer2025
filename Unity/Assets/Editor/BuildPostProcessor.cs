@@ -49,12 +49,20 @@ namespace Editor
             {
                 Debug.Log("---------- WINDOWS CLIENT BUILD DETECTED, STARTING POST-BUILD TASK ----------");
             
-                string relativeDestination = @"Release\Client-AuthClient";
-                string absolutePath = Path.Combine(repoRoot, relativeDestination);
+                List<string> relativeDestinations = new List<string>
+                {
+                    @"Release\Client-AuthClient",
+                    @"Release\Client-AuthSv"
+                };
+                foreach (string relativeDestination in relativeDestinations)
+                {
+
+                    string absolutePath = Path.Combine(repoRoot, relativeDestination);
             
-                Debug.Log($"--- Processing destination: {absolutePath} ---");
-                // UPDATED: Call the new merge/overwrite method
-                MergeAndOverwriteDirectory(sourceDirectory, absolutePath);
+                    Debug.Log($"--- Processing destination: {absolutePath} ---");
+                    // UPDATED: Call the new merge/overwrite method
+                    MergeAndOverwriteDirectory(sourceDirectory, absolutePath);
+                }
 
                 Debug.Log("---------- CLIENT POST-BUILD TASKS COMPLETE ----------");
             }

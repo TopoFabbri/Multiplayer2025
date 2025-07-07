@@ -21,7 +21,11 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/Scenes/Client.unity
+    m_path: Assets/Scenes/ClientSelector.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Client-AuthClient.unity
+  - m_enabled: 1
+    m_path: Assets/Scenes/Client-AuthSv.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
