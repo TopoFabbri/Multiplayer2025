@@ -108,7 +108,12 @@ namespace Game.GameBoard
             if (GetTile(cursor) != null)
                 return;
 
-            if (!GetTile(selected).MoveTo(cursor)) return;
+            BoardPiece selectedPiece = GetTile(selected);
+            
+            if (selectedPiece == null)
+                return;
+            
+            if (!selectedPiece.MoveTo(cursor)) return;
 
             selected = null;
         }
@@ -138,6 +143,8 @@ namespace Game.GameBoard
                 int x;
                 int y;
 
+                int attempts = 0;
+                
                 do
                 {
                     if (ownerIsP1)
@@ -152,7 +159,13 @@ namespace Game.GameBoard
                     }
 
                     boardPiece.PlaceAt(x, y);
-                } while (GetTile(new Tile(x, y)) != null);
+                } while (GetTile(new Tile(x, y)) != null && attempts++ < 100);
+                
+                if (attempts >= 100)
+                {
+                    UnityEngine.Debug.LogError("Failed to place object after 100 attempts.");
+                    return;
+                }
             }
 
             objects.Add(boardPiece);

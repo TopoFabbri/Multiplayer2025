@@ -15,5 +15,10 @@ namespace Multiplayer.Network.Messages.MessageInfo
 
             return true;
         }
+        
+        public bool ContainsId(int id)
+        {
+            return messageIds.Contains(id);
+        }
     }
 }

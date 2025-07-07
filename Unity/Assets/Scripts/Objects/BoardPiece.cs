@@ -1,3 +1,4 @@
+using System;
 using Game.GameBoard;
 using Multiplayer.Network.Objects;
 using Multiplayer.Reflection;
@@ -12,6 +13,8 @@ namespace Objects
 
         [Sync] public int x;
         [Sync] public int y;
+
+        public static event Action<int> Moved;
         
         public bool MoveTo(Tile tile)
         {
@@ -22,6 +25,7 @@ namespace Objects
             x = tile.X;
             y = tile.Y;
             
+            OnMoved();
             return true;
         }
         
@@ -38,6 +42,11 @@ namespace Objects
             base.Update();
 
             SetPosition(x, 0, y);
+        }
+
+        [Rpc] private void OnMoved()
+        {
+            Moved?.Invoke(objectId);
         }
     }
 }

@@ -12,12 +12,12 @@ namespace Multiplayer.Network
         private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> Handlers = new();
         private static readonly Dictionary<MessageType, ImportantMessageHandler> ImportantMessageHandlersByMessageType = new();
         private static readonly Dictionary<MessageType, Action<byte[], IPEndPoint>> OnAcknowledgedByMessageType = new();
-        
+
         private static CriticMessagesHandler _criticMessagesHandler = new();
-        
+
         public static Action<MessageMetadata, IPEndPoint> onShouldAcknowledge;
 
-        private const float Timeout = .5f;
+        private const float Timeout = 1f;
 
         public static void TryAddHandler(MessageType type, Action<byte[], IPEndPoint> handler)
         {
@@ -26,13 +26,13 @@ namespace Multiplayer.Network
             else
                 Handlers[type] += handler;
         }
-        
+
         public static void TryRemoveHandler(MessageType type, Action<byte[], IPEndPoint> handler)
         {
             if (Handlers.ContainsKey(type))
                 Handlers[type] -= handler;
         }
-        
+
         public static void Receive(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);
@@ -40,9 +40,7 @@ namespace Multiplayer.Network
             if (metadata.Flags.HasFlag(Flags.Checksum))
             {
                 if (!CheckSum.IsValid(data))
-                {
                     return;
-                }
             }
 
             if (Handlers.TryGetValue(metadata.Type, out Action<byte[], IPEndPoint> handler))
@@ -57,33 +55,33 @@ namespace Multiplayer.Network
         public static void OnSendData(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);
-            
+
             if (!metadata.Flags.HasFlag(Flags.Important)) return;
-            
+
             if (!ImportantMessageHandlersByMessageType.ContainsKey(metadata.Type))
                 ImportantMessageHandlersByMessageType.Add(metadata.Type, new ImportantMessageHandler());
-            
+
             ImportantMessageHandlersByMessageType[metadata.Type].AddPendingMessage(Timer.Time, data, ip);
-            
+
             _criticMessagesHandler.HandleCriticMessages(data);
         }
-        
+
         public static MessageMetadata GetMetadata(byte[] data)
         {
             return MessageMetadata.Deserialize(data);
         }
-        
+
         public static void HandleAcknowledge(byte[] data, IPEndPoint ip)
         {
             MessageMetadata metadata = GetMetadata(data);
             Acknowledge acknowledge = new NetAcknowledge(data).Deserialized();
-            
+
             ImportantMessageHandlersByMessageType[acknowledge.mesType].RemoveMessage(metadata, acknowledge);
-            
+
             if (OnAcknowledgedByMessageType.TryGetValue(acknowledge.mesType, out Action<byte[], IPEndPoint> onAcknowledge))
                 onAcknowledge?.Invoke(data, ip);
         }
-        
+
         public static void TryAddOnAcknowledgeHandler(MessageType type, Action<byte[], IPEndPoint> handler)
         {
             if (!OnAcknowledgedByMessageType.ContainsKey(type))
@@ -97,7 +95,7 @@ namespace Multiplayer.Network
             if (OnAcknowledgedByMessageType.ContainsKey(type))
                 OnAcknowledgedByMessageType[type] -= handler;
         }
-        
+
         private static void CheckReceivedImportantMessage(MessageMetadata metadata, IPEndPoint ip)
         {
             ImportantMessageHandlersByMessageType.TryAdd(metadata.Type, new ImportantMessageHandler());

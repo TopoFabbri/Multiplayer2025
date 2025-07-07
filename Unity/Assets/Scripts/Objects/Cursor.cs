@@ -5,6 +5,7 @@ using Multiplayer.AuthoritativeServer;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Reflection;
+using UnityEngine;
 
 namespace Objects
 {

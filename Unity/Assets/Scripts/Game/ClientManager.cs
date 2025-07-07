@@ -1,4 +1,3 @@
-using System.Net;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Objects;

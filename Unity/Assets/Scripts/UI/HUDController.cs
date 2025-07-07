@@ -12,6 +12,7 @@ namespace UI
         [SerializeField] private TextMeshProUGUI pingText;
         [SerializeField] private TextMeshProUGUI matchMakerText;
         [SerializeField] private TextMeshProUGUI gameText;
+        [SerializeField] private TextMeshProUGUI movesText;
         
         private void Start()
         {
@@ -57,6 +58,7 @@ namespace UI
                 pingText.text += ((ClientNetManager)NetworkManager.Instance).GetName(pingById.Key) + ": " + (int)(pingById.Value * 1000) + "ms\n";
             
             gameText.text = Board.GameStateText;
+            movesText.text = "Moves: " + (10 - GameModel.Moves);
         }
     }
 }

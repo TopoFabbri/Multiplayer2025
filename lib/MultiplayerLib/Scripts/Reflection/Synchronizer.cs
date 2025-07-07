@@ -6,6 +6,7 @@ using HarmonyLib;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.Primitives;
+using Multiplayer.Utils;
 
 namespace Multiplayer.Reflection
 {
@@ -66,7 +67,7 @@ namespace Multiplayer.Reflection
 
             while (nodeType != null)
             {
-                FieldInfo[] fields = nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo[] fields = nodeType.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
                 foreach (FieldInfo fieldInfo in fields)
                 {
@@ -80,7 +81,7 @@ namespace Multiplayer.Reflection
                     iterators[^1]++;
                 }
 
-                MethodInfo[] methods = nodeType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                MethodInfo[] methods = nodeType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
                 foreach (MethodInfo methodInfo in methods)
                 {
@@ -103,7 +104,9 @@ namespace Multiplayer.Reflection
                         continue;
                     }
 
-                    MakeRpc(owner, methodInfo, methodNode, rpcAttribute);
+                    if (!typeof(INetObject).IsAssignableFrom(node.GetType())) return;
+
+                    MakeRpc(((INetObject)node).ObjectId, methodInfo, methodNode, rpcAttribute);
 
                     methodIterators[^1]++;
                 }
@@ -115,12 +118,20 @@ namespace Multiplayer.Reflection
             methodIterators.RemoveAt(methodIterators.Count - 1);
         }
 
-        private static void MakeRpc(int owner, MethodInfo methodInfo, Node methodNode, RpcAttribute rpcAttribute)
+        private static void MakeRpc(int objId, MethodInfo methodInfo, Node methodNode, RpcAttribute rpcAttribute)
         {
-            RpcRegistry.AddRpc(owner, methodInfo, methodNode, rpcAttribute.flags);
+            RpcRegistry.AddRpc(objId, methodInfo, methodNode, rpcAttribute.flags);
 
+            if (RpcRegistry.IsMethodPatched(methodInfo))
+                return;
+            
             Harmony harmony = new("RPC");
             HarmonyMethod postfix = new(typeof(Synchronizer).GetMethod(nameof(MethodHookPostfix)));
+
+            string path = string.Join("-", methodNode.Path);
+
+            Log.Write("Patching: " + methodInfo.Name + " at: " + path);
+            Log.NewLine();
 
             harmony.Patch(methodInfo, null, postfix);
         }
@@ -131,8 +142,8 @@ namespace Multiplayer.Reflection
             if (__instance is not INetObject netObject) return;
 
             if ((!OwnedByThis(netObject.Owner) || !IsAuthoritativeClient()) && !IsServer()) return;
-            
-            if (!RpcRegistry.TryGetRpc(netObject.Owner, __originalMethod, out RpcMethods.RpcMethodInfo rpc)) return;
+
+            if (!RpcRegistry.TryGetRpc(netObject.ObjectId, __originalMethod, out RpcMethods.RpcMethodInfo rpc)) return;
 
             NetAction netAction = new(new ActionData(rpc.node, __originalMethod.Name), rpc.flags);
 
@@ -320,7 +331,7 @@ namespace Multiplayer.Reflection
         {
             if (NetworkManager.Instance is ClientNetManager clientNetManager)
                 return clientNetManager.IsAuthoritative;
-            
+
             return false;
         }
 

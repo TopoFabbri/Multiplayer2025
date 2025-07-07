@@ -6,6 +6,7 @@ using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
+using Multiplayer.Utils;
 using Objects;
 using UnityEngine;
 using Cursor = Objects.Cursor;
@@ -23,8 +24,8 @@ namespace Game
         [Sync] private readonly Dictionary<int, Cursor> playerInputs = new();
 
         private int turn = 1;
-        private int moves;
-
+        public static int Moves { get; private set; }
+        
         private int CurrentCursorKey
         {
             get
@@ -48,11 +49,13 @@ namespace Game
             board = new Board();
 
             GameStateController.StateChanged += OnStateChanged;
+            BoardPiece.Moved += OnMoved;
         }
 
         ~GameModel()
         {
             GameStateController.StateChanged -= OnStateChanged;
+            BoardPiece.Moved -= OnMoved;
         }
 
         public void SpawnObjects(List<SpawnableObjectData> spawnables)
@@ -133,6 +136,16 @@ namespace Game
             if (id != CurrentCursorKey) return;
             
             board.OnClick();
+        }
+        
+        private void OnMoved(int objId)
+        {
+            Moves++;
+            
+            if (Moves < MoveQty) return;
+            
+            Moves = 0;
+            turn = turn == 1 ? 2 : 1;
         }
         
         public void UpdateInput(PlayerInput cursor)

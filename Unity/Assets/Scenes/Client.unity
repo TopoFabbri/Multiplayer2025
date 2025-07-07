@@ -540,6 +540,7 @@ MonoBehaviour:
   pingText: {fileID: 126351059}
   matchMakerText: {fileID: 1526544164}
   gameText: {fileID: 1853464407}
+  movesText: {fileID: 1566864339}
 --- !u!1 &240982480
 GameObject:
   m_ObjectHideFlags: 0
@@ -1550,7 +1551,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 38
+  orthographic size: 34
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1575,7 +1576,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 30, y: 30, z: 30}
+  m_LocalPosition: {x: 30, y: 30, z: 32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1677,7 +1678,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2104961920}
   m_HandleRect: {fileID: 2104961919}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2053,7 +2054,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00016440082}
+  m_AnchoredPosition: {x: 0, y: -0.000074864976}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1286009183

@@ -17,10 +17,13 @@ namespace Multiplayer.Network.Messages
 
     public class NetSpawnable : Message<SpawnRequest>
     {
+        private static int _ids;
+        
         public NetSpawnable(SpawnRequest data) : base(data)
         {
             metadata.Type = MessageType.SpawnRequest;
-            metadata.Flags = Flags.Important;
+            metadata.Flags = Flags.Important | Flags.Checksum | Flags.Sortable;
+            metadata.MsgId = _ids++;
         }
 
         public NetSpawnable(byte[] data) : base(data)

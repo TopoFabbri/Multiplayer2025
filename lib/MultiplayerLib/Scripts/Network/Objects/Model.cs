@@ -3,17 +3,18 @@ using System.Net;
 using Multiplayer.Network.Messages;
 using Multiplayer.Network.Messages.Primitives;
 using Multiplayer.Reflection;
+using Multiplayer.Utils;
 
 namespace Multiplayer.Network.Objects
 {
     public class Model
     {
         private readonly List<int> nodesPath = new();
-        
+
         public Model()
         {
             MessageHandler.TryAddHandler(MessageType.Action, AddIncomingRpc);
-            
+
             MessageHandler.TryAddHandler(MessageType.Bool, AddIncomingData);
             MessageHandler.TryAddHandler(MessageType.Byte, AddIncomingData);
             MessageHandler.TryAddHandler(MessageType.Char, AddIncomingData);
@@ -31,7 +32,7 @@ namespace Multiplayer.Network.Objects
         ~Model()
         {
             MessageHandler.TryRemoveHandler(MessageType.Action, AddIncomingRpc);
-            
+
             MessageHandler.TryRemoveHandler(MessageType.Bool, AddIncomingData);
             MessageHandler.TryRemoveHandler(MessageType.Byte, AddIncomingData);
             MessageHandler.TryRemoveHandler(MessageType.Char, AddIncomingData);
@@ -45,7 +46,7 @@ namespace Multiplayer.Network.Objects
             MessageHandler.TryRemoveHandler(MessageType.ULong, AddIncomingData);
             MessageHandler.TryRemoveHandler(MessageType.UShort, AddIncomingData);
         }
-        
+
         public virtual void Update()
         {
             nodesPath.Clear();
@@ -55,7 +56,15 @@ namespace Multiplayer.Network.Objects
                 MessageSender.Send(Synchronizer.DequeueDirty());
 
             while (Synchronizer.HasRpc())
-                MessageSender.Send(Synchronizer.DequeueRpc());
+            {
+                byte[] data = Synchronizer.DequeueRpc();
+                ActionData action = new NetAction(data).Deserialized();
+
+                Log.Write("Sending RPC: " + action.action + " from: " + string.Join("-", action.node.Path));
+                Log.NewLine();
+
+                MessageSender.Send(data);
+            }
         }
 
         private static void AddIncomingData(byte[] data, IPEndPoint ip)
@@ -68,7 +77,10 @@ namespace Multiplayer.Network.Objects
         private static void AddIncomingRpc(byte[] data, IPEndPoint ip)
         {
             ActionData actionData = new NetAction(data).Deserialized();
-            
+
+            Log.Write("Received RPC: " + actionData.action);
+            Log.NewLine();
+
             Synchronizer.AddIncomingRpc(actionData);
         }
     }
