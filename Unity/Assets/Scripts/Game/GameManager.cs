@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Net;
-using Multiplayer.AuthoritativeServer;
 using Multiplayer.Network;
 using Multiplayer.Network.Messages;
 using Multiplayer.Reflection;
@@ -13,7 +11,6 @@ namespace Game
     {
         [Sync] protected GameModel gameModel;
         
-        Dictionary<int, PlayerInput> playerInputs = new();
         protected NetworkManager networkManager;
 
         protected override void Awake()

@@ -1,8 +1,10 @@
+using Multiplayer.Reflection;
+
 namespace Objects
 {
     public class TowerM : BoardPiece, IDamageable
     {
-        public int Life { get; set; }
+        [field: Sync] public int Life { get; set; } = 100;
 
         ~TowerM()
         {
