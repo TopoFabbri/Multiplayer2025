@@ -131,3 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81715b813eda43399b98225a887c83c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  faction1Material: {fileID: 2100000, guid: 6833b9f5f7b93c041b9dce290bf4d75d, type: 2}
+  faction2Material: {fileID: 2100000, guid: 9bcc0875211b9e1478adbe792a191555, type: 2}
+  meshRenderer: {fileID: 195611100092733025}

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0bc2e6be44fe4a3abfdd23b6575c0c5a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - faction1Material: {fileID: 2100000, guid: 6833b9f5f7b93c041b9dce290bf4d75d, type: 2}
+  - faction2Material: {fileID: 2100000, guid: 9bcc0875211b9e1478adbe792a191555, type: 2}
+  - meshRenderer: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -2021,7 +2021,7 @@ MonoBehaviour:
   objectSpawner: {fileID: 1320282976}
   clientNetworkScreen: {fileID: 294039877}
   chatScreen: {fileID: 1130635392}
-  authoritativeClient: 0
+  authoritativeClient: 1
 --- !u!1 &1253435171
 GameObject:
   m_ObjectHideFlags: 0
