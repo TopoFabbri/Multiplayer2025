@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "RJwRgcpu3Ow=",
+  "dgSpecHash": "691ZJTVTrW0=",
   "success": true,
-  "projectFilePath": "D:\\UnityProjects\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
+  "projectFilePath": "C:\\Users\\Aula 2\\Downloads\\Multiplayer2025\\lib\\MultiplayerLib\\MultiplayerLib.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Administrator\\.nuget\\packages\\lib.harmony\\2.3.6\\lib.harmony.2.3.6.nupkg.sha512",
-    "C:\\Users\\Administrator\\.nuget\\packages\\lib.harmony.ref\\2.3.6\\lib.harmony.ref.2.3.6.nupkg.sha512",
-    "C:\\Users\\Administrator\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512"
+    "C:\\Users\\Aula 2\\.nuget\\packages\\lib.harmony\\2.3.6\\lib.harmony.2.3.6.nupkg.sha512",
+    "C:\\Users\\Aula 2\\.nuget\\packages\\lib.harmony.ref\\2.3.6\\lib.harmony.ref.2.3.6.nupkg.sha512",
+    "C:\\Users\\Aula 2\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512"
   ],
   "logs": []
 }

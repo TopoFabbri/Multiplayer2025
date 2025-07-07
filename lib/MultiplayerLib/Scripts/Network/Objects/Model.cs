@@ -50,7 +50,7 @@ namespace Multiplayer.Network.Objects
         public virtual void Update()
         {
             nodesPath.Clear();
-            Synchronizer.Synchronize(this, nodesPath);
+            Synchronizer.Synchronize(this, nodesPath, 0, -1);
 
             while (Synchronizer.HasDirty())
                 MessageSender.Send(Synchronizer.DequeueDirty());

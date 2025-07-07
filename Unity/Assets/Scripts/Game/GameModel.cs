@@ -20,7 +20,7 @@ namespace Game
 
         [Sync] private readonly Dictionary<int, ObjectM> objects = new();
         [Sync] private readonly Dictionary<int, Cursor> playerInputs = new();
-
+        
         private int turn = 1;
         public static int Moves { get; private set; }
         
