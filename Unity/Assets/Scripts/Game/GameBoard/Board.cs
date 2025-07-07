@@ -38,6 +38,9 @@ namespace Game.GameBoard
 
         public void OnMousePos((int x, int y) pos)
         {
+            if (GetTile(selected) == null)
+                selected = null;
+
             SetMouseGameState();
 
             if (pos.x < 0 || pos.x >= width || pos.y < 0 || pos.y >= height)
@@ -56,7 +59,7 @@ namespace Game.GameBoard
         {
             BoardPiece selectedPiece = GetTile(selected);
             BoardPiece hoveredPiece = GetTile(cursor);
-            
+
             if (selectedPiece != null && cursor != null)
             {
                 GameStateText = "Move " + selectedPiece.Name + " " + selectedPiece.ObjectId + " to " + cursor.X + ", " + cursor.Y;
@@ -74,31 +77,44 @@ namespace Game.GameBoard
             }
         }
 
-        public void OnClick()
+        public void OnClick(Cursor clickedCursor)
         {
             if (selected == null)
-                Select();
+                Select(clickedCursor);
             else
                 Move();
 
             SetMouseGameState();
         }
 
-        private void Select()
+        private void Select(Cursor clickedCursor)
         {
             if (cursor == null)
+            {
+                UnityEngine.Debug.Log("Cursor is null, cannot select.");
                 return;
+            }
 
             BoardPiece piece = GetTile(cursor);
 
             if (piece == null)
+            {
+                UnityEngine.Debug.Log($"No piece found at cursor position ({cursor.X}, {cursor.Y}), cannot select.");
                 return;
+            }
 
             if (!piece.CanMove)
+            {
+                UnityEngine.Debug.Log($"Piece {piece.Name} (ID: {piece.ObjectId}) at ({piece.x}, {piece.y}) cannot move, cannot select.");
                 return;
+            }
 
-            if (piece.Owner != NetworkManager.Instance.Id && NetworkManager.Instance.Id != 0)
+            if (piece.Owner != clickedCursor.Owner)
+            {
+                UnityEngine.Debug.Log(
+                    $"Piece {piece.Name} (ID: {piece.ObjectId}) at ({piece.x}, {piece.y}) belongs to owner {piece.Owner}, but clicked cursor belongs to owner {clickedCursor.Owner}. Cannot select.");
                 return;
+            }
 
             selected = cursor;
         }
@@ -109,10 +125,10 @@ namespace Game.GameBoard
                 return;
 
             BoardPiece selectedPiece = GetTile(selected);
-            
+
             if (selectedPiece == null)
                 return;
-            
+
             if (!selectedPiece.MoveTo(cursor)) return;
 
             selected = null;
@@ -144,7 +160,7 @@ namespace Game.GameBoard
                 int y;
 
                 int attempts = 0;
-                
+
                 do
                 {
                     if (ownerIsP1)
@@ -160,7 +176,7 @@ namespace Game.GameBoard
 
                     boardPiece.PlaceAt(x, y);
                 } while (GetTile(new Tile(x, y)) != null && attempts++ < 100);
-                
+
                 if (attempts >= 100)
                 {
                     UnityEngine.Debug.LogError("Failed to place object after 100 attempts.");
@@ -177,7 +193,7 @@ namespace Game.GameBoard
 
             if (tile == null)
                 return null;
-            
+
             foreach (BoardPiece boardPiece in objects)
             {
                 if (boardPiece.x != tile.X || boardPiece.y != tile.Y) continue;

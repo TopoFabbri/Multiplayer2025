@@ -135,7 +135,7 @@ namespace Game
         {
             if (id != CurrentCursorKey) return;
             
-            board.OnClick();
+            board.OnClick(playerInputs[id]);
         }
         
         private void OnMoved(int objId)
