@@ -14,6 +14,11 @@ namespace Objects
             Model = model;
         }
 
+        protected virtual void Update()
+        {
+            gameObject.SetActive(Model.IsActive);
+        }
+
         private void LateUpdate()
         {
             transform.position = new Vector3(Model.PosX, Model.PosY, Model.PosZ) * 2f;

@@ -24,6 +24,11 @@ namespace Objects
             int damage = (int)(Life * 0.2 + 5 + Random.Range(2, 8));
             
             Life -= damage;
+
+            if (Life > 0) return;
+            
+            Life = 0;
+            isActive = false;
         }
         
         public bool MoveTo(Tile tile)

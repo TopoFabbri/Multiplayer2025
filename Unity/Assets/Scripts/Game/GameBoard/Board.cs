@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Multiplayer.Network;
 using Objects;
@@ -19,6 +20,8 @@ namespace Game.GameBoard
         private Tile p2Corner;
 
         public static string GameStateText { get; private set; }
+
+        public event Action Attacked;
 
         public Board()
         {
@@ -124,20 +127,20 @@ namespace Game.GameBoard
             BoardPiece hoveredPiece = GetTile(cursor);
             BoardPiece selectedPiece = GetTile(selected);
             
-            if (hoveredPiece != null && selectedPiece != null)
+            if (selectedPiece == null)
+                return;
+            
+            if (hoveredPiece != null)
             {
                 if (hoveredPiece.Owner == selectedPiece.Owner)
                     return;
                 
                 hoveredPiece.ReceiveDamage();
                 selected = null;
+                Attacked?.Invoke();
                 
                 return;
             }
-
-
-            if (selectedPiece == null)
-                return;
 
             if (!selectedPiece.MoveTo(cursor)) return;
 
@@ -209,6 +212,13 @@ namespace Game.GameBoard
                 if (boardPiece.x != tile.X || boardPiece.y != tile.Y) continue;
 
                 piece = boardPiece;
+                
+                if (!piece.IsActive)
+                {
+                    piece = null;
+                    continue;
+                }
+                
                 break;
             }
 

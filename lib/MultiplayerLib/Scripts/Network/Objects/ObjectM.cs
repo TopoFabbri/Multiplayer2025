@@ -9,10 +9,12 @@ namespace Multiplayer.Network.Objects
         [Sync] protected float posZ = 0f;
 
         [Sync] protected int objectId;
+        [Sync] protected bool isActive = true;
 
         public float PosX => posX;
         public float PosY => posY;
         public float PosZ => posZ;
+        public bool IsActive => isActive;
 
         public int ObjectId => objectId;
 

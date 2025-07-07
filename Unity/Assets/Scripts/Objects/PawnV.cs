@@ -23,8 +23,10 @@ namespace Objects
             mainCamera = Camera.main;
         }
 
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
+            
             healthBar.fillAmount = ((PawnM)Model).Life / (float)initLife;
             healthBarTransform.rotation = Quaternion.LookRotation(mainCamera.transform.forward);
         }

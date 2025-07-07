@@ -6,9 +6,7 @@ using Multiplayer.Network.Messages;
 using Multiplayer.Network.Objects;
 using Multiplayer.NetworkFactory;
 using Multiplayer.Reflection;
-using Multiplayer.Utils;
 using Objects;
-using UnityEngine;
 using Cursor = Objects.Cursor;
 
 namespace Game
@@ -50,12 +48,14 @@ namespace Game
 
             GameStateController.StateChanged += OnStateChanged;
             BoardPiece.Moved += OnMoved;
+            board.Attacked += OnAttacked;
         }
 
         ~GameModel()
         {
             GameStateController.StateChanged -= OnStateChanged;
             BoardPiece.Moved -= OnMoved;
+            board.Attacked -= OnAttacked;
         }
 
         public void SpawnObjects(List<SpawnableObjectData> spawnables)
@@ -144,6 +144,16 @@ namespace Game
             
             if (Moves < MoveQty) return;
             
+            ChangeTurn();
+        }
+
+        private void OnAttacked()
+        {
+            ChangeTurn();
+        }
+        
+        public void ChangeTurn()
+        {
             Moves = 0;
             turn = turn == 1 ? 2 : 1;
         }

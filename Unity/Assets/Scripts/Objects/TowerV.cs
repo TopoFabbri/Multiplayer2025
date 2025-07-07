@@ -23,8 +23,10 @@ namespace Objects
             initLife = ((TowerM)model).Life;
         }
 
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
+            
             healthBar.fillAmount = ((TowerM)Model).Life / (float)initLife;
             healthBarTransform.rotation = Quaternion.LookRotation(mainCamera.transform.forward);
         }
