@@ -1,16 +1,19 @@
-using Multiplayer.Reflection;
-
 namespace Objects
 {
-    public class TowerM : BoardPiece, IDamageable
+    public class TowerM : BoardPiece
     {
-        [field: Sync] public int Life { get; set; } = 100;
-
         ~TowerM()
         {
         }
 
         public override bool CanMove { get; protected set; } = false;
         public override string Name { get; protected set; } = "Tower";
+
+        public override void Initialize(int ownerId, int objectId)
+        {
+            base.Initialize(ownerId, objectId);
+
+            Life = 100;
+        }
     }
 }

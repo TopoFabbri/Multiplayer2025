@@ -1,12 +1,11 @@
-namespace Objects
+using UnityEngine;
+
+namespace Interfaces
 {
     public interface IDamageable
     {
         int Life { get; set; }
 
-        void ReceiveDamage(int damage)
-        {
-            Life -= damage;
-        }
+        void ReceiveDamage();
     }
 }

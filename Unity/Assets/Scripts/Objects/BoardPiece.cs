@@ -1,20 +1,30 @@
 using System;
 using Game.GameBoard;
+using Interfaces;
 using Multiplayer.Network.Objects;
 using Multiplayer.Reflection;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Objects
 {
-    public abstract class BoardPiece : ObjectM
+    public abstract class BoardPiece : ObjectM, IDamageable
     {
         public abstract bool CanMove { get; protected set; }
         public abstract string Name { get; protected set; }
+        [field: Sync] public int Life { get; set; }
 
         [Sync] public int x;
         [Sync] public int y;
 
         public static event Action<int> Moved;
+        
+        public void ReceiveDamage()
+        {
+            int damage = (int)(Life * 0.2 + 5 + Random.Range(2, 8));
+            
+            Life -= damage;
+        }
         
         public bool MoveTo(Tile tile)
         {

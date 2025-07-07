@@ -121,10 +121,20 @@ namespace Game.GameBoard
 
         private void Move()
         {
-            if (GetTile(cursor) != null)
-                return;
-
+            BoardPiece hoveredPiece = GetTile(cursor);
             BoardPiece selectedPiece = GetTile(selected);
+            
+            if (hoveredPiece != null && selectedPiece != null)
+            {
+                if (hoveredPiece.Owner == selectedPiece.Owner)
+                    return;
+                
+                hoveredPiece.ReceiveDamage();
+                selected = null;
+                
+                return;
+            }
+
 
             if (selectedPiece == null)
                 return;
